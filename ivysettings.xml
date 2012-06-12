@@ -1,0 +1,6 @@
+<ivysettings>
+  <settings defaultResolver="main"/>
+  <resolvers>
+    <ibiblio name="main" m2compatible="true"/>
+  </resolvers>
+</ivysettings>

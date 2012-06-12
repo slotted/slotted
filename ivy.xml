@@ -1,0 +1,16 @@
+<ivy-module version="2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd"
+        >
+
+    <info organisation="org.npc" module="Slotted"/>
+
+    <configurations>
+        <conf name="test" description="used for compiling and running tests"/>
+    </configurations>
+
+    <dependencies>
+        <!--test dependencies-->
+        <dependency org="junit" name="junit" rev="4.10" conf="test->default"/>
+        <dependency org="org.powermock" name="powermock-api-mockito" rev="1.4.10" conf="test->default"/>
+    </dependencies>
+</ivy-module>

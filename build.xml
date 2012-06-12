@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Test" xmlns:ivy="antlib:org.apache.ivy.ant" default="package" basedir=".">
+    <!--         App specifics              -->
+    <property name="gwt.modules" value="org.npc.slotted.Slotted"/>
+
+    <!--         Install Versions           -->
+    <property name="ivy.install.version" value="2.1.0-rc2" />
+    <property name="gwt.install.version" value="2.4.0" />
+    <property name="appengine.install.version" value="1.6.6" />
+
+    <!--         Ivy Properties           -->
+    <property name="ivy.home" value="${user.home}/.ant" />
+    <property name="ivy.jar.dir" value="${ivy.home}/lib" />
+    <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" />
+    <property name="ivylib.dir" location="ivylib"/>
+
+    <!--         Library Properties           -->
+    <property name="java.lib.home" value="../javalib" />
+
+
+    <taskdef resource="org/apache/ivy/ant/antlib.xml"
+             uri="antlib:org.apache.ivy.ant" classpath="${ivy.jar.dir}/ivy.jar"/>
+
+    <target name="download-ivy" unless="ivy.downloaded">
+        <mkdir dir="${ivy.jar.dir}"/>
+
+        <get src="http://repo2.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar"
+             dest="${ivy.jar.file}" usetimestamp="true"/>
+    </target>
+
+    <target name="ivy-settings">
+        <ivy:settings file="ivysettings.xml" />
+    </target>
+
+    <target name="ivy-resolve" depends="install, ivy-settings" description="Retrieve dependencies with Apache Ivy" >
+        <ivy:retrieve pattern="ivylib/[conf]/[artifact].[ext]" />
+    </target>
+
+    <target name="ivy-clean" description="Clear the Apache Ivy cache" depends="ivy-settings">
+        <delete includeemptydirs="true">
+            <fileset dir="${ivylib.dir}" includes="**/*"/>
+        </delete>
+        <ivy:cleancache />
+    </target>
+
+    <target name="download-gwt" unless="gwt.downloaded">
+        <get src="http://google-web-toolkit.googlecode.com/files/gwt-${gwt.install.version}.zip"
+             dest="${java.lib.home}" usetimestamp="true" verbose="true" skipexisting="true"/>
+
+        <unzip dest="${java.lib.home}">
+            <fileset dir="${java.lib.home}">
+                <include name="gwt-${gwt.install.version}.zip"/>
+            </fileset>
+        </unzip>
+
+        <delete file="${java.lib.home}/gwt-${gwt.install.version}.zip"/>
+    </target>
+
+    <target name="install" description="Installs all the needed files to build and run">
+
+        <mkdir dir="${ivy.jar.dir}"/>
+
+        <available file="${ivy.jar.file}" type="file" property="ivy.downloaded"/>
+        <antcall target="download-ivy"/>
+
+        <mkdir dir="${java.lib.home}"/>
+
+        <available file="${java.lib.home}/gwt-${gwt.install.version}" type="dir" property="gwt.downloaded"/>
+        <antcall target="download-gwt"/>
+
+        <available file="${java.lib.home}/appengine-java-sdk-${appengine.install.version}" type="dir"
+                   property="appengine.downloaded"/>
+    </target>
+
+
+    <!--         BUILD            -->
+    <target name="properties" description="Setup build dependencies and properties" >
+        <property file="build.properties"/>
+        <property environment="env"/>
+
+        <property name="gwt.sdk" location="${java.lib.home}/gwt-${gwt.install.version}" />
+
+        <property name="src.dir" location="src"/>
+        <property name="lib.dir" location="lib"/>
+
+        <property name="build.dir" location="build"/>
+        <property name="build.classes.dir" value="${build.dir}/classes"/>
+        <property name="build.gwt.dir" value="${build.dir}/gwt"/>
+        <property name="build.package.dir" value="${build.dir}/package"/>
+
+        <property name="gwt.modules" value="${gwt.modules}"/>
+        <property name="gwt.args" value=""/>
+    </target>
+
+    <target name="setup" depends="properties, ivy-resolve" description="Setup build dependencies and properties" >
+        <mkdir dir="lib"/>
+
+        <path id="project.class.path">
+            <pathelement location="${build.classes.dir}"/>
+            <pathelement location="${gwt.sdk}/gwt-user.jar"/>
+            <fileset dir="${gwt.sdk}" includes="gwt-dev*.jar"/>
+          </path>
+
+        <path id="tools.class.path">
+            <path refid="project.class.path"/>
+        </path>
+
+    </target>
+
+    <target name="javac" depends="setup" description="Compile java source to bytecode">
+        <mkdir dir="${build.classes.dir}"/>
+        <javac srcdir="${src.dir}" includes="**" encoding="utf-8"
+               destdir="${build.classes.dir}"
+               source="1.5" target="1.5" nowarn="true"
+               debug="true" debuglevel="lines,vars,source">
+            <classpath refid="project.class.path"/>
+        </javac>
+        <copy todir="${build.classes.dir}">
+            <fileset dir="${src.dir}" excludes="**/*.java"/>
+        </copy>
+    </target>
+
+    <target name="gwtc" depends="javac" description="GWT compile to JavaScript (production mode)">
+        <java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler">
+            <classpath>
+                <pathelement location="${src.dir}"/>
+                <path refid="project.class.path"/>
+            </classpath>
+            <!-- add jvmarg -Xss16M or similar if you see a StackOverflowError -->
+            <jvmarg value="-Xmx256M"/>
+            <arg line="-war"/>
+            <arg value="${build.gwt.dir}"/>
+            <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
+            <arg line="${gwt.args}"/>
+            <arg value="${gwt.modules}"/>
+        </java>
+    </target>
+
+    <target name="clean" depends="properties" description="Removes all artifacts from build except ivy artifacts">
+        <delete includeemptydirs="true" quiet="true">
+            <fileset dir="${build.dir}" includes="**/*"/>
+        </delete>
+    </target>
+
+    <target name="package" depends="clean, gwtc">
+        <jar destfile="${build.package.dir}/slotted-0.${next.deploy.number}.jar">
+            <fileset dir="${build.classes.dir}" includes="**/*"/>
+            <fileset dir="${src.dir}" includes="**/*"/>
+        </jar>
+    </target>
+
+    <target name="release" depends="package">
+        <propertyfile file="build.properties">
+            <entry key="next.deploy.number" type="int" operation="+" value="1" pattern="0"/>
+        </propertyfile>
+    </target>
+
+</project>
