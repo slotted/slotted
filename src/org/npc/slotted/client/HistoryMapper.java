@@ -95,6 +95,17 @@ abstract public class HistoryMapper {
         handlingHistory = false;
     }
 
+    //todo javadoc
+    public String createToken(SlottedPlace place, PlaceParameters parameters) {
+        String token = placeToNameMap.get(place.getClass());
+
+        if (parameters != null) {
+            token += parameters.toString();
+        }
+
+        return token;
+    }
+
     public void createToken() {
         if (!handlingHistory) {
             String token = createToken(controller.getRoot());

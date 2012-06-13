@@ -16,6 +16,7 @@
 package org.npc.slotted.client;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
@@ -220,6 +221,20 @@ public class SlottedController {
         }
     }
 
+      //todo javadoc
+    public String createUrl(SlottedPlace newPlace, PlaceParameters parameters) {
+        String url = Document.get().getURL();
+        String[] splitUrl = url.split("#");
+        String token = historyMapper.createToken(newPlace, parameters);
+
+        return splitUrl[0] + "#" + token;
+    }
+
+    //todo javadoc
+    public String createToken(SlottedPlace newPlace, PlaceParameters parameters) {
+        return historyMapper.createToken(newPlace, parameters);
+    }
+
     private void addParents(SlottedPlace newPlace, ArrayList<SlottedPlace> completeNonDefaults) {
         SlottedPlace parent = newPlace;
         while (parent.getSlot() != null && parent.getSlot().getParentPlace() != null) {
@@ -256,5 +271,12 @@ public class SlottedController {
      */
     public PlaceParameters getCurrentParameters() {
         return currentParameters;
+    }
+
+    /**
+     * Returns the EventBus used for all events in the slotted framework.
+     */
+    public EventBus getEventBus() {
+        return eventBus;
     }
 }
