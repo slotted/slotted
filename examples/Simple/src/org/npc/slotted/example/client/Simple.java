@@ -8,8 +8,16 @@ import org.npc.slotted.client.SlottedController;
 import org.npc.slotted.example.client.place.HomePlace;
 
 public class Simple implements EntryPoint {
+    /**
+     * Static access to the SlottedController
+     *
+     * Not Recommended - instead we recommend using GIN to inject the
+     * SlottedController into the each Activity.
+     */
+    public static SlottedController slottedController;
+
     public void onModuleLoad() {
-        SlottedController controller = new SlottedController(
+        slottedController = new SlottedController(
                 new HomePlace(),
                 new SimpleHistoryMapper(),
                 new SimpleEventBus()
@@ -17,6 +25,6 @@ public class Simple implements EntryPoint {
 
         SimplePanel rootDisplay = new SimplePanel();
         RootPanel.get().add(rootDisplay);
-        controller.setDisplay(rootDisplay);
+        slottedController.setDisplay(rootDisplay);
     }
 }

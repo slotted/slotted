@@ -175,6 +175,13 @@ public class SlottedController {
     }
 
     /**
+     * Same as {@link #goTo(SlottedPlace, PlaceParameters)} creates and empty PlaceParameters.
+     */
+    public void goTo(SlottedPlace newPlace) {
+        goTo(newPlace, new PlaceParameters());
+    }
+
+    /**
      * Same as {@link #goTo(SlottedPlace, PlaceParameters)} except adds the ability to
      * override default places for any of the slots that will be created by the newPlace.
      *
