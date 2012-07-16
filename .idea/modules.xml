@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/examples/GwtActivitiesPlaces/GwtActivitiesPlaces.iml" filepath="$PROJECT_DIR$/examples/GwtActivitiesPlaces/GwtActivitiesPlaces.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Simple/Simple.iml" filepath="$PROJECT_DIR$/Simple/Simple.iml" />
+      <module fileurl="file://$PROJECT_DIR$/slotted.iml" filepath="$PROJECT_DIR$/slotted.iml" />
+    </modules>
+  </component>
+</project>
+
