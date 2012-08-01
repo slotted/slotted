@@ -178,7 +178,11 @@ public class SlottedController {
      * Same as {@link #goTo(SlottedPlace, PlaceParameters)} creates and empty PlaceParameters.
      */
     public void goTo(SlottedPlace newPlace) {
-        goTo(newPlace, new PlaceParameters());
+        if (newPlace instanceof ParamPlace) {
+            goTo(newPlace, ((ParamPlace) newPlace).getPlaceParameters());
+        } else {
+            goTo(newPlace, new PlaceParameters());
+        }
     }
 
     /**
