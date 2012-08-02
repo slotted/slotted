@@ -91,9 +91,11 @@ public class SlottedController {
     private final EventBus eventBus;
     private final HistoryMapper historyMapper;
 
+    private boolean processingGoTo;
     private final Delegate delegate;
     private ActiveSlot root;
     private PlaceParameters currentParameters;
+    private NavigationOverride navigationOverride;
 
     /**
      * Create a new SlottedController with a {@link DefaultDelegate}. The
@@ -147,6 +149,10 @@ public class SlottedController {
         root = new ActiveSlot(null, rootSlot, eventBus);
 
         History.fireCurrentHistoryState();
+    }
+
+    public void setNavigationOverride(NavigationOverride navigationOverride) {
+        this.navigationOverride = navigationOverride;
     }
 
     /**
@@ -206,11 +212,22 @@ public class SlottedController {
      */
     public void goTo(SlottedPlace newPlace, PlaceParameters parameters,
             SlottedPlace[] nonDefaultPlaces, boolean refreshAll) {
+
+        if (processingGoTo) {
+            throw new IllegalStateException("Can't call goTo() while processing a goTo()");
+        }
+        processingGoTo = true;
+
         currentParameters = parameters;
 
         ArrayList<SlottedPlace> completeNonDefaults = new ArrayList<SlottedPlace>();
         completeNonDefaults.add(newPlace);
         Collections.addAll(completeNonDefaults, nonDefaultPlaces);
+
+        if (navigationOverride != null) {
+            completeNonDefaults = navigationOverride.checkNavigation(completeNonDefaults);
+            newPlace = completeNonDefaults.get(0);
+        }
 
         ActiveSlot slotToUpdate = root.findSlot(newPlace.getSlot());
 
@@ -226,10 +243,13 @@ public class SlottedController {
             if (refreshAll) {
                 slotToUpdate = getRootAddNonDefaults(slotToUpdate, completeNonDefaults);
             }
+
             slotToUpdate.constructAndStart(parameters, completeNonDefaults);
 
             historyMapper.createToken();
         }
+
+        processingGoTo = false;
     }
 
       //todo javadoc
