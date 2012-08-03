@@ -91,7 +91,7 @@ public class SlottedController {
     private final EventBus eventBus;
     private final HistoryMapper historyMapper;
 
-    private boolean processingGoTo;
+    private int goToCount = 0;
     private final Delegate delegate;
     private ActiveSlot root;
     private PlaceParameters currentParameters;
@@ -213,10 +213,9 @@ public class SlottedController {
     public void goTo(SlottedPlace newPlace, PlaceParameters parameters,
             SlottedPlace[] nonDefaultPlaces, boolean refreshAll) {
 
-        if (processingGoTo) {
-            throw new IllegalStateException("Can't call goTo() while processing a goTo()");
+        if (goToCount++ > 10) {
+            throw new IllegalStateException("Goto appears to be in an infinite loop.");
         }
-        processingGoTo = true;
 
         currentParameters = parameters;
 
@@ -249,7 +248,7 @@ public class SlottedController {
             historyMapper.createToken();
         }
 
-        processingGoTo = false;
+        goToCount--;
     }
 
       //todo javadoc
