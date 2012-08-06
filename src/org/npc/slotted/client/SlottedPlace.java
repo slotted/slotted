@@ -44,4 +44,8 @@ abstract public class SlottedPlace {
     public int hashCode() {
         return getClass().hashCode();
     }
+
+    @Override public String toString() {
+        return this.getClass().getName().substring(this.getClass().getName().lastIndexOf(".")+1);
+    }
 }

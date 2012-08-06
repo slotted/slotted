@@ -224,7 +224,7 @@ public class SlottedController {
         Collections.addAll(completeNonDefaults, nonDefaultPlaces);
 
         if (navigationOverride != null) {
-            completeNonDefaults = navigationOverride.checkNavigation(completeNonDefaults);
+            completeNonDefaults = navigationOverride.checkOverrides(completeNonDefaults);
             newPlace = completeNonDefaults.get(0);
         }
 
