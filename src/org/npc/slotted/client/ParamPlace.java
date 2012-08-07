@@ -25,4 +25,8 @@ abstract public class ParamPlace extends SlottedPlace {
     public PlaceParameters getPlaceParameters() {
         return placeParameters;
     }
+
+    public void setPlaceParameters(PlaceParameters placeParameters) {
+        this.placeParameters = placeParameters;
+    }
 }

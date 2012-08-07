@@ -72,15 +72,19 @@ abstract public class HistoryMapper {
         if (token == null || token.trim().isEmpty()) {
             controller.goToDefaultPlace();
         } else {
+            PlaceParameters parameters = new PlaceParameters();
+
             String[] split = token.split("\\?");
             String[] placeNames = split[0].split("/");
 
             SlottedPlace[] places = new SlottedPlace[placeNames.length];
             for (int i = 0; i < places.length; i++) {
                 places[i] = nameToPlaceMap.get(placeNames[i]);
+                if (places[i] instanceof ParamPlace) {
+                    ((ParamPlace)places[i]).setPlaceParameters(parameters);
+                }
             }
 
-            PlaceParameters parameters = new PlaceParameters();
             if (split.length > 1) {
                 String[] paramPairs = split[1].split("&");
 
@@ -115,20 +119,25 @@ abstract public class HistoryMapper {
     }
 
     public String createToken(ActiveSlot activeSlot) {
-        String token = placeToNameMap.get(activeSlot.getPlace().getClass());
-        if (token == null) {
-            throw new IllegalStateException("Place not registered:" + activeSlot.getPlace().getClass().getName());
-        }
-
-        for (ActiveSlot child: activeSlot.getChildren()) {
-            token += "/" + createToken(child);
-        }
+        String token = createPageList(activeSlot);
 
         PlaceParameters parameters = controller.getCurrentParameters();
         if (parameters != null) {
             token += parameters.toString();
         }
 
+        return token;
+    }
+
+    private String createPageList(ActiveSlot activeSlot) {
+        String token = placeToNameMap.get(activeSlot.getPlace().getClass());
+        if (token == null) {
+            throw new IllegalStateException("Place not registered:" + activeSlot.getPlace().getClass().getName());
+        }
+
+        for (ActiveSlot child: activeSlot.getChildren()) {
+            token += "/" + createPageList(child);
+        }
         return token;
     }
 }
