@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="Test" xmlns:ivy="antlib:org.apache.ivy.ant" default="package" basedir=".">
+<project name="Slotted" xmlns:ivy="antlib:org.apache.ivy.ant" default="package" basedir=".">
     <!--         App specifics              -->
     <property name="gwt.modules" value="org.npc.slotted.Slotted"/>
 
