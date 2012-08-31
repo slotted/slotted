@@ -15,7 +15,7 @@ public class NestedPlace extends SlottedPlace {
     }
 
     @Override public Slot[] getChildSlots() {
-        return new Slot[0];
+        return new Slot[] {SLOT};
     }
 
     @Override
