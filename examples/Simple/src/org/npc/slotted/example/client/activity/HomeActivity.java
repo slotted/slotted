@@ -11,6 +11,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.web.bindery.event.shared.EventBus;
 import org.npc.slotted.client.AbstractSlottedActivity;
 import org.npc.slotted.client.PlaceParameters;
+import org.npc.slotted.client.Slot;
 import org.npc.slotted.client.SlottedController;
 import org.npc.slotted.example.client.Simple;
 import org.npc.slotted.example.client.place.NestedLevelTwoPlace;

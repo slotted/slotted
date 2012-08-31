@@ -18,10 +18,6 @@ package org.npc.slotted.client;
 abstract public class ParamPlace extends SlottedPlace {
     private PlaceParameters placeParameters = new PlaceParameters();
 
-    protected ParamPlace(Slot slot) {
-        super(slot);
-    }
-
     public PlaceParameters getPlaceParameters() {
         return placeParameters;
     }

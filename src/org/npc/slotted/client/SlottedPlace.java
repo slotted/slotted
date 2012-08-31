@@ -16,15 +16,8 @@
 package org.npc.slotted.client;
 
 abstract public class SlottedPlace {
-    private Slot slot;
-
-    protected SlottedPlace(Slot slot) {
-        this.slot = slot;
-    }
-
-    public Slot getSlot() {
-        return slot;
-    }
+    abstract public Slot getParentSlot();
+    abstract public Slot[] getChildSlots();
 
     abstract public SlottedActivity getActivity();
 

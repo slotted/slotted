@@ -30,7 +30,11 @@ abstract public class AbstractSlottedActivity implements SlottedActivity {
         refresh(panel, params, eventBus);
     }
 
-    @Override public Slot[] getChildSlots() {
-        return null;
+    @Override public void setChildSlotDisplay(Slot slot) {
+        throw new UnsupportedOperationException("No slots defined for activity:" + this);
+    }
+
+    @Override public String toString() {
+        return this.getClass().getName().substring(this.getClass().getName().lastIndexOf(".")+1);
     }
 }

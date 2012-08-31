@@ -52,6 +52,6 @@ public interface SlottedActivity {
 
     void refresh(AcceptsOneWidget panel, PlaceParameters parameters, EventBus eventBus);
 
-    Slot[] getChildSlots();
+    void setChildSlotDisplay(Slot slot);
 
 }

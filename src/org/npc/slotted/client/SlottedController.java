@@ -228,7 +228,7 @@ public class SlottedController {
             newPlace = completeNonDefaults.get(0);
         }
 
-        ActiveSlot slotToUpdate = root.findSlot(newPlace.getSlot());
+        ActiveSlot slotToUpdate = root.findSlot(newPlace.getParentSlot());
 
         if (slotToUpdate == null) {
             addParents(newPlace, completeNonDefaults);
@@ -267,8 +267,8 @@ public class SlottedController {
 
     private void addParents(SlottedPlace newPlace, ArrayList<SlottedPlace> completeNonDefaults) {
         SlottedPlace parent = newPlace;
-        while (parent.getSlot() != null && parent.getSlot().getParentPlace() != null) {
-            parent = parent.getSlot().getParentPlace();
+        while (parent.getParentSlot() != null && parent.getParentSlot().getParentPlace() != null) {
+            parent = parent.getParentSlot().getParentPlace();
             completeNonDefaults.add(parent);
         }
     }

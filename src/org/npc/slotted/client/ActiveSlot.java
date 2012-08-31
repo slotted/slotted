@@ -121,12 +121,12 @@ public class ActiveSlot {
 
     private SlottedPlace getPlace(Iterable<SlottedPlace> nonDefaultPlaces) {
         for (SlottedPlace place: nonDefaultPlaces) {
-            boolean isRootPlace = place.getSlot() == null || place.getSlot() instanceof RootSlotImpl;
+            boolean isRootPlace = place.getParentSlot() == null || place.getParentSlot() instanceof RootSlotImpl;
             boolean isRoot = slot.getParentPlace() == null;
             if (isRootPlace && isRoot) {
                 return place;
             }
-            if (slot.equals(place.getSlot())) {
+            if (slot.equals(place.getParentSlot())) {
                 return place;
             }
         }
@@ -136,9 +136,10 @@ public class ActiveSlot {
     private void createChildren() {
         children = new ArrayList<ActiveSlot>();
         if (activity != null) {
-            Slot[] childSlots = activity.getChildSlots();
+            Slot[] childSlots = place.getChildSlots();
             if (childSlots != null ) {
                 for (Slot slot: childSlots) {
+                    activity.setChildSlotDisplay(slot);
                     if (slot.getDisplay() == null || slot.getParentPlace() == null ||  slot.getDefaultPlace() == null) {
                         //todo better error message
                         throw new IllegalStateException("Slot must have ParentPlace, DefaultPlace, and Display");

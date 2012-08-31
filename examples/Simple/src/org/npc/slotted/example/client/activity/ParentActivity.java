@@ -12,7 +12,7 @@ import org.npc.slotted.example.client.place.NestedPlace;
 import org.npc.slotted.example.client.place.ParentPlace;
 
 public class ParentActivity extends AbstractSlottedActivity {
-    public static final Slot SLOT = new Slot(new ParentPlace(), new NestedPlace());
+    private SimplePanel slotPNL;
 
     /**
      * Invoked by the SlottedController to refresh an Activity.  This is also called when
@@ -25,12 +25,11 @@ public class ParentActivity extends AbstractSlottedActivity {
 
         mainPNL.add(new HTML("Parent View"));
 
-        SimplePanel slotPNL = new SimplePanel();
-        SLOT.setDisplay(slotPNL);
+        slotPNL = new SimplePanel();
         mainPNL.add(slotPNL);
     }
 
-    @Override public Slot[] getChildSlots() {
-        return new Slot[] {SLOT};
+    @Override public void setChildSlotDisplay(Slot slot) {
+        slot.setDisplay(slotPNL);
     }
 }
