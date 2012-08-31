@@ -4,6 +4,7 @@
 
     <inherits name='com.google.gwt.user.User'/>
     <inherits name="org.npc.slotted.Slotted"/>
+    <inherits name="com.google.gwt.activity.Activity"/>
 
     <entry-point class='org.npc.slotted.example.client.Simple'/>
 

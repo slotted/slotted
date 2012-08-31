@@ -1,5 +1,6 @@
 package org.npc.slotted.example.client.place;
 
+import com.google.gwt.activity.shared.Activity;
 import org.npc.slotted.client.Slot;
 import org.npc.slotted.client.SlottedActivity;
 import org.npc.slotted.client.SlottedController;
@@ -18,7 +19,7 @@ public class NestedLevelTwoPlace extends SlottedPlace {
     }
 
     @Override
-    public SlottedActivity getActivity() {
+    public Activity getActivity() {
         return new NestedLevelTwoActivity();
     }
 }

@@ -5,15 +5,15 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.web.bindery.event.shared.EventBus;
-import org.npc.slotted.client.AbstractSlottedActivity;
 import org.npc.slotted.client.ActiveSlot;
 import org.npc.slotted.client.PlaceParameters;
 import org.npc.slotted.client.Slot;
+import org.npc.slotted.client.SlottedActivity;
 import org.npc.slotted.example.client.place.NestedLevelTwoPlace;
 import org.npc.slotted.example.client.place.NestedPlace;
 import org.npc.slotted.example.client.place.ParentPlace;
 
-public class NestedActivity extends AbstractSlottedActivity {
+public class NestedActivity extends SlottedActivity {
     private SimplePanel slotPNL;
 
     /**
@@ -21,7 +21,7 @@ public class NestedActivity extends AbstractSlottedActivity {
      * an Activity is started and doesn't override start().
      */
     @Override
-    public void refresh(AcceptsOneWidget panel, PlaceParameters parameters, EventBus eventBus) {
+    public void start(AcceptsOneWidget panel) {
         VerticalPanel mainPNL = new VerticalPanel();
         panel.setWidget(mainPNL);
 

@@ -1,18 +1,13 @@
 package org.npc.slotted.example.client.activity;
 
+import com.google.gwt.activity.shared.AbstractActivity;
+import com.google.gwt.activity.shared.Activity;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.web.bindery.event.shared.EventBus;
-import org.npc.slotted.client.AbstractSlottedActivity;
-import org.npc.slotted.client.PlaceParameters;
 
-public class NestedLevelTwoActivity extends AbstractSlottedActivity {
-    /**
-     * Invoked by the SlottedController to refresh an Activity.  This is also called when
-     * an Activity is started and doesn't override start().
-     */
+public class NestedLevelTwoActivity extends AbstractActivity {
     @Override
-    public void refresh(AcceptsOneWidget panel, PlaceParameters parameters, EventBus eventBus) {
+    public void start(AcceptsOneWidget panel, com.google.gwt.event.shared.EventBus eventBus) {
         panel.setWidget(new HTML("Nested Level Two View"));
     }
 }

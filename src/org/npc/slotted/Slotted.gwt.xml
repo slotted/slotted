@@ -3,6 +3,8 @@
 <module>
 
     <inherits name='com.google.gwt.user.User'/>
+    <inherits name="com.google.gwt.place.Place"/>
+    <inherits name="com.google.gwt.activity.Activity"/>
 
     <entry-point class='org.npc.slotted.client.Slotted'/>
 

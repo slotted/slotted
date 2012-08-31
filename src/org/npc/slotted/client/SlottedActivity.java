@@ -15,43 +15,33 @@
  */
 package org.npc.slotted.client;
 
+import com.google.gwt.activity.shared.AbstractActivity;
+import com.google.gwt.activity.shared.Activity;
+import com.google.gwt.place.shared.Place;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.web.bindery.event.shared.EventBus;
 
-public interface SlottedActivity {
+abstract public class SlottedActivity extends AbstractActivity {
 
     /**
-     * Called when the user is trying to navigate away from this activity.
-     *
-     * @return A message to display to the user, e.g. to warn of unsaved work, or
-     *         null to say nothing
+     * Replaces the legacy activity that uses the old legacy EventBus.
      */
-    String mayStop();
+    final public void start(AcceptsOneWidget panel, com.google.gwt.event.shared.EventBus eventBus) {
+        start(panel);
+    }
 
-    /**
-     * Called when the Activity's widget has been removed from view. All event
-     * handlers it registered will have been removed before this method is called.
-     */
-    void onStop();
+    abstract public void start(AcceptsOneWidget panel);
 
-    /**
-     * Called when the Activity should ready its widget for the user. When the
-     * widget is ready (typically after an RPC response has been received),
-     * receiver should present it by calling
-     * {@link AcceptsOneWidget#setWidget} on the given panel.
-     * <p>
-     * Any handlers attached to the provided event bus will be de-registered when
-     * the activity is stopped, so activities will rarely need to hold on to the
-     * {@link com.google.gwt.event.shared.HandlerRegistration HandlerRegistration}
-     * instances returned by {@link EventBus#addHandler}.
-     *
-     * @param panel the panel to display this activity's widget when it is ready
-     * @param eventBus the event bus
-     */
-    void start(AcceptsOneWidget panel, PlaceParameters params, EventBus eventBus);
+    public void setChildSlotDisplay(Slot slot) {
+        throw new UnsupportedOperationException(this + " doesn't support child slots.  Make sure " +
+                "the SlottedActivity overrides setChildSlotDisplay()");
+    }
 
-    void refresh(AcceptsOneWidget panel, PlaceParameters parameters, EventBus eventBus);
 
-    void setChildSlotDisplay(Slot slot);
+    //Todo add all the methods to get the values
 
+
+    @Override public String toString() {
+        return this.getClass().getName().substring(this.getClass().getName().lastIndexOf(".")+1);
+    }
 }

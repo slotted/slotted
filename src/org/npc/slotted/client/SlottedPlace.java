@@ -15,11 +15,13 @@
  */
 package org.npc.slotted.client;
 
+import com.google.gwt.activity.shared.Activity;
+
 abstract public class SlottedPlace {
     abstract public Slot getParentSlot();
     abstract public Slot[] getChildSlots();
 
-    abstract public SlottedActivity getActivity();
+    abstract public Activity getActivity();
 
     @Override
     public boolean equals(Object o) {

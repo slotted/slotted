@@ -15,9 +15,11 @@
  */
 package org.npc.slotted.client;
 
+import com.google.gwt.activity.shared.Activity;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.web.bindery.event.shared.EventBus;
+import com.google.web.bindery.event.shared.ResettableEventBus;
 import org.npc.slotted.client.SlottedController.RootSlotImpl;
 
 import java.util.ArrayList;
@@ -29,9 +31,9 @@ public class ActiveSlot {
      * not the currentActivity.
      */
     private class ProtectedDisplay implements AcceptsOneWidget {
-        private final SlottedActivity activity;
+        private final Activity activity;
 
-        ProtectedDisplay(SlottedActivity activity) {
+        ProtectedDisplay(Activity activity) {
             this.activity = activity;
         }
 
@@ -45,14 +47,14 @@ public class ActiveSlot {
     private ActiveSlot parent;
     private ArrayList<ActiveSlot> children;
     private Slot slot;
-    private EventBus eventBus;
+    private ResettableEventBus resettableEventBus;
     private SlottedPlace place;
-    private SlottedActivity activity;
+    private Activity activity;
 
     public ActiveSlot(ActiveSlot parent, Slot slot, EventBus eventBus) {
         this.parent = parent;
         this.slot = slot;
-        this.eventBus = eventBus;
+        this.resettableEventBus = new ResettableEventBus(eventBus);
         children = new ArrayList<ActiveSlot>();
     }
 
@@ -105,12 +107,12 @@ public class ActiveSlot {
 
     public void constructAndStart(PlaceParameters parameters, Iterable<SlottedPlace> nonDefaultPlaces) {
         SlottedPlace newPlace = getPlace(nonDefaultPlaces);
-        if (newPlace.equals(place)) {
-            activity.refresh(new ProtectedDisplay(activity), parameters, eventBus);
-        } else {
+        if (!newPlace.equals(place)) {
             place = newPlace;
             activity = place.getActivity();
-            activity.start(slot.getDisplay(), parameters, eventBus);
+            com.google.gwt.event.shared.ResettableEventBus legacyBus =
+                    new com.google.gwt.event.shared.ResettableEventBus(resettableEventBus);
+            activity.start(new ProtectedDisplay(activity), legacyBus);
             createChildren();
         }
 
@@ -135,16 +137,17 @@ public class ActiveSlot {
 
     private void createChildren() {
         children = new ArrayList<ActiveSlot>();
-        if (activity != null) {
+        if (activity != null && activity instanceof SlottedActivity) {
+            SlottedActivity slottedActivity = (SlottedActivity) activity;
             Slot[] childSlots = place.getChildSlots();
             if (childSlots != null ) {
                 for (Slot slot: childSlots) {
-                    activity.setChildSlotDisplay(slot);
+                    slottedActivity.setChildSlotDisplay(slot);
                     if (slot.getDisplay() == null || slot.getParentPlace() == null ||  slot.getDefaultPlace() == null) {
                         //todo better error message
                         throw new IllegalStateException("Slot must have ParentPlace, DefaultPlace, and Display");
                     }
-                    ActiveSlot child = new ActiveSlot(this, slot, eventBus);
+                    ActiveSlot child = new ActiveSlot(this, slot, resettableEventBus);
                     children.add(child);
                 }
             }
@@ -165,14 +168,14 @@ public class ActiveSlot {
     }
 
     public EventBus getEventBus() {
-        return eventBus;
+        return resettableEventBus;
     }
 
     public SlottedPlace getPlace() {
         return place;
     }
 
-    public SlottedActivity getActivity() {
+    public Activity getActivity() {
         return activity;
     }
 
