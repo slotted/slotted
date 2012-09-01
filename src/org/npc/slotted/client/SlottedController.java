@@ -15,9 +15,13 @@
  */
 package org.npc.slotted.client;
 
+import com.google.gwt.activity.shared.Activity;
+import com.google.gwt.activity.shared.ActivityMapper;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.place.shared.Place;
+import com.google.gwt.place.shared.PlaceHistoryMapper;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.ClosingEvent;
@@ -87,9 +91,10 @@ public class SlottedController {
 
     private static final Logger log = Logger.getLogger(SlottedController.class.getName());
 
-    private SlottedPlace defaultPlace;
     private final EventBus eventBus;
     private final HistoryMapper historyMapper;
+    private PlaceHistoryMapper legacyHistoryMapper;
+    private ActivityMapper legacyActivityMapper;
 
     private int goToCount = 0;
     private final Delegate delegate;
@@ -103,25 +108,22 @@ public class SlottedController {
      * default implementation can be provided through &lt;replace-with&gt; rules
      * in a {@code .gwt.xml} file.
      *
-     * @param defaultPlace  the place that should be displayed if root slot is defined.
      * @param historyMapper the {@link HistoryMapper}
      * @param eventBus      the {@link EventBus}
      */
-    public SlottedController(SlottedPlace defaultPlace, HistoryMapper historyMapper, EventBus eventBus) {
-        this(defaultPlace, historyMapper, eventBus, (Delegate) GWT.create(DefaultDelegate.class));
+    public SlottedController(HistoryMapper historyMapper, EventBus eventBus) {
+        this(historyMapper, eventBus, (Delegate) GWT.create(DefaultDelegate.class));
     }
 
     /**
      * Create a new SlottedController.
      *
-     * @param defaultPlace  the place that should be displayed if root slot is defined.
      * @param historyMapper the {@link HistoryMapper}
      * @param eventBus      the {@link EventBus}
      * @param delegate      the {@link Delegate} in charge of Window-related events
      */
-    public SlottedController(SlottedPlace defaultPlace, HistoryMapper historyMapper, EventBus eventBus,
+    public SlottedController(HistoryMapper historyMapper, EventBus eventBus,
             Delegate delegate) {
-        this.defaultPlace = defaultPlace;
         this.eventBus = eventBus;
         this.historyMapper = historyMapper;
         historyMapper.setController(this);
@@ -138,13 +140,24 @@ public class SlottedController {
         });
     }
 
+    public void setLegacyMappers(ActivityMapper legacyActivityMapper, PlaceHistoryMapper legacyHistoryMapper,
+            Place defaultPlace)
+    {
+        this.legacyActivityMapper = legacyActivityMapper;
+        this.legacyHistoryMapper = legacyHistoryMapper;
+        historyMapper.setLegacyHistoryMapper(legacyHistoryMapper);
+        if (historyMapper.getDefaultPlace() == null) {
+            historyMapper.registerDefaultPlace(new WrappedPlace(defaultPlace, legacyActivityMapper));
+        }
+    }
+
     /**
      * Sets the widget that displays the root slot content.  This must be set before any content can be displayed.
      *
      * @param display an instance of AcceptsOneWidget
      */
     public void setDisplay(AcceptsOneWidget display) {
-        Slot rootSlot = new RootSlotImpl(defaultPlace);
+        Slot rootSlot = new RootSlotImpl(null);
         rootSlot.setDisplay(display);
         root = new ActiveSlot(null, rootSlot, eventBus);
 
@@ -160,7 +173,14 @@ public class SlottedController {
      * {@link #goTo(SlottedPlace, PlaceParameters)} with the default place.
      */
     protected void goToDefaultPlace() {
-        goTo(defaultPlace, new PlaceParameters(), new SlottedPlace[0], true);
+        historyMapper.goToDefaultPlace();
+    }
+
+    public void goTo(Place place) {
+        if (legacyActivityMapper == null) {
+            throw new IllegalStateException("Must use SlottedPlace unless LegacyActivityMapper is set");
+        }
+        goTo(new WrappedPlace(place, legacyActivityMapper));
     }
 
     /**

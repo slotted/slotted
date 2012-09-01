@@ -18,7 +18,6 @@ public class Simple implements EntryPoint {
 
     public void onModuleLoad() {
         slottedController = new SlottedController(
-                new HomePlace(),
                 new SimpleHistoryMapper(),
                 new SimpleEventBus()
         );

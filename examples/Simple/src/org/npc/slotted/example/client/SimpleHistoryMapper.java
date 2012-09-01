@@ -12,7 +12,7 @@ public class SimpleHistoryMapper extends HistoryMapper {
      */
     @Override
     protected void init() {
-        registerPlace(new HomePlace(), "home");
+        registerDefaultPlace(new HomePlace(), "home");
         registerPlace(new NestedLevelTwoPlace(), "level2");
         registerPlace(new NestedPlace());
         registerPlace(new ParentPlace());

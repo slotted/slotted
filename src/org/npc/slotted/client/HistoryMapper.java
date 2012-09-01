@@ -17,6 +17,8 @@ package org.npc.slotted.client;
 
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.place.shared.Place;
+import com.google.gwt.place.shared.PlaceHistoryMapper;
 import com.google.gwt.user.client.History;
 
 import java.util.HashMap;
@@ -28,7 +30,9 @@ abstract public class HistoryMapper {
 
     private HashMap<String, SlottedPlace> nameToPlaceMap = new HashMap<String, SlottedPlace>();
     private HashMap<Class, String> placeToNameMap = new HashMap<Class, String>();
+    private SlottedPlace defaultPlace;
     private SlottedController controller;
+    private PlaceHistoryMapper legacyHistoryMapper;
     private boolean handlingHistory;
 
     public HistoryMapper() {
@@ -39,6 +43,9 @@ abstract public class HistoryMapper {
         });
 
         init();
+        if (defaultPlace == null) {
+            System.out.println("WARNING: Default place not set.");
+        }
     }
 
     /**
@@ -54,6 +61,30 @@ abstract public class HistoryMapper {
         this.controller = controller;
     }
 
+    public void setLegacyHistoryMapper(PlaceHistoryMapper legacyHistoryMapper) {
+        this.legacyHistoryMapper = legacyHistoryMapper;
+    }
+
+    public SlottedPlace getDefaultPlace() {
+        return defaultPlace;
+    }
+
+    public void registerDefaultPlace(SlottedPlace place) {
+        if (defaultPlace != null) {
+            throw new IllegalStateException("Default place already set.");
+        }
+        defaultPlace = place;
+        registerPlace(place);
+    }
+
+    public void registerDefaultPlace(SlottedPlace place, String name) {
+        if (defaultPlace != null) {
+            throw new IllegalStateException("Default place already set.");
+        }
+        defaultPlace = place;
+        registerPlace(place, name);
+    }
+
     public void registerPlace(SlottedPlace place) {
         String name = place.getClass().getName();
         int index = name.lastIndexOf(".");
@@ -67,35 +98,61 @@ abstract public class HistoryMapper {
         placeToNameMap.put(place.getClass(), name);
     }
 
+    public void goToDefaultPlace() {
+        History.newItem("", true);
+    }
+
     public void handleHistory(String token) {
+        RuntimeException parsingException = null;
         handlingHistory = true;
         if (token == null || token.trim().isEmpty()) {
-            controller.goToDefaultPlace();
+            if (defaultPlace == null) {
+                throw new IllegalStateException("No default place defined.  Make sure that " +
+                        "registerDefaultPlace() is called");
+            }
+            controller.goTo(defaultPlace);
         } else {
-            PlaceParameters parameters = new PlaceParameters();
+            try {
+                PlaceParameters parameters = new PlaceParameters();
 
-            String[] split = token.split("\\?");
-            String[] placeNames = split[0].split("/");
+                String[] split = token.split("\\?");
+                String[] placeNames = split[0].split("/");
 
-            SlottedPlace[] places = new SlottedPlace[placeNames.length];
-            for (int i = 0; i < places.length; i++) {
-                places[i] = nameToPlaceMap.get(placeNames[i]);
-                if (places[i] instanceof ParamPlace) {
-                    ((ParamPlace)places[i]).setPlaceParameters(parameters);
+                SlottedPlace[] places = new SlottedPlace[placeNames.length];
+                for (int i = 0; i < places.length; i++) {
+                    places[i] = nameToPlaceMap.get(placeNames[i]);
+                    if (places[i] == null) {
+                        throw new IllegalStateException("Place not defined:" + placeNames[i]);
+                    }
+                    if (places[i] instanceof ParamPlace) {
+                        ((ParamPlace)places[i]).setPlaceParameters(parameters);
+                    }
                 }
-            }
 
-            if (split.length > 1) {
-                String[] paramPairs = split[1].split("&");
+                if (split.length > 1) {
+                    String[] paramPairs = split[1].split("&");
 
-                for (String pair: paramPairs) {
-                    String[] pairSplit = pair.split("=");
-                    parameters.setParameter(pairSplit[0], pairSplit[1]);
+                    for (String pair: paramPairs) {
+                        String[] pairSplit = pair.split("=");
+                        parameters.setParameter(pairSplit[0], pairSplit[1]);
+                    }
                 }
-            }
 
-            controller.goTo(places[0], parameters, places);
+                controller.goTo(places[0], parameters, places);
+            } catch (RuntimeException e) {
+                parsingException = e;
+            }
         }
+
+        if (parsingException != null) {
+            if (legacyHistoryMapper != null) {
+                Place place = legacyHistoryMapper.getPlace(token);
+                controller.goTo(place);
+            } else {
+                throw parsingException;
+            }
+        }
+
         handlingHistory = false;
     }
 
@@ -119,11 +176,18 @@ abstract public class HistoryMapper {
     }
 
     public String createToken(ActiveSlot activeSlot) {
-        String token = createPageList(activeSlot);
+        String token;
+        if (activeSlot.getPlace() instanceof WrappedPlace) {
+            Place place = ((WrappedPlace) activeSlot.getPlace()).getPlace();
+            token = legacyHistoryMapper.getToken(place);
 
-        PlaceParameters parameters = controller.getCurrentParameters();
-        if (parameters != null) {
-            token += parameters.toString();
+        } else {
+            token = createPageList(activeSlot);
+
+            PlaceParameters parameters = controller.getCurrentParameters();
+            if (parameters != null) {
+                token += parameters.toString();
+            }
         }
 
         return token;
@@ -140,4 +204,5 @@ abstract public class HistoryMapper {
         }
         return token;
     }
+
 }
