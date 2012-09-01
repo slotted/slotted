@@ -29,6 +29,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="gwt-user" level="project" />
+    <orderEntry type="module" module-name="slotted" />
   </component>
 </module>
 

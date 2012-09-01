@@ -9,6 +9,7 @@ import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.place.shared.PlaceHistoryHandler;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
+import org.npc.slotted.client.SlottedController;
 
 public class HelloMVP implements EntryPoint {
     private Place defaultPlace = new HelloPlace("World!");
@@ -17,20 +18,15 @@ public class HelloMVP implements EntryPoint {
     public void onModuleLoad() {
         ClientFactory clientFactory = GWT.create(ClientFactory.class);
         EventBus eventBus = clientFactory.getEventBus();
-        PlaceController placeController = clientFactory.getPlaceController();
+        SlottedController slottedController = clientFactory.getPlaceController();
 
         // Start ActivityManager for the main widget with our ActivityMapper
         ActivityMapper activityMapper = new AppActivityMapper(clientFactory);
-        ActivityManager activityManager = new ActivityManager(activityMapper, eventBus);
-        activityManager.setDisplay(appWidget);
-
-        // Start PlaceHistoryHandler with our PlaceHistoryMapper
-        AppPlaceHistoryMapper historyMapper= GWT.create(AppPlaceHistoryMapper.class);
-        PlaceHistoryHandler historyHandler = new PlaceHistoryHandler(historyMapper);
-        historyHandler.register(placeController, eventBus, defaultPlace);
+        AppPlaceHistoryMapper historyMapper = GWT.create(AppPlaceHistoryMapper.class);
+        slottedController.setLegacyMappers(activityMapper, historyMapper, defaultPlace);
 
         RootPanel.get().add(appWidget);
         // Goes to the place represented on URL else default place
-        historyHandler.handleCurrentHistory();
+        slottedController.setDisplay(appWidget);
     }
 }

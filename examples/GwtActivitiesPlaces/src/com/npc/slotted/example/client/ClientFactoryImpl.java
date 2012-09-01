@@ -1,12 +1,13 @@
 package com.npc.slotted.example.client;
 
-import com.google.gwt.place.shared.PlaceController;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.SimpleEventBus;
+import org.npc.slotted.client.SlottedController;
 
 public class ClientFactoryImpl implements ClientFactory {
     private final EventBus eventBus = new SimpleEventBus();
-    private final PlaceController placeController = new PlaceController(eventBus);
+    private final AppHistoryMapper appHistoryMapper = new AppHistoryMapper();
+    private final SlottedController placeController = new SlottedController(appHistoryMapper, eventBus);
     private final HelloView helloView = new HelloViewImpl();
     private final GoodbyeView goodbyeView = new GoodbyeViewImpl();
 
@@ -15,7 +16,7 @@ public class ClientFactoryImpl implements ClientFactory {
         return eventBus;
     }
 
-    public PlaceController getPlaceController() {
+    public SlottedController getPlaceController() {
         return placeController;
     }
 
