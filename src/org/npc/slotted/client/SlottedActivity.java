@@ -16,17 +16,19 @@
 package org.npc.slotted.client;
 
 import com.google.gwt.activity.shared.AbstractActivity;
-import com.google.gwt.activity.shared.Activity;
-import com.google.gwt.place.shared.Place;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.web.bindery.event.shared.EventBus;
 
 abstract public class SlottedActivity extends AbstractActivity {
 
+    private SlottedPlace currentPlace;
+    private PlaceParameters placeParameters;
+    private EventBus eventBus;
+
     /**
      * Replaces the legacy activity that uses the old legacy EventBus.
      */
-    final public void start(AcceptsOneWidget panel, com.google.gwt.event.shared.EventBus eventBus) {
+    public void start(AcceptsOneWidget panel, com.google.gwt.event.shared.EventBus eventBus) {
         start(panel);
     }
 
@@ -38,10 +40,29 @@ abstract public class SlottedActivity extends AbstractActivity {
     }
 
 
-    //Todo add all the methods to get the values
+    public void init(SlottedPlace currentPlace, PlaceParameters placeParameters,
+            EventBus eventBus)
+    {
+        this.currentPlace = currentPlace;
+        this.placeParameters = placeParameters;
+        this.eventBus = eventBus;
 
+    }
 
-    @Override public String toString() {
-        return this.getClass().getName().substring(this.getClass().getName().lastIndexOf(".")+1);
+    public SlottedPlace getCurrentPlace() {
+        return currentPlace;
+    }
+
+    public PlaceParameters getPlaceParameters() {
+        return placeParameters;
+    }
+
+    public EventBus getEventBus() {
+        return eventBus;
+    }
+
+    @Override
+    public String toString() {
+        return this.getClass().getName().substring(this.getClass().getName().lastIndexOf(".") + 1);
     }
 }

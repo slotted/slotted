@@ -27,8 +27,8 @@ import java.util.Iterator;
 
 public class ActiveSlot {
     /**
-     * Wraps our real display to prevent an Activity from taking it over if it is
-     * not the currentActivity.
+     * Wraps our real display to prevent an Activity from taking it over if it is not the
+     * currentActivity.
      */
     private class ProtectedDisplay implements AcceptsOneWidget {
         private final Activity activity;
@@ -72,7 +72,7 @@ public class ActiveSlot {
             }
         }
         if (children != null) {
-            for (ActiveSlot child: children) {
+            for (ActiveSlot child : children) {
                 child.maybeGoTo(warnings);
             }
         }
@@ -99,31 +99,37 @@ public class ActiveSlot {
             activity.onStop();
         }
         if (children != null) {
-            for (ActiveSlot child: children) {
+            for (ActiveSlot child : children) {
                 child.stopActivities();
             }
         }
     }
 
-    public void constructAndStart(PlaceParameters parameters, Iterable<SlottedPlace> nonDefaultPlaces) {
+    public void constructAndStart(PlaceParameters parameters,
+            Iterable<SlottedPlace> nonDefaultPlaces)
+    {
         SlottedPlace newPlace = getPlace(nonDefaultPlaces);
         if (!newPlace.equals(place)) {
             place = newPlace;
             activity = place.getActivity();
+            if (activity instanceof SlottedActivity) {
+                ((SlottedActivity) activity).init(place, parameters, resettableEventBus);
+            }
             com.google.gwt.event.shared.ResettableEventBus legacyBus =
                     new com.google.gwt.event.shared.ResettableEventBus(resettableEventBus);
             activity.start(new ProtectedDisplay(activity), legacyBus);
             createChildren();
         }
 
-        for (ActiveSlot child: children) {
+        for (ActiveSlot child : children) {
             child.constructAndStart(parameters, nonDefaultPlaces);
         }
     }
 
     private SlottedPlace getPlace(Iterable<SlottedPlace> nonDefaultPlaces) {
-        for (SlottedPlace place: nonDefaultPlaces) {
-            boolean isRootPlace = place.getParentSlot() == null || place.getParentSlot() instanceof RootSlotImpl;
+        for (SlottedPlace place : nonDefaultPlaces) {
+            boolean isRootPlace =
+                    place.getParentSlot() == null || place.getParentSlot() instanceof RootSlotImpl;
             boolean isRoot = slot.getParentPlace() == null;
             if (isRootPlace && isRoot) {
                 return place;
@@ -140,12 +146,14 @@ public class ActiveSlot {
         if (activity != null && activity instanceof SlottedActivity) {
             SlottedActivity slottedActivity = (SlottedActivity) activity;
             Slot[] childSlots = place.getChildSlots();
-            if (childSlots != null ) {
-                for (Slot slot: childSlots) {
+            if (childSlots != null) {
+                for (Slot slot : childSlots) {
                     slottedActivity.setChildSlotDisplay(slot);
-                    if (slot.getDisplay() == null || slot.getParentPlace() == null ||  slot.getDefaultPlace() == null) {
+                    if (slot.getDisplay() == null || slot.getParentPlace() == null ||
+                            slot.getDefaultPlace() == null) {
                         //todo better error message
-                        throw new IllegalStateException("Slot must have ParentPlace, DefaultPlace, and Display");
+                        throw new IllegalStateException(
+                                "Slot must have ParentPlace, DefaultPlace, and Display");
                     }
                     ActiveSlot child = new ActiveSlot(this, slot, resettableEventBus);
                     children.add(child);

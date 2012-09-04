@@ -44,6 +44,9 @@ public class Slot {
     }
 
     public void setDisplay(AcceptsOneWidget display) {
+        if (display == null) {
+            throw new NullPointerException("Display can't be null.");
+        }
         this.display = display;
     }
 
@@ -62,10 +65,12 @@ public class Slot {
 
         Slot slot = (Slot) o;
 
-        if (defaultPlace != null ? !defaultPlace.equals(slot.defaultPlace) : slot.defaultPlace != null) {
+        if (defaultPlace != null ? !defaultPlace.equals(slot.defaultPlace) :
+                slot.defaultPlace != null) {
             return false;
         }
-        if (parentPlace != null ? !parentPlace.equals(slot.parentPlace) : slot.parentPlace != null) {
+        if (parentPlace != null ? !parentPlace.equals(slot.parentPlace) :
+                slot.parentPlace != null) {
             return false;
         }
 
