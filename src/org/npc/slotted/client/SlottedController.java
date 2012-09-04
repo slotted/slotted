@@ -30,6 +30,7 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -231,43 +232,48 @@ public class SlottedController {
     public void goTo(SlottedPlace newPlace, PlaceParameters parameters,
             SlottedPlace[] nonDefaultPlaces, boolean refreshAll)
     {
-
-        if (goToCount++ > 10) {
-            throw new IllegalStateException("Goto appears to be in an infinite loop.");
-        }
-
-        currentParameters = parameters;
-
-        ArrayList<SlottedPlace> completeNonDefaults = new ArrayList<SlottedPlace>();
-        completeNonDefaults.add(newPlace);
-        Collections.addAll(completeNonDefaults, nonDefaultPlaces);
-
-        if (navigationOverride != null) {
-            completeNonDefaults = navigationOverride.checkOverrides(completeNonDefaults);
-            newPlace = completeNonDefaults.get(0);
-        }
-
-        ActiveSlot slotToUpdate = root.findSlot(newPlace.getParentSlot());
-
-        if (slotToUpdate == null) {
-            addParents(newPlace, completeNonDefaults);
-            slotToUpdate = root;
-        }
-        ArrayList<String> warnings = new ArrayList<String>();
-        slotToUpdate.maybeGoTo(warnings);
-
-        if (warnings.isEmpty() || delegate.confirm(warnings.toArray(new String[warnings.size()]))) {
-            slotToUpdate.stopActivities();
-            if (refreshAll) {
-                slotToUpdate = getRootAddNonDefaults(slotToUpdate, completeNonDefaults);
+        try {
+            if (goToCount++ > 10) {
+                throw new IllegalStateException("Goto appears to be in an infinite loop.");
             }
 
-            slotToUpdate.constructAndStart(parameters, completeNonDefaults);
+            currentParameters = parameters;
 
-            historyMapper.createToken();
+            ArrayList<SlottedPlace> completeNonDefaults = new ArrayList<SlottedPlace>();
+            completeNonDefaults.add(newPlace);
+            Collections.addAll(completeNonDefaults, nonDefaultPlaces);
+
+            if (navigationOverride != null) {
+                completeNonDefaults = navigationOverride.checkOverrides(completeNonDefaults);
+                newPlace = completeNonDefaults.get(0);
+            }
+
+            ActiveSlot slotToUpdate = root.findSlot(newPlace.getParentSlot());
+
+            if (slotToUpdate == null) {
+                addParents(newPlace, completeNonDefaults);
+                slotToUpdate = root;
+            }
+            ArrayList<String> warnings = new ArrayList<String>();
+            slotToUpdate.maybeGoTo(warnings);
+
+            if (warnings.isEmpty() ||
+                    delegate.confirm(warnings.toArray(new String[warnings.size()]))) {
+                slotToUpdate.stopActivities();
+                if (refreshAll) {
+                    slotToUpdate = getRootAddNonDefaults(slotToUpdate, completeNonDefaults);
+                }
+
+                slotToUpdate.constructAndStart(parameters, completeNonDefaults);
+
+                historyMapper.createToken();
+            }
+
+            goToCount--;
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.log(Level.SEVERE, "Problem while goTo:" + newPlace, e);
         }
-
-        goToCount--;
     }
 
     //todo javadoc
