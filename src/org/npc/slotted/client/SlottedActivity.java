@@ -21,6 +21,7 @@ import com.google.web.bindery.event.shared.EventBus;
 
 abstract public class SlottedActivity extends AbstractActivity {
 
+    private SlottedController slottedController;
     private SlottedPlace currentPlace;
     private PlaceParameters placeParameters;
     private EventBus eventBus;
@@ -40,13 +41,17 @@ abstract public class SlottedActivity extends AbstractActivity {
     }
 
 
-    public void init(SlottedPlace currentPlace, PlaceParameters placeParameters,
-            EventBus eventBus)
+    public void init(SlottedController slottedController, SlottedPlace currentPlace,
+            PlaceParameters placeParameters, EventBus eventBus)
     {
+        this.slottedController = slottedController;
         this.currentPlace = currentPlace;
         this.placeParameters = placeParameters;
         this.eventBus = eventBus;
+    }
 
+    public SlottedController getSlottedController() {
+        return slottedController;
     }
 
     public SlottedPlace getCurrentPlace() {

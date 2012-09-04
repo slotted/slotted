@@ -15,7 +15,6 @@
  */
 package org.npc.slotted.client;
 
-import com.google.gwt.activity.shared.Activity;
 import com.google.gwt.activity.shared.ActivityMapper;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Document;
@@ -38,8 +37,8 @@ import java.util.logging.Logger;
  */
 public class SlottedController {
     /**
-     * RootSlot instance that should be used to define {@link SlottedPlace}s that should be displayed
-     * in the root slot.
+     * RootSlot instance that should be used to define {@link SlottedPlace}s that should be
+     * displayed in the root slot.
      */
     public static final RootSlotImpl RootSlot = new RootSlotImpl();
 
@@ -67,9 +66,8 @@ public class SlottedController {
     }
 
     /**
-     * Optional delegate in charge of Window-related events. Provides nice
-     * isolation for unit testing, and allows customization of confirmation
-     * handling.
+     * Optional delegate in charge of Window-related events. Provides nice isolation for unit
+     * testing, and allows customization of confirmation handling.
      */
     public interface Delegate {
         /**
@@ -93,7 +91,6 @@ public class SlottedController {
 
     private final EventBus eventBus;
     private final HistoryMapper historyMapper;
-    private PlaceHistoryMapper legacyHistoryMapper;
     private ActivityMapper legacyActivityMapper;
 
     private int goToCount = 0;
@@ -103,13 +100,12 @@ public class SlottedController {
     private NavigationOverride navigationOverride;
 
     /**
-     * Create a new SlottedController with a {@link DefaultDelegate}. The
-     * DefaultDelegate is created via a call to GWT.create(), so an alternative
-     * default implementation can be provided through &lt;replace-with&gt; rules
-     * in a {@code .gwt.xml} file.
+     * Create a new SlottedController with a {@link DefaultDelegate}. The DefaultDelegate is created
+     * via a call to GWT.create(), so an alternative default implementation can be provided through
+     * &lt;replace-with&gt; rules in a {@code .gwt.xml} file.
      *
      * @param historyMapper the {@link HistoryMapper}
-     * @param eventBus      the {@link EventBus}
+     * @param eventBus the {@link EventBus}
      */
     public SlottedController(HistoryMapper historyMapper, EventBus eventBus) {
         this(historyMapper, eventBus, (Delegate) GWT.create(DefaultDelegate.class));
@@ -119,11 +115,10 @@ public class SlottedController {
      * Create a new SlottedController.
      *
      * @param historyMapper the {@link HistoryMapper}
-     * @param eventBus      the {@link EventBus}
-     * @param delegate      the {@link Delegate} in charge of Window-related events
+     * @param eventBus the {@link EventBus}
+     * @param delegate the {@link Delegate} in charge of Window-related events
      */
-    public SlottedController(HistoryMapper historyMapper, EventBus eventBus,
-            Delegate delegate) {
+    public SlottedController(HistoryMapper historyMapper, EventBus eventBus, Delegate delegate) {
         this.eventBus = eventBus;
         this.historyMapper = historyMapper;
         historyMapper.setController(this);
@@ -140,26 +135,27 @@ public class SlottedController {
         });
     }
 
-    public void setLegacyMappers(ActivityMapper legacyActivityMapper, PlaceHistoryMapper legacyHistoryMapper,
-            Place defaultPlace)
+    public void setLegacyMappers(ActivityMapper legacyActivityMapper,
+            PlaceHistoryMapper legacyHistoryMapper, Place defaultPlace)
     {
         this.legacyActivityMapper = legacyActivityMapper;
-        this.legacyHistoryMapper = legacyHistoryMapper;
         historyMapper.setLegacyHistoryMapper(legacyHistoryMapper);
         if (historyMapper.getDefaultPlace() == null) {
-            historyMapper.registerDefaultPlace(new WrappedPlace(defaultPlace, legacyActivityMapper));
+            historyMapper
+                    .registerDefaultPlace(new WrappedPlace(defaultPlace, legacyActivityMapper));
         }
     }
 
     /**
-     * Sets the widget that displays the root slot content.  This must be set before any content can be displayed.
+     * Sets the widget that displays the root slot content.  This must be set before any content can
+     * be displayed.
      *
      * @param display an instance of AcceptsOneWidget
      */
     public void setDisplay(AcceptsOneWidget display) {
         Slot rootSlot = new RootSlotImpl(null);
         rootSlot.setDisplay(display);
-        root = new ActiveSlot(null, rootSlot, eventBus);
+        root = new ActiveSlot(null, rootSlot, eventBus, this);
 
         History.fireCurrentHistoryState();
     }
@@ -178,23 +174,23 @@ public class SlottedController {
 
     public void goTo(Place place) {
         if (legacyActivityMapper == null) {
-            throw new IllegalStateException("Must use SlottedPlace unless LegacyActivityMapper is set");
+            throw new IllegalStateException(
+                    "Must use SlottedPlace unless LegacyActivityMapper is set");
         }
         goTo(new WrappedPlace(place, legacyActivityMapper));
     }
 
     /**
-     * Request a change to a new place. It is not a given that we'll actually get
-     * there. First all active {@link SlottedActivity#mayStop()} will called.
-     * If any activities return a warning message, it will be
-     * presented to the user via {@link Delegate#confirm(String[])} (which is
-     * typically a call to {@link Window#confirm(String)}) with the first warning
-     * message. If she cancels, the current location will not change. Otherwise,
-     * the location changes and the new place and all dependent places are created.
+     * Request a change to a new place. It is not a given that we'll actually get there. First all
+     * active {@link SlottedActivity#mayStop()} will called. If any activities return a warning
+     * message, it will be presented to the user via {@link Delegate#confirm(String[])} (which is
+     * typically a call to {@link Window#confirm(String)}) with the first warning message. If she
+     * cancels, the current location will not change. Otherwise, the location changes and the new
+     * place and all dependent places are created.
      *
-     * @param newPlace   a {@link SlottedPlace} instance
-     * @param parameters a {@link PlaceParameters} instance with all the parameters to
-     *                   display all slots.
+     * @param newPlace a {@link SlottedPlace} instance
+     * @param parameters a {@link PlaceParameters} instance with all the parameters to display all
+     * slots.
      */
     public void goTo(SlottedPlace newPlace, PlaceParameters parameters) {
         goTo(newPlace, parameters, new SlottedPlace[0], true);
@@ -212,26 +208,29 @@ public class SlottedController {
     }
 
     /**
-     * Same as {@link #goTo(SlottedPlace, PlaceParameters)} except adds the ability to
-     * override default places for any of the slots that will be created by the newPlace.
+     * Same as {@link #goTo(SlottedPlace, PlaceParameters)} except adds the ability to override
+     * default places for any of the slots that will be created by the newPlace.
      *
-     * @param nonDefaultPlaces array of {@link SlottedPlace}s that should be used instead of the default
-     *                         places defined for the slots.
+     * @param nonDefaultPlaces array of {@link SlottedPlace}s that should be used instead of the
+     * default places defined for the slots.
      */
-    public void goTo(SlottedPlace newPlace, PlaceParameters parameters, SlottedPlace... nonDefaultPlaces) {
+    public void goTo(SlottedPlace newPlace, PlaceParameters parameters,
+            SlottedPlace... nonDefaultPlaces)
+    {
         goTo(newPlace, parameters, nonDefaultPlaces, true);
     }
 
     /**
-     * Same as {@link #goTo(SlottedPlace, PlaceParameters, SlottedPlace...)} except adds the ability to
-     * override whether the existing {@link SlottedActivity}s should be refreshed.  The default is that
-     * all pages are refreshed, and this method should only be used if you don't want to refresh existing
-     * activities.
+     * Same as {@link #goTo(SlottedPlace, PlaceParameters, SlottedPlace...)} except adds the ability
+     * to override whether the existing {@link SlottedActivity}s should be refreshed.  The default
+     * is that all pages are refreshed, and this method should only be used if you don't want to
+     * refresh existing activities.
      *
      * @param refreshAll true if existing activities should be refreshed.
      */
     public void goTo(SlottedPlace newPlace, PlaceParameters parameters,
-            SlottedPlace[] nonDefaultPlaces, boolean refreshAll) {
+            SlottedPlace[] nonDefaultPlaces, boolean refreshAll)
+    {
 
         if (goToCount++ > 10) {
             throw new IllegalStateException("Goto appears to be in an infinite loop.");
@@ -271,7 +270,7 @@ public class SlottedController {
         goToCount--;
     }
 
-      //todo javadoc
+    //todo javadoc
     public String createUrl(SlottedPlace newPlace, PlaceParameters parameters) {
         String url = Document.get().getURL();
         String[] splitUrl = url.split("#");
@@ -293,7 +292,9 @@ public class SlottedController {
         }
     }
 
-    private ActiveSlot getRootAddNonDefaults(ActiveSlot baseSlot, ArrayList<SlottedPlace> nonDefaultPlaces) {
+    private ActiveSlot getRootAddNonDefaults(ActiveSlot baseSlot,
+            ArrayList<SlottedPlace> nonDefaultPlaces)
+    {
         ActiveSlot root = baseSlot;
         ActiveSlot parent = baseSlot.getParent();
         while (parent != null) {
