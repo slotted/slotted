@@ -30,6 +30,7 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -266,13 +267,23 @@ public class SlottedController {
                 slotToUpdate.constructStopStart(parameters, completeNonDefaults, refreshAll);
 
                 historyMapper.createToken();
-                eventBus.fireEvent(new NewPlaceEvent(newPlace, nonDefaultPlaces));
+
+                LinkedList<SlottedPlace> places = new LinkedList<SlottedPlace>();
+                fillPlaces(root, places);
+                eventBus.fireEvent(new NewPlaceEvent(places));
             }
 
             goToCount--;
         } catch (Exception e) {
             e.printStackTrace();
             log.log(Level.SEVERE, "Problem while goTo:" + newPlace, e);
+        }
+    }
+
+    private void fillPlaces(ActiveSlot slot, LinkedList<SlottedPlace> places) {
+        places.add(slot.getPlace());
+        for (ActiveSlot childSlot : slot.getChildren()) {
+            fillPlaces(childSlot, places);
         }
     }
 
