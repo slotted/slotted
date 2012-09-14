@@ -18,21 +18,21 @@ package org.npc.slotted.client;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
 public class Slot {
-    private SlottedPlace parentPlace;
+    private SlottedPlace ownerPlace;
     private SlottedPlace defaultPlace;
     private AcceptsOneWidget display;
 
-    public Slot(SlottedPlace parentPlace, SlottedPlace defaultPlace) {
-        this.parentPlace = parentPlace;
+    public Slot(SlottedPlace ownerPlace, SlottedPlace defaultPlace) {
+        this.ownerPlace = ownerPlace;
         this.defaultPlace = defaultPlace;
     }
 
-    public SlottedPlace getParentPlace() {
-        return parentPlace;
+    public SlottedPlace getOwnerPlace() {
+        return ownerPlace;
     }
 
-    public void setParentPlace(SlottedPlace parentPlace) {
-        this.parentPlace = parentPlace;
+    public void setOwnerPlace(SlottedPlace ownerPlace) {
+        this.ownerPlace = ownerPlace;
     }
 
     public SlottedPlace getDefaultPlace() {
@@ -69,8 +69,7 @@ public class Slot {
                 slot.defaultPlace != null) {
             return false;
         }
-        if (parentPlace != null ? !parentPlace.equals(slot.parentPlace) :
-                slot.parentPlace != null) {
+        if (ownerPlace != null ? !ownerPlace.equals(slot.ownerPlace) : slot.ownerPlace != null) {
             return false;
         }
 
@@ -79,7 +78,7 @@ public class Slot {
 
     @Override
     public int hashCode() {
-        int result = parentPlace != null ? parentPlace.hashCode() : 0;
+        int result = ownerPlace != null ? ownerPlace.hashCode() : 0;
         result = 31 * result + (defaultPlace != null ? defaultPlace.hashCode() : 0);
         return result;
     }

@@ -138,7 +138,7 @@ public class ActiveSlot {
         for (SlottedPlace place : nonDefaultPlaces) {
             boolean isRootPlace =
                     place.getParentSlot() == null || place.getParentSlot() instanceof RootSlotImpl;
-            boolean isRoot = slot.getParentPlace() == null;
+            boolean isRoot = slot.getOwnerPlace() == null;
             if (isRootPlace && isRoot) {
                 return place;
             }
@@ -157,7 +157,7 @@ public class ActiveSlot {
             if (childSlots != null) {
                 for (Slot slot : childSlots) {
                     slottedActivity.setChildSlotDisplay(slot);
-                    if (slot.getDisplay() == null || slot.getParentPlace() == null ||
+                    if (slot.getDisplay() == null || slot.getOwnerPlace() == null ||
                             slot.getDefaultPlace() == null) {
                         //todo better error message
                         throw new IllegalStateException(

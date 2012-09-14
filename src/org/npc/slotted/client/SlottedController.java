@@ -292,8 +292,8 @@ public class SlottedController {
 
     private void addParents(SlottedPlace newPlace, ArrayList<SlottedPlace> completeNonDefaults) {
         SlottedPlace parent = newPlace;
-        while (parent.getParentSlot() != null && parent.getParentSlot().getParentPlace() != null) {
-            parent = parent.getParentSlot().getParentPlace();
+        while (parent.getParentSlot() != null && parent.getParentSlot().getOwnerPlace() != null) {
+            parent = parent.getParentSlot().getOwnerPlace();
             completeNonDefaults.add(parent);
         }
     }
