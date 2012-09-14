@@ -100,6 +100,7 @@ public class ActiveSlot {
     }
 
     public void stopActivities() {
+        resettableEventBus.removeHandlers();
         if (activity != null) {
             activity.onStop();
         }
@@ -110,11 +111,12 @@ public class ActiveSlot {
         }
     }
 
-    public void constructAndStart(PlaceParameters parameters,
-            Iterable<SlottedPlace> nonDefaultPlaces)
+    public void constructStopStart(PlaceParameters parameters,
+            Iterable<SlottedPlace> nonDefaultPlaces, boolean refreshAll)
     {
         SlottedPlace newPlace = getPlace(nonDefaultPlaces);
-        if (!newPlace.equals(place)) {
+        if (refreshAll || !newPlace.equals(place)) {
+            stopActivities();
             place = newPlace;
             activity = place.getActivity();
             if (activity instanceof SlottedActivity) {
@@ -128,7 +130,7 @@ public class ActiveSlot {
         }
 
         for (ActiveSlot child : children) {
-            child.constructAndStart(parameters, nonDefaultPlaces);
+            child.constructStopStart(parameters, nonDefaultPlaces, refreshAll);
         }
     }
 

@@ -173,6 +173,7 @@ public class SlottedController {
         historyMapper.goToDefaultPlace();
     }
 
+    // todo javadoc
     public void goTo(Place place) {
         if (legacyActivityMapper == null) {
             throw new IllegalStateException(
@@ -259,14 +260,13 @@ public class SlottedController {
 
             if (warnings.isEmpty() ||
                     delegate.confirm(warnings.toArray(new String[warnings.size()]))) {
-                slotToUpdate.stopActivities();
                 if (refreshAll) {
                     slotToUpdate = getRootAddNonDefaults(slotToUpdate, completeNonDefaults);
                 }
-
-                slotToUpdate.constructAndStart(parameters, completeNonDefaults);
+                slotToUpdate.constructStopStart(parameters, completeNonDefaults, refreshAll);
 
                 historyMapper.createToken();
+                eventBus.fireEvent(new NewPlaceEvent(newPlace, nonDefaultPlaces));
             }
 
             goToCount--;
