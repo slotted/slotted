@@ -143,8 +143,8 @@ public class SlottedController {
         this.legacyActivityMapper = legacyActivityMapper;
         historyMapper.setLegacyHistoryMapper(legacyHistoryMapper);
         if (historyMapper.getDefaultPlace() == null) {
-            historyMapper
-                    .registerDefaultPlace(new WrappedPlace(defaultPlace, legacyActivityMapper));
+            historyMapper.registerDefaultPlace(
+                    new WrappedPlace(defaultPlace, legacyActivityMapper));
         }
     }
 
@@ -198,8 +198,8 @@ public class SlottedController {
     }
 
     /**
-     * Same as {@link #goTo(SlottedPlace)} except adds the ability to override
-     * default places for any of the slots that will be created by the newPlace.
+     * Same as {@link #goTo(SlottedPlace)} except adds the ability to override default places for
+     * any of the slots that will be created by the newPlace.
      *
      * @param nonDefaultPlaces array of {@link SlottedPlace}s that should be used instead of the
      * default places defined for the slots.
@@ -209,10 +209,10 @@ public class SlottedController {
     }
 
     /**
-     * Same as {@link #goTo(SlottedPlace, SlottedPlace...)} except adds the ability
-     * to override whether the existing {@link SlottedActivity}s should be refreshed.  The default
-     * is that all pages are refreshed, and this method should only be used if you don't want to
-     * refresh existing activities.
+     * Same as {@link #goTo(SlottedPlace, SlottedPlace...)} except adds the ability to override
+     * whether the existing {@link SlottedActivity}s should be refreshed.  The default is that all
+     * pages are refreshed, and this method should only be used if you don't want to refresh
+     * existing activities.
      *
      * @param refreshAll true if existing activities should be refreshed.
      */
@@ -222,7 +222,7 @@ public class SlottedController {
                 throw new IllegalStateException("Goto appears to be in an infinite loop.");
             }
 
-            currentParameters = null;
+            currentParameters = new PlaceParameters();
 
             ArrayList<SlottedPlace> completeNonDefaults = new ArrayList<SlottedPlace>();
             completeNonDefaults.add(newPlace);
@@ -251,10 +251,6 @@ public class SlottedController {
 
                 LinkedList<SlottedPlace> places = new LinkedList<SlottedPlace>();
                 fillPlaces(root, places);
-                currentParameters = new PlaceParameters();
-                for (SlottedPlace place: places) {
-                    place.storeParameters(currentParameters);
-                }
 
                 historyMapper.createToken();
 

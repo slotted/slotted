@@ -115,16 +115,18 @@ public class ActiveSlot {
             Iterable<SlottedPlace> nonDefaultPlaces, boolean refreshAll)
     {
         SlottedPlace newPlace = getPlace(nonDefaultPlaces);
+        newPlace.storeParameters(parameters);
         if (refreshAll || !newPlace.equals(place)) {
             stopActivities();
             place = newPlace;
             activity = place.getActivity();
             if (activity instanceof SlottedActivity) {
-                ((SlottedActivity) activity)
-                        .init(slottedController, place, parameters, resettableEventBus);
+                ((SlottedActivity) activity).init(slottedController, place, parameters,
+                        resettableEventBus);
             }
-            com.google.gwt.event.shared.ResettableEventBus legacyBus =
-                    new com.google.gwt.event.shared.ResettableEventBus(resettableEventBus);
+            com.google.gwt.event.shared.ResettableEventBus legacyBus = new com.google.gwt.event
+                    .shared.ResettableEventBus(
+                    resettableEventBus);
             activity.start(new ProtectedDisplay(activity), legacyBus);
             createChildren();
         }
@@ -163,8 +165,8 @@ public class ActiveSlot {
                         throw new IllegalStateException(
                                 "Slot must have ParentPlace, DefaultPlace, and Display");
                     }
-                    ActiveSlot child =
-                            new ActiveSlot(this, slot, resettableEventBus, slottedController);
+                    ActiveSlot child = new ActiveSlot(this, slot, resettableEventBus,
+                            slottedController);
                     children.add(child);
                 }
             }
