@@ -168,7 +168,7 @@ public class SlottedController {
 
     /**
      * Used by the HistoryMapper to display the default place.  This method works as if you called
-     * {@link #goTo(SlottedPlace, PlaceParameters)} with the default place.
+     * {@link #goTo(SlottedPlace)} with the default place.
      */
     protected void goToDefaultPlace() {
         historyMapper.goToDefaultPlace();
@@ -192,54 +192,37 @@ public class SlottedController {
      * place and all dependent places are created.
      *
      * @param newPlace a {@link SlottedPlace} instance
-     * @param parameters a {@link PlaceParameters} instance with all the parameters to display all
-     * slots.
-     */
-    public void goTo(SlottedPlace newPlace, PlaceParameters parameters) {
-        goTo(newPlace, parameters, new SlottedPlace[0], true);
-    }
-
-    /**
-     * Same as {@link #goTo(SlottedPlace, PlaceParameters)} creates and empty PlaceParameters.
      */
     public void goTo(SlottedPlace newPlace) {
-        if (newPlace instanceof ParamPlace) {
-            goTo(newPlace, ((ParamPlace) newPlace).getPlaceParameters());
-        } else {
-            goTo(newPlace, new PlaceParameters());
-        }
+        goTo(newPlace, new SlottedPlace[0]);
     }
 
     /**
-     * Same as {@link #goTo(SlottedPlace, PlaceParameters)} except adds the ability to override
+     * Same as {@link #goTo(SlottedPlace)} except adds the ability to override
      * default places for any of the slots that will be created by the newPlace.
      *
      * @param nonDefaultPlaces array of {@link SlottedPlace}s that should be used instead of the
      * default places defined for the slots.
      */
-    public void goTo(SlottedPlace newPlace, PlaceParameters parameters,
-            SlottedPlace... nonDefaultPlaces)
-    {
-        goTo(newPlace, parameters, nonDefaultPlaces, true);
+    public void goTo(SlottedPlace newPlace, SlottedPlace... nonDefaultPlaces) {
+        goTo(newPlace, nonDefaultPlaces, true);
     }
 
     /**
-     * Same as {@link #goTo(SlottedPlace, PlaceParameters, SlottedPlace...)} except adds the ability
+     * Same as {@link #goTo(SlottedPlace, SlottedPlace...)} except adds the ability
      * to override whether the existing {@link SlottedActivity}s should be refreshed.  The default
      * is that all pages are refreshed, and this method should only be used if you don't want to
      * refresh existing activities.
      *
      * @param refreshAll true if existing activities should be refreshed.
      */
-    public void goTo(SlottedPlace newPlace, PlaceParameters parameters,
-            SlottedPlace[] nonDefaultPlaces, boolean refreshAll)
-    {
+    public void goTo(SlottedPlace newPlace, SlottedPlace[] nonDefaultPlaces, boolean refreshAll) {
         try {
             if (goToCount++ > 10) {
                 throw new IllegalStateException("Goto appears to be in an infinite loop.");
             }
 
-            currentParameters = parameters;
+            currentParameters = null;
 
             ArrayList<SlottedPlace> completeNonDefaults = new ArrayList<SlottedPlace>();
             completeNonDefaults.add(newPlace);
@@ -264,12 +247,17 @@ public class SlottedController {
                 if (refreshAll) {
                     slotToUpdate = getRootAddNonDefaults(slotToUpdate, completeNonDefaults);
                 }
-                slotToUpdate.constructStopStart(parameters, completeNonDefaults, refreshAll);
-
-                historyMapper.createToken();
+                slotToUpdate.constructStopStart(currentParameters, completeNonDefaults, refreshAll);
 
                 LinkedList<SlottedPlace> places = new LinkedList<SlottedPlace>();
                 fillPlaces(root, places);
+                currentParameters = new PlaceParameters();
+                for (SlottedPlace place: places) {
+                    place.storeParameters(currentParameters);
+                }
+
+                historyMapper.createToken();
+
                 eventBus.fireEvent(new NewPlaceEvent(places));
             }
 

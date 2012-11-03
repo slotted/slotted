@@ -44,6 +44,18 @@ public class WrappedPlace extends SlottedPlace {
         return place;
     }
 
+    @Override public void storeParameters(PlaceParameters placeParameters) {
+        if (place instanceof HasParameters) {
+            ((HasParameters) place).storeParameters(placeParameters);
+        }
+    }
+
+    @Override public void retrieveParameters(PlaceParameters placeParameters) {
+        if (place instanceof HasParameters) {
+            ((HasParameters) place).retrieveParameters(placeParameters);
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

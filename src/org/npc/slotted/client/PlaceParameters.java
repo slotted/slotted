@@ -37,6 +37,10 @@ public class PlaceParameters {
         return param;
     }
 
+    public void addPlaceParameters(PlaceParameters placeParameters) {
+        paramMap.putAll(placeParameters.paramMap);
+    }
+
     public String toString() {
         String string = "";
         if (!paramMap.isEmpty()) {

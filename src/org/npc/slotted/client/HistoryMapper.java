@@ -118,17 +118,6 @@ abstract public class HistoryMapper {
                 String[] split = token.split("\\?");
                 String[] placeNames = split[0].split("/");
 
-                SlottedPlace[] places = new SlottedPlace[placeNames.length];
-                for (int i = 0; i < places.length; i++) {
-                    places[i] = nameToPlaceMap.get(placeNames[i]);
-                    if (places[i] == null) {
-                        throw new IllegalStateException("Place not defined:" + placeNames[i]);
-                    }
-                    if (places[i] instanceof ParamPlace) {
-                        ((ParamPlace)places[i]).setPlaceParameters(parameters);
-                    }
-                }
-
                 if (split.length > 1) {
                     String[] paramPairs = split[1].split("&");
 
@@ -138,7 +127,16 @@ abstract public class HistoryMapper {
                     }
                 }
 
-                controller.goTo(places[0], parameters, places);
+                SlottedPlace[] places = new SlottedPlace[placeNames.length];
+                for (int i = 0; i < places.length; i++) {
+                    places[i] = nameToPlaceMap.get(placeNames[i]);
+                    if (places[i] == null) {
+                        throw new IllegalStateException("Place not defined:" + placeNames[i]);
+                    }
+                    places[i].retrieveParameters(parameters);
+                }
+
+                controller.goTo(places[0], places);
             } catch (RuntimeException e) {
                 parsingException = e;
             }

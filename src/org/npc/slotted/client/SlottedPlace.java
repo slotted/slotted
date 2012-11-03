@@ -17,11 +17,38 @@ package org.npc.slotted.client;
 
 import com.google.gwt.activity.shared.Activity;
 
-abstract public class SlottedPlace {
+abstract public class SlottedPlace implements HasParameters {
+
+    private PlaceParameters placeParameters;
+
     abstract public Slot getParentSlot();
     abstract public Slot[] getChildSlots();
-
     abstract public Activity getActivity();
+
+    public void setParameter(String name, String value) {
+        if (placeParameters == null) {
+            placeParameters = new PlaceParameters();
+        }
+
+        placeParameters.setParameter(name, value);
+    }
+
+    public String getParameter(String name) {
+        if (placeParameters != null) {
+            return placeParameters.getParameter(name);
+        }
+        return null;
+    }
+
+    @Override public void storeParameters(PlaceParameters placeParameters) {
+        if (this.placeParameters != null) {
+            placeParameters.addPlaceParameters(this.placeParameters);
+        }
+    }
+
+    @Override public void retrieveParameters(PlaceParameters placeParameters) {
+        this.placeParameters = placeParameters;
+    }
 
     @Override
     public boolean equals(Object o) {
