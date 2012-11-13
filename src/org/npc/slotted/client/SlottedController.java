@@ -272,17 +272,20 @@ public class SlottedController {
     }
 
     //todo javadoc
-    public String createUrl(SlottedPlace newPlace, PlaceParameters parameters) {
+    public String createUrl(SlottedPlace newPlace) {
         String url = Document.get().getURL();
         String[] splitUrl = url.split("#");
-        String token = historyMapper.createToken(newPlace, parameters);
+        String token = createToken(newPlace);
 
         return splitUrl[0] + "#" + token;
     }
 
     //todo javadoc
-    public String createToken(SlottedPlace newPlace, PlaceParameters parameters) {
-        return historyMapper.createToken(newPlace, parameters);
+    public String createToken(SlottedPlace newPlace) {
+        PlaceParameters placeParameters = new PlaceParameters();
+        newPlace.storeParameters(placeParameters);
+        String token = historyMapper.createToken(newPlace, placeParameters);
+        return token;
     }
 
     private void addParents(SlottedPlace newPlace, ArrayList<SlottedPlace> completeNonDefaults) {
