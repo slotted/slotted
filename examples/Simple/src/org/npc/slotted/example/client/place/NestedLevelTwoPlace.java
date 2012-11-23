@@ -18,8 +18,7 @@ public class NestedLevelTwoPlace extends SlottedPlace {
         return null;
     }
 
-    @Override
-    public Activity getActivity() {
+    @Override public Activity getActivity() {
         return new NestedLevelTwoActivity();
     }
 }

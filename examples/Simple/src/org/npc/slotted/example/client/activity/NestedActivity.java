@@ -16,12 +16,7 @@ import org.npc.slotted.example.client.place.ParentPlace;
 public class NestedActivity extends SlottedActivity {
     private SimplePanel slotPNL;
 
-    /**
-     * Invoked by the SlottedController to refresh an Activity.  This is also called when
-     * an Activity is started and doesn't override start().
-     */
-    @Override
-    public void start(AcceptsOneWidget panel) {
+    @Override public void start(AcceptsOneWidget panel) {
         VerticalPanel mainPNL = new VerticalPanel();
         panel.setWidget(mainPNL);
 
@@ -34,5 +29,4 @@ public class NestedActivity extends SlottedActivity {
     @Override public void setChildSlotDisplay(Slot slot) {
         slot.setDisplay(slotPNL);
     }
-
 }
