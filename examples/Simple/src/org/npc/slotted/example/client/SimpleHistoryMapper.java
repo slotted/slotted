@@ -7,9 +7,6 @@ import org.npc.slotted.example.client.place.NestedPlace;
 import org.npc.slotted.example.client.place.ParentPlace;
 
 public class SimpleHistoryMapper extends HistoryMapper {
-    /**
-     * Register all the Places that can be accessed in the application.
-     */
     @Override
     protected void init() {
         registerDefaultPlace(new HomePlace(), "home");
