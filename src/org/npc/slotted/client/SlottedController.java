@@ -137,6 +137,7 @@ public class SlottedController {
         });
     }
 
+    //todo javadoc
     public void setLegacyMappers(ActivityMapper legacyActivityMapper,
             PlaceHistoryMapper legacyHistoryMapper, Place defaultPlace)
     {

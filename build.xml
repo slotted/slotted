@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="Slotted" xmlns:ivy="antlib:org.apache.ivy.ant" default="package" basedir=".">
+<project name="Slotted" xmlns:ivy="antlib:org.apache.ivy.ant"
+         xmlns:artifact="antlib:org.apache.maven.artifact.ant"
+         default="package" basedir=".">
+
+
     <!--         App specifics              -->
     <property name="gwt.modules" value="org.npc.slotted.Slotted"/>
 
@@ -90,6 +94,22 @@
 
         <property name="gwt.modules" value="${gwt.modules}"/>
         <property name="gwt.args" value=""/>
+
+        <!-- define Maven coordinates -->
+        <property name="groupId" value="com.googlecode.slotted" />
+        <property name="artifactId" value="slotted" />
+        <property name="version" value="0.1-SNAPSHOT" />
+
+        <!-- define artifacts' name, which follows the convention of Maven -->
+        <property name="maven-jar" value="${build.package.dir}/${artifactId}-${version}.jar" />
+        <property name="maven-javadoc-jar" value="${build.package.dir}/${artifactId}-${version}-javadoc.jar" />
+        <property name="maven-sources-jar" value="${build.package.dir}/${artifactId}-${version}-sources.jar" />
+
+        <!-- defined maven snapshots and staging repository id and url -->
+        <property name="maven-snapshots-repository-id" value="sonatype-nexus-snapshots" />
+        <property name="maven-snapshots-repository-url" value="https://oss.sonatype.org/content/repositories/snapshots/" />
+        <property name="maven-staging-repository-id" value="sonatype-nexus-staging" />
+        <property name="maven-staging-repository-url" value="https://oss.sonatype.org/service/local/staging/deploy/maven2/" />
     </target>
 
     <target name="setup" depends="properties, ivy-resolve" description="Setup build dependencies and properties" >
@@ -99,7 +119,7 @@
             <pathelement location="${build.classes.dir}"/>
             <pathelement location="${gwt.sdk}/gwt-user.jar"/>
             <fileset dir="${gwt.sdk}" includes="gwt-dev*.jar"/>
-          </path>
+        </path>
 
         <path id="tools.class.path">
             <path refid="project.class.path"/>
@@ -143,9 +163,20 @@
     </target>
 
     <target name="package" depends="clean, gwtc">
-        <jar destfile="${build.package.dir}/slotted-0.${next.deploy.number}.jar">
+        <jar destfile="${maven-jar}">
             <fileset dir="${build.classes.dir}" includes="**/*"/>
             <fileset dir="${src.dir}" includes="**/*"/>
+        </jar>
+
+        <!-- build the javadoc artifact -->
+        <javadoc sourcepath="${src.dir}" destdir="${build.dir}/javadoc" />
+        <jar jarfile="${maven-javadoc-jar}">
+            <fileset dir="${build.dir}/javadoc" />
+        </jar>
+
+        <!-- build the sources artifact -->
+        <jar jarfile="${maven-sources-jar}">
+            <fileset dir="${src.dir}" />
         </jar>
     </target>
 
@@ -153,6 +184,52 @@
         <propertyfile file="build.properties">
             <entry key="next.deploy.number" type="int" operation="+" value="1" pattern="0"/>
         </propertyfile>
+    </target>
+
+    <target name="deploy" depends="package" description="deploy snapshot version to Maven snapshot repository">
+        <artifact:mvn>
+            <arg value="org.apache.maven.plugins:maven-deploy-plugin:2.6:deploy-file" />
+            <arg value="-e" />
+            <arg value="-Durl=${maven-snapshots-repository-url}" />
+            <arg value="-DrepositoryId=${maven-snapshots-repository-id}" />
+            <arg value="-DpomFile=pom.xml" />
+            <arg value="-Dfile=${maven-jar}" />
+        </artifact:mvn>
+    </target>
+
+    <!-- before this, update project version (both build.xml and pom.xml) from SNAPSHOT to RELEASE -->
+    <target name="stage" depends="package" description="deploy release version to Maven staging repository">
+        <!-- sign and deploy the main artifact -->
+        <artifact:mvn>
+            <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.3:sign-and-deploy-file" />
+            <arg value="-Durl=${maven-staging-repository-url}" />
+            <arg value="-DrepositoryId=${maven-staging-repository-id}" />
+            <arg value="-DpomFile=pom.xml" />
+            <arg value="-Dfile=${maven-jar}" />
+            <arg value="-Pgpg" />
+        </artifact:mvn>
+
+        <!-- sign and deploy the sources artifact -->
+        <artifact:mvn>
+            <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.3:sign-and-deploy-file" />
+            <arg value="-Durl=${maven-staging-repository-url}" />
+            <arg value="-DrepositoryId=${maven-staging-repository-id}" />
+            <arg value="-DpomFile=pom.xml" />
+            <arg value="-Dfile=${maven-sources-jar}" />
+            <arg value="-Dclassifier=sources" />
+            <arg value="-Pgpg" />
+        </artifact:mvn>
+
+        <!-- sign and deploy the javadoc artifact -->
+        <artifact:mvn>
+            <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.3:sign-and-deploy-file" />
+            <arg value="-Durl=${maven-staging-repository-url}" />
+            <arg value="-DrepositoryId=${maven-staging-repository-id}" />
+            <arg value="-DpomFile=pom.xml" />
+            <arg value="-Dfile=${maven-javadoc-jar}" />
+            <arg value="-Dclassifier=javadoc" />
+            <arg value="-Pgpg" />
+        </artifact:mvn>
     </target>
 
 </project>
