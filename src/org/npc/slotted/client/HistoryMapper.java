@@ -88,7 +88,11 @@ abstract public class HistoryMapper {
     public void registerPlace(SlottedPlace place) {
         String name = place.getClass().getName();
         int index = name.lastIndexOf(".");
-        name = name.substring(index + 1);
+        if (name.endsWith("Place")) {
+            name = name.substring(index + 1, name.length() - 5);
+        } else {
+            name = name.substring(index + 1);
+        }
 
         registerPlace(place, name);
     }
