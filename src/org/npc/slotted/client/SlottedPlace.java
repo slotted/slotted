@@ -16,8 +16,9 @@
 package org.npc.slotted.client;
 
 import com.google.gwt.activity.shared.Activity;
+import com.google.gwt.place.shared.Place;
 
-abstract public class SlottedPlace implements HasParameters {
+abstract public class SlottedPlace extends Place implements HasParameters {
 
     private PlaceParameters placeParameters;
 

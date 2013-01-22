@@ -149,6 +149,11 @@ public class SlottedController {
         }
     }
 
+    //todo javadoc
+    public void setActivityMapper(ActivityMapper legacyActivityMapper) {
+        this.legacyActivityMapper = legacyActivityMapper;
+    }
+
     /**
      * Sets the widget that displays the root slot content.  This must be set before any content can
      * be displayed.
@@ -169,19 +174,10 @@ public class SlottedController {
 
     /**
      * Used by the HistoryMapper to display the default place.  This method works as if you called
-     * {@link #goTo(SlottedPlace)} with the default place.
+     * {@link #goTo(Place)} with the default place.
      */
     protected void goToDefaultPlace() {
         historyMapper.goToDefaultPlace();
-    }
-
-    // todo javadoc
-    public void goTo(Place place) {
-        if (legacyActivityMapper == null) {
-            throw new IllegalStateException(
-                    "Must use SlottedPlace unless LegacyActivityMapper is set");
-        }
-        goTo(new WrappedPlace(place, legacyActivityMapper));
     }
 
     /**
@@ -194,12 +190,23 @@ public class SlottedController {
      *
      * @param newPlace a {@link SlottedPlace} instance
      */
-    public void goTo(SlottedPlace newPlace) {
-        goTo(newPlace, new SlottedPlace[0]);
+    public void goTo(Place newPlace) {
+        SlottedPlace slottedPlace;
+        if (newPlace instanceof SlottedPlace) {
+            slottedPlace = (SlottedPlace) newPlace;
+        } else {
+            if (legacyActivityMapper == null) {
+                throw new IllegalStateException(
+                        "Must use SlottedPlace unless LegacyActivityMapper is set");
+            }
+
+            slottedPlace = new WrappedPlace(newPlace, legacyActivityMapper);
+        }
+        goTo(slottedPlace, new SlottedPlace[0]);
     }
 
     /**
-     * Same as {@link #goTo(SlottedPlace)} except adds the ability to override default places for
+     * Same as {@link #goTo(Place)} except adds the ability to override default places for
      * any of the slots that will be created by the newPlace.
      *
      * @param nonDefaultPlaces array of {@link SlottedPlace}s that should be used instead of the
@@ -334,5 +341,12 @@ public class SlottedController {
      */
     public EventBus getEventBus() {
         return eventBus;
+    }
+
+    /**
+     * Returns the GWT's ActivityMapper used to create Activities, or null if none was set.
+     */
+    public ActivityMapper getLegacyActivityMapper() {
+        return legacyActivityMapper;
     }
 }

@@ -16,6 +16,7 @@
 package org.npc.slotted.client;
 
 import com.google.gwt.activity.shared.Activity;
+import com.google.gwt.activity.shared.ActivityMapper;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.web.bindery.event.shared.EventBus;
@@ -120,6 +121,18 @@ public class ActiveSlot {
             stopActivities();
             place = newPlace;
             activity = place.getActivity();
+            if (activity == null) {
+                ActivityMapper mapper = slottedController.getLegacyActivityMapper();
+                if (mapper == null) {
+                    throw new IllegalStateException("SlottedPlace.getActivity() returned null, " +
+                            "and LegacyActivityMapper wasn't set.");
+                }
+                activity = mapper.getActivity(place);
+                if (activity == null) {
+                    throw new IllegalStateException("SlottedPlace.getActivity() returned null, " +
+                            "and LegacyActivityMapper also return null.");
+                }
+            }
             if (activity instanceof SlottedActivity) {
                 ((SlottedActivity) activity).init(slottedController, place, parameters,
                         resettableEventBus);
