@@ -1,4 +1,4 @@
-package com.npc.slotted.example.client;
+package com.googlecode.slotted.gin_example.client;
 
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
