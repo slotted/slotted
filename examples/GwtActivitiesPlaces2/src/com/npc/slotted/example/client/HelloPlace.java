@@ -1,7 +1,7 @@
 package com.npc.slotted.example.client;
 
-import org.npc.slotted.client.MappedSlottedPlace;
-import org.npc.slotted.client.Slot;
+import com.googlecode.slotted.client.MappedSlottedPlace;
+import com.googlecode.slotted.client.Slot;
 
 public class HelloPlace extends MappedSlottedPlace {
     public HelloPlace(String token) {

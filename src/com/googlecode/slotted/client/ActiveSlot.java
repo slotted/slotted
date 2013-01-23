@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.npc.slotted.client;
+package com.googlecode.slotted.client;
 
 import com.google.gwt.activity.shared.Activity;
 import com.google.gwt.activity.shared.ActivityMapper;
@@ -21,7 +21,7 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.ResettableEventBus;
-import org.npc.slotted.client.SlottedController.RootSlotImpl;
+import com.googlecode.slotted.client.SlottedController.RootSlotImpl;
 
 import java.util.ArrayList;
 import java.util.Iterator;

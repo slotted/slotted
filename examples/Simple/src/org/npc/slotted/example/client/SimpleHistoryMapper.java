@@ -1,6 +1,6 @@
 package org.npc.slotted.example.client;
 
-import org.npc.slotted.client.HistoryMapper;
+import com.googlecode.slotted.client.HistoryMapper;
 import org.npc.slotted.example.client.place.HomePlace;
 import org.npc.slotted.example.client.place.NestedLevelTwoPlace;
 import org.npc.slotted.example.client.place.NestedPlace;

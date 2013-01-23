@@ -3,8 +3,8 @@
 <module rename-to="Simple">
 
     <inherits name='com.google.gwt.user.User'/>
-    <inherits name="org.npc.slotted.Slotted"/>
     <inherits name="com.google.gwt.activity.Activity"/>
+    <inherits name="com.googlecode.slotted.Slotted"/>
 
     <entry-point class='org.npc.slotted.example.client.Simple'/>
 

@@ -2,7 +2,7 @@ package com.npc.slotted.example.client;
 
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.SimpleEventBus;
-import org.npc.slotted.client.SlottedController;
+import com.googlecode.slotted.client.SlottedController;
 
 public class ClientFactoryImpl implements ClientFactory {
     private final EventBus eventBus = new SimpleEventBus();

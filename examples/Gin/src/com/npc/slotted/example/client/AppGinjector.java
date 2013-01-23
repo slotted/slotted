@@ -4,7 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.inject.client.GinModules;
 import com.google.gwt.inject.client.Ginjector;
 import com.google.web.bindery.event.shared.EventBus;
-import org.npc.slotted.client.SlottedController;
+import com.googlecode.slotted.client.SlottedController;
 
 @GinModules({AppGinModule.class})
 public interface AppGinjector extends Ginjector {

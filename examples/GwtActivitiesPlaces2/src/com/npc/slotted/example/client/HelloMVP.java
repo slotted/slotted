@@ -5,7 +5,7 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
-import org.npc.slotted.client.SlottedController;
+import com.googlecode.slotted.client.SlottedController;
 
 public class HelloMVP implements EntryPoint {
     private SimplePanel appWidget = new SimplePanel();

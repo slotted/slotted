@@ -4,12 +4,8 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.web.bindery.event.shared.EventBus;
-import org.npc.slotted.client.PlaceParameters;
-import org.npc.slotted.client.Slot;
-import org.npc.slotted.client.SlottedActivity;
-import org.npc.slotted.example.client.place.NestedPlace;
-import org.npc.slotted.example.client.place.ParentPlace;
+import com.googlecode.slotted.client.Slot;
+import com.googlecode.slotted.client.SlottedActivity;
 
 public class ParentActivity extends SlottedActivity {
     private SimplePanel slotPNL;

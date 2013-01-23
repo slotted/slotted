@@ -18,7 +18,7 @@
 * License for the specific language governing permissions and limitations under
 * the License.
 */
-package org.npc.slotted.client;
+package com.googlecode.slotted.client;
 
 import com.google.web.bindery.event.shared.Event;
 import com.google.web.bindery.event.shared.Event.Type;

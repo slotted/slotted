@@ -8,7 +8,7 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import org.npc.slotted.client.SlottedActivity;
+import com.googlecode.slotted.client.SlottedActivity;
 import org.npc.slotted.example.client.Simple;
 import org.npc.slotted.example.client.place.NestedLevelTwoPlace;
 import org.npc.slotted.example.client.place.NestedPlace;

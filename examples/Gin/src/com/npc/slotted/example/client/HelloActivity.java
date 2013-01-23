@@ -2,7 +2,7 @@ package com.npc.slotted.example.client;
 
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
-import org.npc.slotted.client.SlottedActivity;
+import com.googlecode.slotted.client.SlottedActivity;
 
 import javax.inject.Inject;
 

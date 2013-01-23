@@ -1,8 +1,8 @@
 package com.npc.slotted.example.client;
 
-import org.npc.slotted.client.MappedSlottedPlace;
-import org.npc.slotted.client.Slot;
-import org.npc.slotted.client.SlottedController;
+import com.googlecode.slotted.client.MappedSlottedPlace;
+import com.googlecode.slotted.client.Slot;
+import com.googlecode.slotted.client.SlottedController;
 
 public class BasePlace extends MappedSlottedPlace {
     public static final Slot SLOT = new Slot(new BasePlace(), new HelloPlace("Base!"));

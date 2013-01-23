@@ -1,8 +1,8 @@
 package com.npc.slotted.example.client;
 
 import com.google.gwt.activity.shared.Activity;
-import org.npc.slotted.client.Slot;
-import org.npc.slotted.client.SlottedPlace;
+import com.googlecode.slotted.client.Slot;
+import com.googlecode.slotted.client.SlottedPlace;
 
 public class GoodbyePlace extends SlottedPlace {
 

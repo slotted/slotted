@@ -1,4 +1,4 @@
-package org.npc.slotted.client;
+package com.googlecode.slotted.client;
 
 public interface HasParameters {
     public void storeParameters(PlaceParameters placeParameters);

@@ -1,9 +1,9 @@
 package com.npc.slotted.example.client;
 
 import com.google.gwt.activity.shared.Activity;
-import org.npc.slotted.client.Slot;
-import org.npc.slotted.client.SlottedController;
-import org.npc.slotted.client.SlottedPlace;
+import com.googlecode.slotted.client.Slot;
+import com.googlecode.slotted.client.SlottedController;
+import com.googlecode.slotted.client.SlottedPlace;
 
 public class BasePlace extends SlottedPlace {
     public static final Slot SLOT = new Slot(new BasePlace(), new HelloPlace("Base!"));

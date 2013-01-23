@@ -1,4 +1,4 @@
-package org.npc.slotted.client;
+package com.googlecode.slotted.client;
 
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent;

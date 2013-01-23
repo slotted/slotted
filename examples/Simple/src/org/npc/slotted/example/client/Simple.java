@@ -1,11 +1,10 @@
 package org.npc.slotted.example.client;
 
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.user.client.History;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.web.bindery.event.shared.SimpleEventBus;
-import org.npc.slotted.client.SlottedController;
-import org.npc.slotted.example.client.place.HomePlace;
+import com.googlecode.slotted.client.SlottedController;
 
 public class Simple implements EntryPoint {
     /**
