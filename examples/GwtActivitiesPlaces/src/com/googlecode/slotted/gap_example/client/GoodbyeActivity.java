@@ -1,4 +1,4 @@
-package com.npc.slotted.example.client;
+package com.googlecode.slotted.gap_example.client;
 
 import com.google.gwt.activity.shared.AbstractActivity;
 import com.google.gwt.event.shared.EventBus;

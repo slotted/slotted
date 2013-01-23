@@ -1,4 +1,4 @@
-package com.npc.slotted.example.client;
+package com.googlecode.slotted.gap_example.client;
 
 import com.googlecode.slotted.client.HistoryMapper;
 
