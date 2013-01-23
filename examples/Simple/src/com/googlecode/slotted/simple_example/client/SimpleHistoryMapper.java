@@ -1,10 +1,10 @@
-package org.npc.slotted.example.client;
+package com.googlecode.slotted.simple_example.client;
 
 import com.googlecode.slotted.client.HistoryMapper;
-import org.npc.slotted.example.client.place.HomePlace;
-import org.npc.slotted.example.client.place.NestedLevelTwoPlace;
-import org.npc.slotted.example.client.place.NestedPlace;
-import org.npc.slotted.example.client.place.ParentPlace;
+import com.googlecode.slotted.simple_example.client.place.HomePlace;
+import com.googlecode.slotted.simple_example.client.place.NestedLevelTwoPlace;
+import com.googlecode.slotted.simple_example.client.place.NestedPlace;
+import com.googlecode.slotted.simple_example.client.place.ParentPlace;
 
 public class SimpleHistoryMapper extends HistoryMapper {
     @Override

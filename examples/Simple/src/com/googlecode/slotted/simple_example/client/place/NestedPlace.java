@@ -1,9 +1,9 @@
-package org.npc.slotted.example.client.place;
+package com.googlecode.slotted.simple_example.client.place;
 
 import com.googlecode.slotted.client.Slot;
 import com.googlecode.slotted.client.SlottedActivity;
 import com.googlecode.slotted.client.SlottedPlace;
-import org.npc.slotted.example.client.activity.NestedActivity;
+import com.googlecode.slotted.simple_example.client.activity.NestedActivity;
 
 public class NestedPlace extends SlottedPlace {
     public static final Slot SLOT = new Slot(new NestedPlace(), new NestedLevelTwoPlace());

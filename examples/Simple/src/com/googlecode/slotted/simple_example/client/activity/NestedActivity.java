@@ -1,4 +1,4 @@
-package org.npc.slotted.example.client.activity;
+package com.googlecode.slotted.simple_example.client.activity;
 
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.HTML;
@@ -7,15 +7,14 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.googlecode.slotted.client.Slot;
 import com.googlecode.slotted.client.SlottedActivity;
 
-public class ParentActivity extends SlottedActivity {
+public class NestedActivity extends SlottedActivity {
     private SimplePanel slotPNL;
 
-    @Override
-    public void start(AcceptsOneWidget panel) {
+    @Override public void start(AcceptsOneWidget panel) {
         VerticalPanel mainPNL = new VerticalPanel();
         panel.setWidget(mainPNL);
 
-        mainPNL.add(new HTML("Parent View"));
+        mainPNL.add(new HTML("Nested View"));
 
         slotPNL = new SimplePanel();
         mainPNL.add(slotPNL);

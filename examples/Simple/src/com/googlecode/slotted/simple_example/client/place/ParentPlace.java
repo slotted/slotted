@@ -1,22 +1,28 @@
-package org.npc.slotted.example.client.place;
+package com.googlecode.slotted.simple_example.client.place;
 
 import com.googlecode.slotted.client.Slot;
 import com.googlecode.slotted.client.SlottedActivity;
 import com.googlecode.slotted.client.SlottedController;
 import com.googlecode.slotted.client.SlottedPlace;
-import org.npc.slotted.example.client.activity.HomeActivity;
+import com.googlecode.slotted.simple_example.client.activity.ParentActivity;
 
-public class HomePlace extends SlottedPlace {
+public class ParentPlace extends SlottedPlace {
+    public static final Slot SLOT = new Slot(new ParentPlace(), new NestedPlace());
+
+    public ParentPlace() {
+        super();
+    }
+
     @Override public Slot getParentSlot() {
         return SlottedController.RootSlot;
     }
 
     @Override public Slot[] getChildSlots() {
-        return null;
+        return new Slot[] {SLOT};
     }
 
     @Override
     public SlottedActivity getActivity() {
-        return new HomeActivity();
+        return new ParentActivity();
     }
 }

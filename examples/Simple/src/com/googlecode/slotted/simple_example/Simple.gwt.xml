@@ -6,6 +6,6 @@
     <inherits name="com.google.gwt.activity.Activity"/>
     <inherits name="com.googlecode.slotted.Slotted"/>
 
-    <entry-point class='org.npc.slotted.example.client.Simple'/>
+    <entry-point class='com.googlecode.slotted.simple_example.client.Simple'/>
 
 </module>

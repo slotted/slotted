@@ -1,4 +1,4 @@
-package org.npc.slotted.example.client.activity;
+package com.googlecode.slotted.simple_example.client.activity;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -9,10 +9,10 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.googlecode.slotted.client.SlottedActivity;
-import org.npc.slotted.example.client.Simple;
-import org.npc.slotted.example.client.place.NestedLevelTwoPlace;
-import org.npc.slotted.example.client.place.NestedPlace;
-import org.npc.slotted.example.client.place.ParentPlace;
+import com.googlecode.slotted.simple_example.client.Simple;
+import com.googlecode.slotted.simple_example.client.place.NestedLevelTwoPlace;
+import com.googlecode.slotted.simple_example.client.place.NestedPlace;
+import com.googlecode.slotted.simple_example.client.place.ParentPlace;
 
 public class HomeActivity extends SlottedActivity {
 

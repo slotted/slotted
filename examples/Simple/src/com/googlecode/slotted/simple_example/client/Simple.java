@@ -1,4 +1,4 @@
-package org.npc.slotted.example.client;
+package com.googlecode.slotted.simple_example.client;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.user.client.ui.RootPanel;

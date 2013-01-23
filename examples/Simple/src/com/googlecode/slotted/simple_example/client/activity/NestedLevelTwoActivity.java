@@ -1,7 +1,6 @@
-package org.npc.slotted.example.client.activity;
+package com.googlecode.slotted.simple_example.client.activity;
 
 import com.google.gwt.activity.shared.AbstractActivity;
-import com.google.gwt.activity.shared.Activity;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.HTML;
 
