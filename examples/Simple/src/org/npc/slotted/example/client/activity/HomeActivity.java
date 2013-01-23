@@ -8,11 +8,7 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.web.bindery.event.shared.EventBus;
-import org.npc.slotted.client.PlaceParameters;
-import org.npc.slotted.client.Slot;
 import org.npc.slotted.client.SlottedActivity;
-import org.npc.slotted.client.SlottedController;
 import org.npc.slotted.example.client.Simple;
 import org.npc.slotted.example.client.place.NestedLevelTwoPlace;
 import org.npc.slotted.example.client.place.NestedPlace;
@@ -39,13 +35,11 @@ public class HomeActivity extends SlottedActivity {
             }
         });
 
-        String token = Simple.slottedController.createToken(new NestedPlace(),
-                new PlaceParameters());
+        String token = Simple.slottedController.createToken(new NestedPlace());
         Hyperlink nestedLNK = new Hyperlink("Goto Nested", token);
         mainPNL.add(nestedLNK);
 
-        String url = Simple.slottedController.createUrl(new NestedLevelTwoPlace(),
-                new PlaceParameters());
+        String url = Simple.slottedController.createUrl(new NestedLevelTwoPlace());
         Anchor levelTwoACH = new Anchor("Goto Level Two", url);
         mainPNL.add(levelTwoACH);
     }
