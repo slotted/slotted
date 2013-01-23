@@ -6,5 +6,6 @@ public class AppHistoryMapper extends HistoryMapper {
     @Override protected void init() {
         registerDefaultPlace(new HelloPlace("World!"));
         registerPlace(new GoodbyePlace(""), "gb");
+        registerPlace(new BasePlace());
     }
 }

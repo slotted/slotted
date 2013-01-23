@@ -2,7 +2,6 @@ package com.npc.slotted.example.client;
 
 import org.npc.slotted.client.MappedSlottedPlace;
 import org.npc.slotted.client.Slot;
-import org.npc.slotted.client.SlottedController;
 
 public class GoodbyePlace extends MappedSlottedPlace {
 
@@ -15,7 +14,7 @@ public class GoodbyePlace extends MappedSlottedPlace {
     }
 
     @Override public Slot getParentSlot() {
-        return SlottedController.RootSlot;
+        return BasePlace.SLOT;
     }
 
     @Override public Slot[] getChildSlots() {
