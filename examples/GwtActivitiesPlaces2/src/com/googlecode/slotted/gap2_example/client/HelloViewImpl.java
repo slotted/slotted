@@ -1,4 +1,4 @@
-package com.npc.slotted.example.client;
+package com.googlecode.slotted.gap2_example.client;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.SpanElement;
