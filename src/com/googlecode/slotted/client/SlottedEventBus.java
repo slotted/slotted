@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+//todo javadoc
 public class SlottedEventBus extends EventBus {
     private interface Command {
         void execute();

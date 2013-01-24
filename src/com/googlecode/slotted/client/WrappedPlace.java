@@ -19,6 +19,7 @@ import com.google.gwt.activity.shared.Activity;
 import com.google.gwt.activity.shared.ActivityMapper;
 import com.google.gwt.place.shared.Place;
 
+//todo javadoc
 public class WrappedPlace extends SlottedPlace {
     private Place place;
     private ActivityMapper activityMapper;

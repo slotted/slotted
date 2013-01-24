@@ -18,6 +18,7 @@ package com.googlecode.slotted.client;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+//todo javadoc
 public class PlaceParameters {
     private HashMap<String, String> paramMap = new HashMap<String, String>();
 

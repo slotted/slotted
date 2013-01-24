@@ -17,6 +17,9 @@ package com.googlecode.slotted.client;
 
 import com.google.gwt.core.client.EntryPoint;
 
+/**
+ * EntryPoint needed for the Slotted framework.  This should be left empty.
+ */
 public class Slotted implements EntryPoint {
     public void onModuleLoad() {
     }

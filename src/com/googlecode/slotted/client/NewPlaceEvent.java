@@ -20,6 +20,7 @@ import com.google.gwt.event.shared.GwtEvent;
 
 import java.util.LinkedList;
 
+//todo javadoc
 public class NewPlaceEvent extends GwtEvent<NewPlaceEvent.Handler> {
     public static final Type<Handler> Type = new Type<Handler>();
     public static interface Handler extends EventHandler {

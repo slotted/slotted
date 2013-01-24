@@ -15,11 +15,20 @@
  */
 package com.google.web.bindery.event.shared;
 
+/**
+ * Helper needed by SlottedEventBus to work properly, because the Event API has protected methods.
+ */
 public class EventHelper {
+    /**
+     * Calls the protected setSource() method on the passed Event.
+     */
     public static void setSource(Event event, Object source) {
         event.setSource(source);
     }
 
+    /**
+     * Calls the protected dispatch() method on the passed Event.
+     */
     public static <H> void dispatch(Event<H> event, H handler) {
         event.dispatch(handler);
     }

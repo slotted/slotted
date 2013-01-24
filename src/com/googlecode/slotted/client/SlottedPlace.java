@@ -18,6 +18,7 @@ package com.googlecode.slotted.client;
 import com.google.gwt.activity.shared.Activity;
 import com.google.gwt.place.shared.Place;
 
+//todo javadoc
 abstract public class SlottedPlace extends Place implements HasParameters {
 
     private PlaceParameters placeParameters;

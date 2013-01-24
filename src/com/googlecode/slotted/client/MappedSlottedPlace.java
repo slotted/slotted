@@ -22,6 +22,11 @@ import com.google.gwt.activity.shared.Activity;
  * creation of the Activity.
  */
 abstract public class MappedSlottedPlace extends SlottedPlace {
+
+    /**
+     * Overrides the getActivity(), so it doesn't need to be implemented.  But Slotted never calls
+     * this method for classes of this type.
+     */
     @Override final public Activity getActivity() {
         return null;
     }

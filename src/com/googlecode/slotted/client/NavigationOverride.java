@@ -17,6 +17,7 @@ package com.googlecode.slotted.client;
 
 import java.util.ArrayList;
 
+//todo javadoc
 public interface NavigationOverride {
     /**
      * Called for every place request.  If override is desired return new list of places, otherwise

@@ -26,6 +26,7 @@ import com.googlecode.slotted.client.SlottedController.RootSlotImpl;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+//todo javadoc
 public class ActiveSlot {
     /**
      * Wraps our real display to prevent an Activity from taking it over if it is not the

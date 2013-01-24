@@ -17,6 +17,7 @@ package com.googlecode.slotted.client;
 
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
+//todo javadoc
 public class Slot {
     private SlottedPlace ownerPlace;
     private SlottedPlace defaultPlace;

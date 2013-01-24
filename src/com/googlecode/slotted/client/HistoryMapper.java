@@ -24,7 +24,9 @@ import com.google.gwt.user.client.History;
 import java.util.HashMap;
 
 /**
- *
+ * HistoryMapper is an abstract base class that manages generation and parsing of History Tokens.
+ * This class is extended by every implementation of Slotted and defines which SlottedPlaces need
+ * URL management.
  */
 abstract public class HistoryMapper {
 
@@ -35,6 +37,10 @@ abstract public class HistoryMapper {
     private PlaceHistoryMapper legacyHistoryMapper;
     private boolean handlingHistory;
 
+    /**
+     * Default constructor which adds itself as a History listener and calls init() on the base
+     * class to register all SlottedPlaces.
+     */
     public HistoryMapper() {
         History.addValueChangeHandler(new ValueChangeHandler<String>() {
             @Override public void onValueChange(ValueChangeEvent<String> event) {
@@ -49,26 +55,44 @@ abstract public class HistoryMapper {
     }
 
     /**
+     * Called by the Constructor to register all the SlottedPlaces that will be managed.
      *
+     * @see #registerDefaultPlace(SlottedPlace)
+     * @see #registerPlace(SlottedPlace)
      */
     protected abstract void init();
 
     /**
-     *
-     * @param controller
+     * Called by SlottedController to provide the circular reference.
      */
-    public void setController(SlottedController controller) {
+    protected void setController(SlottedController controller) {
         this.controller = controller;
     }
 
-    public void setLegacyHistoryMapper(PlaceHistoryMapper legacyHistoryMapper) {
+    /**
+     * Called by SlottedController to provide legacy HistoryMapper to process Places not migrated
+     * to Slotted framework.
+     */
+    protected void setLegacyHistoryMapper(PlaceHistoryMapper legacyHistoryMapper) {
         this.legacyHistoryMapper = legacyHistoryMapper;
     }
 
+    /**
+     * Returns the SlottedPlace instance that represents the place to navigate to if the history
+     * token is empty.
+     */
     public SlottedPlace getDefaultPlace() {
         return defaultPlace;
     }
 
+    /**
+     * Registers the passed SlottedPlace as the default location to navigate to if the history
+     * token is empty.  It also registers the SlottedPlace as a normal page.
+     *
+     * @param place The place with correct parameters to display.
+     * @throws IllegalStateException if default place has already be registered.
+     * @see #registerPlace(SlottedPlace)
+     */
     public void registerDefaultPlace(SlottedPlace place) {
         if (defaultPlace != null) {
             throw new IllegalStateException("Default place already set.");
@@ -77,6 +101,13 @@ abstract public class HistoryMapper {
         registerPlace(place);
     }
 
+    /**
+     * Same as {@link #registerDefaultPlace(SlottedPlace)}, but allows Places URL token to be
+     * overridden, instead of using the simple class name.
+     *
+     * @param place The place with correct parameters to display.
+     * @param name The new URL token to display in the History token, must be URL safe.
+     */
     public void registerDefaultPlace(SlottedPlace place, String name) {
         if (defaultPlace != null) {
             throw new IllegalStateException("Default place already set.");
@@ -85,6 +116,15 @@ abstract public class HistoryMapper {
         registerPlace(place, name);
     }
 
+    /**
+     * Registers the passed SlottedPlace be handled in generating and parsing History tokens.  The
+     * SlottedPlace's simple class name will be used in the HistoryToken.  If the name ends with
+     * "Place", that will be stripped off.  (i.e. "HomePlace" will appear as "Home" in the token)
+     *
+     * @param place The place instance to be managed.  The parameters aren't important, because
+     *              they are replaced during parsing.
+     * @see #registerPlace(SlottedPlace, String)
+     */
     public void registerPlace(SlottedPlace place) {
         String name = place.getClass().getName();
         int index = name.lastIndexOf(".");
@@ -97,16 +137,32 @@ abstract public class HistoryMapper {
         registerPlace(place, name);
     }
 
+    /**
+     * Same as {@link #registerPlace(SlottedPlace)}, but allows Places URL token to be
+     * overridden, instead of using the simple class name.
+     *
+     * @param place The place with correct parameters to display.
+     * @param name The new URL token to display in the History token, must be URL safe.
+     */
     public void registerPlace(SlottedPlace place, String name) {
         nameToPlaceMap.put(name, place);
         placeToNameMap.put(place.getClass(), name);
     }
 
-    public void goToDefaultPlace() {
+    /**
+     * Called by SlottedController to provide a URL empty history token when navigating to the
+     * default place.
+     */
+    protected void goToDefaultPlace() {
         History.newItem("", true);
     }
 
-    public void handleHistory(String token) {
+    /**
+     * Called by the History listener to parse and navigate the new history token.
+     *
+     * @param token History Token that needs to be navigated to.
+     */
+    protected void handleHistory(String token) {
         RuntimeException parsingException = null;
         handlingHistory = true;
         if (token == null || token.trim().isEmpty()) {
@@ -158,7 +214,14 @@ abstract public class HistoryMapper {
         handlingHistory = false;
     }
 
-    //todo javadoc
+    /**
+     * Creates a History token for the passed place, which can be used in links or other navigation
+     * URLs.
+     *
+     * @param place The SlottedPlace that will be navigated to.
+     * @param parameters The parameters that should be added to the token.
+     * @return History token that can be added to a base URL for navigation.
+     */
     public String createToken(SlottedPlace place, PlaceParameters parameters) {
         String token = placeToNameMap.get(place.getClass());
 
@@ -169,6 +232,9 @@ abstract public class HistoryMapper {
         return token;
     }
 
+    /**
+     * Generates the History token for the currently display Places.
+     */
     public void createToken() {
         if (!handlingHistory) {
             String token = createToken(controller.getRoot());
@@ -177,7 +243,7 @@ abstract public class HistoryMapper {
         }
     }
 
-    public String createToken(ActiveSlot activeSlot) {
+    protected String createToken(ActiveSlot activeSlot) {
         String token;
         if (activeSlot.getPlace() instanceof WrappedPlace) {
             Place place = ((WrappedPlace) activeSlot.getPlace()).getPlace();

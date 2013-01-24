@@ -19,6 +19,7 @@ import com.google.gwt.activity.shared.AbstractActivity;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.web.bindery.event.shared.EventBus;
 
+//todo javadoc
 abstract public class SlottedActivity extends AbstractActivity {
 
     private SlottedController slottedController;
