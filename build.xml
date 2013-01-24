@@ -5,7 +5,7 @@
 
 
     <!--         App specifics              -->
-    <property name="gwt.modules" value="org.npc.slotted.Slotted"/>
+    <property name="gwt.modules" value="com.googlecode.slotted.Slotted"/>
 
     <!--         Install Versions           -->
     <property name="ivy.install.version" value="2.1.0-rc2" />
@@ -207,6 +207,7 @@
             <arg value="-DpomFile=pom.xml" />
             <arg value="-Dfile=${maven-jar}" />
             <arg value="-Pgpg" />
+            <arg value="-Dgpg.passphrase=${pgp.passphrase}" />
         </artifact:mvn>
 
         <!-- sign and deploy the sources artifact -->
@@ -218,6 +219,7 @@
             <arg value="-Dfile=${maven-sources-jar}" />
             <arg value="-Dclassifier=sources" />
             <arg value="-Pgpg" />
+            <arg value="-Dgpg.passphrase=${pgp.passphrase}" />
         </artifact:mvn>
 
         <!-- sign and deploy the javadoc artifact -->
@@ -229,6 +231,7 @@
             <arg value="-Dfile=${maven-javadoc-jar}" />
             <arg value="-Dclassifier=javadoc" />
             <arg value="-Pgpg" />
+            <arg value="-Dgpg.passphrase=${pgp.passphrase}" />
         </artifact:mvn>
     </target>
 
