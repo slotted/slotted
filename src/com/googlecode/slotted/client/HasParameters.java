@@ -17,6 +17,6 @@ package com.googlecode.slotted.client;
 
 //todo javadoc
 public interface HasParameters {
-    public void storeParameters(PlaceParameters placeParameters);
-    public void retrieveParameters(PlaceParameters placeParameters);
+    public void extractParameters(PlaceParameters placeParameters);
+    public void setPlaceParameters(PlaceParameters placeParameters);
 }

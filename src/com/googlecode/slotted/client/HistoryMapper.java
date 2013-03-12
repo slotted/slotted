@@ -193,7 +193,7 @@ abstract public class HistoryMapper {
                     if (places[i] == null) {
                         throw new IllegalStateException("Place not defined:" + placeNames[i]);
                     }
-                    places[i].retrieveParameters(parameters);
+                    places[i].setPlaceParameters(parameters);
                 }
 
                 controller.goTo(places[0], places);

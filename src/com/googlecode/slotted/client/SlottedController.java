@@ -247,6 +247,7 @@ public class SlottedController {
             }
 
             currentParameters = new PlaceParameters();
+            newPlace.extractParameters(currentParameters);
 
             ArrayList<SlottedPlace> completeNonDefaults = new ArrayList<SlottedPlace>();
             completeNonDefaults.add(newPlace);
@@ -307,7 +308,7 @@ public class SlottedController {
     //todo javadoc
     public String createToken(SlottedPlace newPlace) {
         PlaceParameters placeParameters = new PlaceParameters();
-        newPlace.storeParameters(placeParameters);
+        newPlace.extractParameters(placeParameters);
         String token = historyMapper.createToken(newPlace, placeParameters);
         return token;
     }

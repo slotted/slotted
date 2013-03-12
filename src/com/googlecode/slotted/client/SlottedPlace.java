@@ -51,13 +51,13 @@ abstract public class SlottedPlace extends Place implements HasParameters {
         equalsParameterNames = parameterName;
     }
 
-    @Override public void storeParameters(PlaceParameters placeParameters) {
+    @Override public void extractParameters(PlaceParameters intoPlaceParameters) {
         if (this.placeParameters != null) {
-            placeParameters.addPlaceParameters(this.placeParameters);
+            intoPlaceParameters.addPlaceParameters(this.placeParameters);
         }
     }
 
-    @Override public void retrieveParameters(PlaceParameters placeParameters) {
+    @Override public void setPlaceParameters(PlaceParameters placeParameters) {
         this.placeParameters = placeParameters;
     }
 

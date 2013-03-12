@@ -127,7 +127,7 @@ public class ActiveSlot {
             Iterable<SlottedPlace> nonDefaultPlaces, boolean reloadAll)
     {
         SlottedPlace newPlace = getPlace(nonDefaultPlaces);
-        newPlace.storeParameters(parameters);
+        newPlace.setPlaceParameters(parameters);
         if (reloadAll || !newPlace.equals(place)) {
             stopActivities();
             place = newPlace;

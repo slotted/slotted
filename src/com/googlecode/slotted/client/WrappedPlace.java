@@ -45,15 +45,15 @@ public class WrappedPlace extends SlottedPlace {
         return place;
     }
 
-    @Override public void storeParameters(PlaceParameters placeParameters) {
+    @Override public void extractParameters(PlaceParameters intoPlaceParameters) {
         if (place instanceof HasParameters) {
-            ((HasParameters) place).storeParameters(placeParameters);
+            ((HasParameters) place).extractParameters(intoPlaceParameters);
         }
     }
 
-    @Override public void retrieveParameters(PlaceParameters placeParameters) {
+    @Override public void setPlaceParameters(PlaceParameters placeParameters) {
         if (place instanceof HasParameters) {
-            ((HasParameters) place).retrieveParameters(placeParameters);
+            ((HasParameters) place).setPlaceParameters(placeParameters);
         }
     }
 
