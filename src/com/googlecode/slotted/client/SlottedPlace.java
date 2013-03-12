@@ -21,7 +21,12 @@ import com.google.gwt.place.shared.Place;
 //todo javadoc
 abstract public class SlottedPlace extends Place implements HasParameters {
 
+    private String[] equalsParameterNames = new String[0];
     private PlaceParameters placeParameters;
+    Class c;
+    String a;
+    String a2;
+    String a3;
 
     abstract public Slot getParentSlot();
     abstract public Slot[] getChildSlots();
@@ -40,6 +45,10 @@ abstract public class SlottedPlace extends Place implements HasParameters {
             return placeParameters.getParameter(name);
         }
         return null;
+    }
+
+    protected void setEqualsParameters(String... parameterName) {
+        equalsParameterNames = parameterName;
     }
 
     @Override public void storeParameters(PlaceParameters placeParameters) {
@@ -61,12 +70,27 @@ abstract public class SlottedPlace extends Place implements HasParameters {
             return false;
         }
 
+        SlottedPlace place = (SlottedPlace) o;
+        for (String name: equalsParameterNames) {
+            String value = getParameter(name);
+            String placeValue = place.getParameter(name);
+            if (value != null ? !value.equals(placeValue) : placeValue != null) {
+                return false;
+            }
+        }
+
         return true;
     }
 
     @Override
     public int hashCode() {
-        return getClass().hashCode();
+        int result = getClass().hashCode();
+        for (String name: equalsParameterNames) {
+            String value = getParameter(name);
+            result = 31 * result + (value != null ? value.hashCode() : 0);
+        }
+
+        return result;
     }
 
     @Override public String toString() {

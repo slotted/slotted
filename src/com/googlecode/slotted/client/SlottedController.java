@@ -97,6 +97,7 @@ public class SlottedController {
 
     private int goToCount = 0;
     private final Delegate delegate;
+    private boolean reloadAll = false;
     private ActiveSlot root;
     private PlaceParameters currentParameters;
     private NavigationOverride navigationOverride;
@@ -168,6 +169,21 @@ public class SlottedController {
         History.fireCurrentHistoryState();
     }
 
+    /**
+     * Sets reloadAll (defaults false).  If the reloadAll is true, then every Activity in the
+     * hierarchy will be stopped and started again on every navigation.  If false, Places/Activities
+     * that are already in the hierarchy will not be stopped, but Activities not in navigation
+     * will be stopped and new Places will have Activities started.
+     *
+     * It is possible to override the RefreshAll default value by calling {@link #goTo(SlottedPlace, SlottedPlace[], boolean)}.
+     *
+     * @param reloadAll The new default value to use on goTo() calls and URL changes.
+     */
+    public void setReloadAll(boolean reloadAll) {
+        this.reloadAll = reloadAll;
+    }
+
+    //todo javadoc
     public void setNavigationOverride(NavigationOverride navigationOverride) {
         this.navigationOverride = navigationOverride;
     }
@@ -213,7 +229,7 @@ public class SlottedController {
      * default places defined for the slots.
      */
     public void goTo(SlottedPlace newPlace, SlottedPlace... nonDefaultPlaces) {
-        goTo(newPlace, nonDefaultPlaces, true);
+        goTo(newPlace, nonDefaultPlaces, reloadAll);
     }
 
     /**
@@ -222,9 +238,9 @@ public class SlottedController {
      * pages are refreshed, and this method should only be used if you don't want to refresh
      * existing activities.
      *
-     * @param refreshAll true if existing activities should be refreshed.
+     * @param reloadAll true if existing activities should be refreshed.
      */
-    public void goTo(SlottedPlace newPlace, SlottedPlace[] nonDefaultPlaces, boolean refreshAll) {
+    public void goTo(SlottedPlace newPlace, SlottedPlace[] nonDefaultPlaces, boolean reloadAll) {
         try {
             if (goToCount++ > 10) {
                 throw new IllegalStateException("Goto appears to be in an infinite loop.");
@@ -252,10 +268,10 @@ public class SlottedController {
 
             if (warnings.isEmpty() ||
                     delegate.confirm(warnings.toArray(new String[warnings.size()]))) {
-                if (refreshAll) {
+                if (reloadAll) {
                     slotToUpdate = getRootAddNonDefaults(slotToUpdate, completeNonDefaults);
                 }
-                slotToUpdate.constructStopStart(currentParameters, completeNonDefaults, refreshAll);
+                slotToUpdate.constructStopStart(currentParameters, completeNonDefaults, reloadAll);
 
                 LinkedList<SlottedPlace> places = new LinkedList<SlottedPlace>();
                 fillPlaces(root, places);

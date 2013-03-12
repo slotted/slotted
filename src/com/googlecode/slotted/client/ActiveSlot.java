@@ -124,11 +124,11 @@ public class ActiveSlot {
     }
 
     public void constructStopStart(PlaceParameters parameters,
-            Iterable<SlottedPlace> nonDefaultPlaces, boolean refreshAll)
+            Iterable<SlottedPlace> nonDefaultPlaces, boolean reloadAll)
     {
         SlottedPlace newPlace = getPlace(nonDefaultPlaces);
         newPlace.storeParameters(parameters);
-        if (refreshAll || !newPlace.equals(place)) {
+        if (reloadAll || !newPlace.equals(place)) {
             stopActivities();
             place = newPlace;
             activity = place.getActivity();
@@ -156,7 +156,7 @@ public class ActiveSlot {
         }
 
         for (ActiveSlot child : children) {
-            child.constructStopStart(parameters, nonDefaultPlaces, refreshAll);
+            child.constructStopStart(parameters, nonDefaultPlaces, reloadAll);
         }
     }
 
