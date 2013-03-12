@@ -41,6 +41,7 @@ public class ActiveSlot {
 
         public void setWidget(IsWidget view) {
             if (this.activity == ActiveSlot.this.activity) {
+                activityStarting = false;
                 showWidget(view);
             }
         }
@@ -53,6 +54,7 @@ public class ActiveSlot {
     private ResettableEventBus resettableEventBus;
     private SlottedPlace place;
     private Activity activity;
+    private boolean activityStarting;
 
     public ActiveSlot(ActiveSlot parent, Slot slot, EventBus eventBus,
             SlottedController slottedController)
@@ -102,14 +104,22 @@ public class ActiveSlot {
     }
 
     public void stopActivities() {
-        resettableEventBus.removeHandlers();
-        if (activity != null) {
-            activity.onStop();
-        }
-        if (children != null) {
-            for (ActiveSlot child : children) {
-                child.stopActivities();
+        try {
+            if (activity != null) {
+                if (activityStarting) {
+                    activity.onCancel();
+                } else {
+                    activity.onStop();
+                }
+                activityStarting = false;
             }
+            if (children != null) {
+                for (ActiveSlot child : children) {
+                    child.stopActivities();
+                }
+            }
+        } finally {
+            resettableEventBus.removeHandlers();
         }
     }
 
@@ -138,9 +148,9 @@ public class ActiveSlot {
                 ((SlottedActivity) activity).init(slottedController, place, parameters,
                         resettableEventBus);
             }
-            com.google.gwt.event.shared.ResettableEventBus legacyBus = new com.google.gwt.event
-                    .shared.ResettableEventBus(
-                    resettableEventBus);
+            com.google.gwt.event.shared.ResettableEventBus legacyBus =
+                    new com.google.gwt.event.shared.ResettableEventBus(resettableEventBus);
+            activityStarting = true;
             activity.start(new ProtectedDisplay(activity), legacyBus);
             createChildren();
         }

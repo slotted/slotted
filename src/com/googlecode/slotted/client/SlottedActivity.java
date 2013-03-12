@@ -51,6 +51,16 @@ abstract public class SlottedActivity extends AbstractActivity {
         this.eventBus = eventBus;
     }
 
+    /**
+     * On Cancel is called when the ActiveSlot display widget doesn't receive setWidget() call.
+     * SlottedActivity overrides the default behaviour by calling onStop().  This was done because
+     * it is believed that onCancel() is not normally implemented, and there is a potential bug if
+     * only onStop() is implemented.
+     */
+    @Override public void onCancel() {
+        onStop();
+    }
+
     public SlottedController getSlottedController() {
         return slottedController;
     }
