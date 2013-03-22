@@ -61,6 +61,9 @@ abstract public class SlottedActivity extends AbstractActivity {
         onStop();
     }
 
+    public void onRefresh() {
+    }
+
     public SlottedController getSlottedController() {
         return slottedController;
     }

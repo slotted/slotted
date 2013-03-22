@@ -23,10 +23,6 @@ abstract public class SlottedPlace extends Place implements HasParameters {
 
     private String[] equalsParameterNames = new String[0];
     private PlaceParameters placeParameters;
-    Class c;
-    String a;
-    String a2;
-    String a3;
 
     abstract public Slot getParentSlot();
     abstract public Slot[] getChildSlots();

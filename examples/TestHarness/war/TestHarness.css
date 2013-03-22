@@ -1,0 +1,12 @@
+body {
+    background-color: white;
+    color: black;
+    font-family: Arial, sans-serif;
+    font-size: small;
+    margin: 8px;
+}
+
+.display {
+    border: 1px black solid;
+    padding: 5px;
+}

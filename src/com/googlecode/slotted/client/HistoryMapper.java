@@ -145,6 +145,21 @@ abstract public class HistoryMapper {
      * @param name The new URL token to display in the History token, must be URL safe.
      */
     public void registerPlace(SlottedPlace place, String name) {
+        Slot[] childSlots = place.getChildSlots();
+        if (childSlots != null) {
+            for (Slot child: childSlots) {
+                if (child.getOwnerPlace() == null || child.getDefaultPlace() == null) {
+                    throw new IllegalStateException(place + " has a Slot that is defined incorrectly. " +
+                            "Slots must define a ParentPlace and DefaultPlace.");
+                }
+                SlottedPlace defaultPlace = child.getDefaultPlace();
+                if (!defaultPlace.getParentSlot().equals(child)) {
+                    throw new IllegalStateException(place + " has a Slot with a default place " +
+                            "for different slot: " + defaultPlace);
+                }
+            }
+        }
+
         nameToPlaceMap.put(name, place);
         placeToNameMap.put(place.getClass(), name);
     }

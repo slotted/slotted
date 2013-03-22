@@ -95,7 +95,10 @@ public class SlottedController {
     private final HistoryMapper historyMapper;
     private ActivityMapper legacyActivityMapper;
 
-    private int goToCount = 0;
+    private boolean processingGoTo;
+    private SlottedPlace nextGoToPlace;
+    private SlottedPlace[] nextGoToNonDefaultPlaces;
+    private boolean nextGoToReloadAll;
     private final Delegate delegate;
     private boolean reloadAll = false;
     private ActiveSlot root;
@@ -130,7 +133,7 @@ public class SlottedController {
         delegate.addWindowClosingHandler(new ClosingHandler() {
             public void onWindowClosing(ClosingEvent event) {
                 ArrayList<String> warnings = new ArrayList<String>();
-                root.maybeGoTo(warnings);
+                root.maybeGoTo(new ArrayList<SlottedPlace>(), true, warnings);
                 if (!warnings.isEmpty()) {
                     event.setMessage(warnings.get(0));
                 }
@@ -242,47 +245,50 @@ public class SlottedController {
      */
     public void goTo(SlottedPlace newPlace, SlottedPlace[] nonDefaultPlaces, boolean reloadAll) {
         try {
-            if (goToCount++ > 10) {
-                throw new IllegalStateException("Goto appears to be in an infinite loop.");
-            }
+            if (processingGoTo) {
+                nextGoToPlace = newPlace;
+                nextGoToNonDefaultPlaces = nonDefaultPlaces;
+                nextGoToReloadAll = reloadAll;
 
-            currentParameters = new PlaceParameters();
-            newPlace.extractParameters(currentParameters);
+            } else {
+                processingGoTo = true;
+                nextGoToPlace = null;
+                nextGoToNonDefaultPlaces = null;
+                nextGoToReloadAll = false;
 
-            ArrayList<SlottedPlace> completeNonDefaults = new ArrayList<SlottedPlace>();
-            completeNonDefaults.add(newPlace);
-            Collections.addAll(completeNonDefaults, nonDefaultPlaces);
+                currentParameters = new PlaceParameters();
+                newPlace.extractParameters(currentParameters);
 
-            if (navigationOverride != null) {
-                completeNonDefaults = navigationOverride.checkOverrides(completeNonDefaults);
-                newPlace = completeNonDefaults.get(0);
-            }
+                ArrayList<SlottedPlace> completeNonDefaults = new ArrayList<SlottedPlace>();
+                completeNonDefaults.add(newPlace);
+                Collections.addAll(completeNonDefaults, nonDefaultPlaces);
 
-            ActiveSlot slotToUpdate = root.findSlot(newPlace.getParentSlot());
-
-            if (slotToUpdate == null) {
-                addParents(newPlace, completeNonDefaults);
-                slotToUpdate = root;
-            }
-            ArrayList<String> warnings = new ArrayList<String>();
-            slotToUpdate.maybeGoTo(warnings);
-
-            if (warnings.isEmpty() ||
-                    delegate.confirm(warnings.toArray(new String[warnings.size()]))) {
-                if (reloadAll) {
-                    slotToUpdate = getRootAddNonDefaults(slotToUpdate, completeNonDefaults);
+                if (navigationOverride != null) {
+                    completeNonDefaults = navigationOverride.checkOverrides(completeNonDefaults);
+                    newPlace = completeNonDefaults.get(0);
                 }
-                slotToUpdate.constructStopStart(currentParameters, completeNonDefaults, reloadAll);
 
-                LinkedList<SlottedPlace> places = new LinkedList<SlottedPlace>();
-                fillPlaces(root, places);
+                ArrayList<String> warnings = new ArrayList<String>();
+                root.maybeGoTo(completeNonDefaults, reloadAll, warnings);
 
-                historyMapper.createToken();
+                if (warnings.isEmpty() || delegate.confirm(warnings.toArray(new String[warnings.size()]))) {
 
-                eventBus.fireEvent(new NewPlaceEvent(places));
+                    root.constructStopStart(currentParameters, completeNonDefaults, reloadAll);
+
+                    LinkedList<SlottedPlace> places = new LinkedList<SlottedPlace>();
+                    fillPlaces(root, places);
+
+                    historyMapper.createToken();
+
+                    eventBus.fireEvent(new NewPlaceEvent(places));
+                }
+
+                processingGoTo = false;
+
+                if (nextGoToPlace != null) {
+                    goTo(nextGoToPlace, nextGoToNonDefaultPlaces, nextGoToReloadAll);
+                }
             }
-
-            goToCount--;
         } catch (Exception e) {
             e.printStackTrace();
             log.log(Level.SEVERE, "Problem while goTo:" + newPlace, e);
@@ -294,6 +300,10 @@ public class SlottedController {
         for (ActiveSlot childSlot : slot.getChildren()) {
             fillPlaces(childSlot, places);
         }
+    }
+
+    protected boolean shouldStartActivity() {
+        return nextGoToPlace == null;
     }
 
     //todo javadoc
@@ -311,28 +321,6 @@ public class SlottedController {
         newPlace.extractParameters(placeParameters);
         String token = historyMapper.createToken(newPlace, placeParameters);
         return token;
-    }
-
-    private void addParents(SlottedPlace newPlace, ArrayList<SlottedPlace> completeNonDefaults) {
-        SlottedPlace parent = newPlace;
-        while (parent.getParentSlot() != null && parent.getParentSlot().getOwnerPlace() != null) {
-            parent = parent.getParentSlot().getOwnerPlace();
-            completeNonDefaults.add(parent);
-        }
-    }
-
-    private ActiveSlot getRootAddNonDefaults(ActiveSlot baseSlot,
-            ArrayList<SlottedPlace> nonDefaultPlaces)
-    {
-        ActiveSlot root = baseSlot;
-        ActiveSlot parent = baseSlot.getParent();
-        while (parent != null) {
-            root = parent;
-            nonDefaultPlaces.add(parent.getPlace());
-            parent = parent.getParent();
-        }
-
-        return root;
     }
 
     /**

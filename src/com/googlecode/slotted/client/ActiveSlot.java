@@ -48,13 +48,14 @@ public class ActiveSlot {
     }
 
     private ActiveSlot parent;
-    private ArrayList<ActiveSlot> children;
+    private ArrayList<ActiveSlot> children = new ArrayList<ActiveSlot>();
     private Slot slot;
-    private SlottedController slottedController;
-    private ResettableEventBus resettableEventBus;
     private SlottedPlace place;
+    private SlottedPlace newPlace;
     private Activity activity;
     private boolean activityStarting;
+    private SlottedController slottedController;
+    private ResettableEventBus resettableEventBus;
 
     public ActiveSlot(ActiveSlot parent, Slot slot, EventBus eventBus,
             SlottedController slottedController)
@@ -63,8 +64,6 @@ public class ActiveSlot {
         this.slot = slot;
         this.slottedController = slottedController;
         this.resettableEventBus = new ResettableEventBus(eventBus);
-
-        children = new ArrayList<ActiveSlot>();
     }
 
     private void showWidget(IsWidget view) {
@@ -73,16 +72,22 @@ public class ActiveSlot {
         }
     }
 
-    public void maybeGoTo(ArrayList<String> warnings) {
-        if (activity != null) {
-            String warning = activity.mayStop();
-            if (warning != null) {
-                warnings.add(warning);
+    public void maybeGoTo(Iterable<SlottedPlace> nonDefaultPlaces, boolean reloadAll,
+            ArrayList<String> warnings)
+    {
+        newPlace = getPlace(nonDefaultPlaces);
+        if (reloadAll || !newPlace.equals(place)) {
+            if (activity != null) {
+                String warning = activity.mayStop();
+                if (warning != null) {
+                    warnings.add(warning);
+                }
             }
+            reloadAll = true;
         }
         if (children != null) {
             for (ActiveSlot child : children) {
-                child.maybeGoTo(warnings);
+                child.maybeGoTo(nonDefaultPlaces, reloadAll, warnings);
             }
         }
     }
@@ -105,18 +110,21 @@ public class ActiveSlot {
 
     public void stopActivities() {
         try {
+            place = null;
             if (activity != null) {
                 if (activityStarting) {
                     activity.onCancel();
                 } else {
                     activity.onStop();
                 }
+                activity = null;
                 activityStarting = false;
             }
             if (children != null) {
                 for (ActiveSlot child : children) {
                     child.stopActivities();
                 }
+                children.clear();
             }
         } finally {
             resettableEventBus.removeHandlers();
@@ -126,33 +134,24 @@ public class ActiveSlot {
     public void constructStopStart(PlaceParameters parameters,
             Iterable<SlottedPlace> nonDefaultPlaces, boolean reloadAll)
     {
-        SlottedPlace newPlace = getPlace(nonDefaultPlaces);
+        if (newPlace == null) {
+            newPlace = getPlace(nonDefaultPlaces);
+        }
         newPlace.setPlaceParameters(parameters);
         if (reloadAll || !newPlace.equals(place)) {
             stopActivities();
-            place = newPlace;
-            activity = place.getActivity();
+        }
+        place = newPlace;
+        newPlace = null;
+
+        createChildren();
+
+        if (slottedController.shouldStartActivity()) {
             if (activity == null) {
-                ActivityMapper mapper = slottedController.getLegacyActivityMapper();
-                if (mapper == null) {
-                    throw new IllegalStateException("SlottedPlace.getActivity() returned null, " +
-                            "and LegacyActivityMapper wasn't set.");
-                }
-                activity = mapper.getActivity(place);
-                if (activity == null) {
-                    throw new IllegalStateException("SlottedPlace.getActivity() returned null, " +
-                            "and LegacyActivityMapper also return null.");
-                }
+                getStartActivity(parameters);
+            } else {
+                refreshActivity(parameters);
             }
-            if (activity instanceof SlottedActivity) {
-                ((SlottedActivity) activity).init(slottedController, place, parameters,
-                        resettableEventBus);
-            }
-            com.google.gwt.event.shared.ResettableEventBus legacyBus =
-                    new com.google.gwt.event.shared.ResettableEventBus(resettableEventBus);
-            activityStarting = true;
-            activity.start(new ProtectedDisplay(activity), legacyBus);
-            createChildren();
         }
 
         for (ActiveSlot child : children) {
@@ -172,28 +171,67 @@ public class ActiveSlot {
                 return place;
             }
         }
+        if (place != null) {
+            return place;
+        }
         return slot.getDefaultPlace();
     }
 
-    private void createChildren() {
-        children = new ArrayList<ActiveSlot>();
-        if (activity != null && activity instanceof SlottedActivity) {
-            SlottedActivity slottedActivity = (SlottedActivity) activity;
-            Slot[] childSlots = place.getChildSlots();
-            if (childSlots != null) {
-                for (Slot slot : childSlots) {
-                    slottedActivity.setChildSlotDisplay(slot);
-                    if (slot.getDisplay() == null || slot.getOwnerPlace() == null ||
-                            slot.getDefaultPlace() == null) {
-                        //todo better error message
-                        throw new IllegalStateException(
-                                "Slot must have ParentPlace, DefaultPlace, and Display");
-                    }
-                    ActiveSlot child = new ActiveSlot(this, slot, resettableEventBus,
-                            slottedController);
-                    children.add(child);
+    private void getStartActivity(PlaceParameters parameters) {
+        activity = place.getActivity();
+        if (activity == null) {
+            ActivityMapper mapper = slottedController.getLegacyActivityMapper();
+            if (mapper == null) {
+                throw new IllegalStateException("SlottedPlace.getActivity() returned null, " +
+                        "and LegacyActivityMapper wasn't set.");
+            }
+            activity = mapper.getActivity(place);
+            if (activity == null) {
+                throw new IllegalStateException("SlottedPlace.getActivity() returned null, " +
+                        "and LegacyActivityMapper also return null.");
+            }
+        }
+        if (activity instanceof SlottedActivity) {
+            ((SlottedActivity) activity).init(slottedController, place, parameters,
+                    resettableEventBus);
+        }
+        com.google.gwt.event.shared.ResettableEventBus legacyBus =
+                new com.google.gwt.event.shared.ResettableEventBus(resettableEventBus);
+        activityStarting = true;
+        activity.start(new ProtectedDisplay(activity), legacyBus);
+
+        if (activity instanceof SlottedActivity) {
+            for (ActiveSlot child: children) {
+                Slot slot = child.getSlot();
+                ((SlottedActivity) activity).setChildSlotDisplay(slot);
+                if (slot.getDisplay() == null) {
+                    throw new IllegalStateException(activity + " didn't correctly set the display for a Slot.");
                 }
             }
+        } else if (!children.isEmpty()) {
+            throw new IllegalStateException(place + " needs to create a SlottedActivity, because " +
+                    "it has child slots.");
+        }
+    }
+
+    private void refreshActivity(PlaceParameters parameters) {
+        if (activity instanceof SlottedActivity) {
+            SlottedActivity slottedActivity = (SlottedActivity) activity;
+            slottedActivity.init(slottedController, place, parameters,
+                    resettableEventBus);
+            slottedActivity.onRefresh();
+        }
+    }
+
+    private void createChildren() {
+        Slot[] childSlots = place.getChildSlots();
+        if (childSlots != null && childSlots.length > 0 && children.isEmpty()) {
+            for (Slot child: childSlots) {
+                ActiveSlot activeSlot =  new ActiveSlot(this, child, resettableEventBus,
+                        slottedController);
+                children.add(activeSlot);
+            }
+            assert childSlots.length == children.size() : "Error creating children ActiveSlots";
         }
     }
 

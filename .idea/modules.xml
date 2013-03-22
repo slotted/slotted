@@ -6,6 +6,7 @@
       <module fileurl="file://$PROJECT_DIR$/examples/GwtActivitiesPlaces/GwtActivitiesPlaces.iml" filepath="$PROJECT_DIR$/examples/GwtActivitiesPlaces/GwtActivitiesPlaces.iml" />
       <module fileurl="file://$PROJECT_DIR$/examples/GwtActivitiesPlaces2/GwtActivitiesPlaces2.iml" filepath="$PROJECT_DIR$/examples/GwtActivitiesPlaces2/GwtActivitiesPlaces2.iml" />
       <module fileurl="file://$PROJECT_DIR$/examples/Simple/Simple.iml" filepath="$PROJECT_DIR$/examples/Simple/Simple.iml" />
+      <module fileurl="file://$PROJECT_DIR$/examples/TestHarness/TestHarness.iml" filepath="$PROJECT_DIR$/examples/TestHarness/TestHarness.iml" />
       <module fileurl="file://$PROJECT_DIR$/slotted.iml" filepath="$PROJECT_DIR$/slotted.iml" />
     </modules>
   </component>
