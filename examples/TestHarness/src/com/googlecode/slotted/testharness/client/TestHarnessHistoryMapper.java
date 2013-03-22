@@ -8,6 +8,11 @@ import com.googlecode.slotted.testharness.client.activity.B1aPlace;
 import com.googlecode.slotted.testharness.client.activity.B1bPlace;
 import com.googlecode.slotted.testharness.client.activity.B2aPlace;
 import com.googlecode.slotted.testharness.client.activity.BPlace;
+import com.googlecode.slotted.testharness.client.activity.GoTo1aPlace;
+import com.googlecode.slotted.testharness.client.activity.GoTo1bPlace;
+import com.googlecode.slotted.testharness.client.activity.GoTo2aPlace;
+import com.googlecode.slotted.testharness.client.activity.GoTo2bPlace;
+import com.googlecode.slotted.testharness.client.activity.GoToPlace;
 import com.googlecode.slotted.testharness.client.activity.HomePlace;
 import com.googlecode.slotted.testharness.client.activity.OnCancelPlace;
 
@@ -24,5 +29,10 @@ public class TestHarnessHistoryMapper extends HistoryMapper {
         registerPlace(new B2aPlace());
         registerPlace(new BPlace());
         registerPlace(new OnCancelPlace());
+        registerPlace(new GoTo1aPlace());
+        registerPlace(new GoTo1bPlace());
+        registerPlace(new GoTo2aPlace());
+        registerPlace(new GoTo2bPlace());
+        registerPlace(new GoToPlace());
     }
 }

@@ -268,6 +268,8 @@ public class SlottedController {
                     newPlace = completeNonDefaults.get(0);
                 }
 
+                addParents(newPlace, completeNonDefaults);
+
                 ArrayList<String> warnings = new ArrayList<String>();
                 root.maybeGoTo(completeNonDefaults, reloadAll, warnings);
 
@@ -292,6 +294,14 @@ public class SlottedController {
         } catch (Exception e) {
             e.printStackTrace();
             log.log(Level.SEVERE, "Problem while goTo:" + newPlace, e);
+        }
+    }
+
+    private void addParents(SlottedPlace newPlace, ArrayList<SlottedPlace> completeNonDefaults) {
+        SlottedPlace parent = newPlace;
+        while (parent.getParentSlot() != null && parent.getParentSlot().getOwnerPlace() != null) {
+            parent = parent.getParentSlot().getOwnerPlace();
+            completeNonDefaults.add(parent);
         }
     }
 
