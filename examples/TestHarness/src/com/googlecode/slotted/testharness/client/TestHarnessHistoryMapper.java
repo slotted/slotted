@@ -1,20 +1,22 @@
 package com.googlecode.slotted.testharness.client;
 
 import com.googlecode.slotted.client.HistoryMapper;
-import com.googlecode.slotted.testharness.client.activity.A1a1aPlace;
-import com.googlecode.slotted.testharness.client.activity.A1aPlace;
-import com.googlecode.slotted.testharness.client.activity.APlace;
-import com.googlecode.slotted.testharness.client.activity.B1aPlace;
-import com.googlecode.slotted.testharness.client.activity.B1bPlace;
-import com.googlecode.slotted.testharness.client.activity.B2aPlace;
-import com.googlecode.slotted.testharness.client.activity.BPlace;
-import com.googlecode.slotted.testharness.client.activity.GoTo1aPlace;
-import com.googlecode.slotted.testharness.client.activity.GoTo1bPlace;
-import com.googlecode.slotted.testharness.client.activity.GoTo2aPlace;
-import com.googlecode.slotted.testharness.client.activity.GoTo2bPlace;
-import com.googlecode.slotted.testharness.client.activity.GoToPlace;
-import com.googlecode.slotted.testharness.client.activity.HomePlace;
-import com.googlecode.slotted.testharness.client.activity.OnCancelPlace;
+import com.googlecode.slotted.testharness.client.flow.A1a1aPlace;
+import com.googlecode.slotted.testharness.client.flow.A1aPlace;
+import com.googlecode.slotted.testharness.client.flow.APlace;
+import com.googlecode.slotted.testharness.client.flow.B1aPlace;
+import com.googlecode.slotted.testharness.client.flow.B1bPlace;
+import com.googlecode.slotted.testharness.client.flow.B2aPlace;
+import com.googlecode.slotted.testharness.client.flow.BPlace;
+import com.googlecode.slotted.testharness.client.flow.GoTo1aPlace;
+import com.googlecode.slotted.testharness.client.flow.GoTo1bPlace;
+import com.googlecode.slotted.testharness.client.flow.GoTo2aPlace;
+import com.googlecode.slotted.testharness.client.flow.GoTo2bPlace;
+import com.googlecode.slotted.testharness.client.flow.GoToPlace;
+import com.googlecode.slotted.testharness.client.flow.HomePlace;
+import com.googlecode.slotted.testharness.client.flow.Loading1aPlace;
+import com.googlecode.slotted.testharness.client.flow.LoadingPlace;
+import com.googlecode.slotted.testharness.client.flow.OnCancelPlace;
 
 public class TestHarnessHistoryMapper extends HistoryMapper {
     @Override
@@ -34,5 +36,8 @@ public class TestHarnessHistoryMapper extends HistoryMapper {
         registerPlace(new GoTo2aPlace());
         registerPlace(new GoTo2bPlace());
         registerPlace(new GoToPlace());
+        registerPlace(new Loading1aPlace());
+        registerPlace(new LoadingPlace());
+
     }
 }

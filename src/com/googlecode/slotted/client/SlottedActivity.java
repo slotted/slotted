@@ -26,6 +26,7 @@ abstract public class SlottedActivity extends AbstractActivity {
     private SlottedPlace currentPlace;
     private PlaceParameters placeParameters;
     private EventBus eventBus;
+    private ActiveSlot activeSlot;
 
     /**
      * Replaces the legacy activity that uses the old legacy EventBus.
@@ -43,12 +44,13 @@ abstract public class SlottedActivity extends AbstractActivity {
 
 
     public void init(SlottedController slottedController, SlottedPlace currentPlace,
-            PlaceParameters placeParameters, EventBus eventBus)
+            PlaceParameters placeParameters, EventBus eventBus, ActiveSlot activeSlot)
     {
         this.slottedController = slottedController;
         this.currentPlace = currentPlace;
         this.placeParameters = placeParameters;
         this.eventBus = eventBus;
+        this.activeSlot = activeSlot;
     }
 
     /**
@@ -62,6 +64,14 @@ abstract public class SlottedActivity extends AbstractActivity {
     }
 
     public void onRefresh() {
+    }
+
+    public void setLoadingStarted() {
+        activeSlot.setLoading(true);
+    }
+
+    public void setLoadingComplete() {
+        activeSlot.setLoading(false);
     }
 
     public SlottedController getSlottedController() {

@@ -1,6 +1,7 @@
-package com.googlecode.slotted.testharness.client.activity;
+package com.googlecode.slotted.testharness.client.flow;
 
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
+import com.googlecode.slotted.testharness.client.TestActivity;
 
 public class OnCancelActivity extends TestActivity {
 

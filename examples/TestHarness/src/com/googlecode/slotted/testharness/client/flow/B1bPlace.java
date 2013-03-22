@@ -1,6 +1,7 @@
-package com.googlecode.slotted.testharness.client.activity;
+package com.googlecode.slotted.testharness.client.flow;
 
 import com.googlecode.slotted.client.Slot;
+import com.googlecode.slotted.testharness.client.TestPlace;
 
 public class B1bPlace extends TestPlace {
     @Override public Slot getParentSlot() {

@@ -1,4 +1,4 @@
-package com.googlecode.slotted.testharness.client.activity;
+package com.googlecode.slotted.testharness.client.flow;
 
 import com.googlecode.slotted.client.Slot;
 import com.googlecode.slotted.client.SlottedActivity;

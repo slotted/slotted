@@ -245,6 +245,7 @@ public class SlottedController {
      */
     public void goTo(SlottedPlace newPlace, SlottedPlace[] nonDefaultPlaces, boolean reloadAll) {
         try {
+            log.info("GoTo: " + newPlace);
             if (processingGoTo) {
                 nextGoToPlace = newPlace;
                 nextGoToNonDefaultPlaces = nonDefaultPlaces;
@@ -285,6 +286,10 @@ public class SlottedController {
                     eventBus.fireEvent(new NewPlaceEvent(places));
                 }
 
+                if (!attemptShowViews(false)) {
+                    eventBus.fireEvent(new LoadingEvent(true));
+                }
+
                 processingGoTo = false;
 
                 if (nextGoToPlace != null) {
@@ -292,7 +297,6 @@ public class SlottedController {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
             log.log(Level.SEVERE, "Problem while goTo:" + newPlace, e);
         }
     }
@@ -314,6 +318,28 @@ public class SlottedController {
 
     protected boolean shouldStartActivity() {
         return nextGoToPlace == null;
+    }
+
+    public boolean isLoading() {
+        return root.getFirstLoadingPlace() != null;
+    }
+
+    protected boolean attemptShowViews() {
+        return attemptShowViews(true);
+    }
+
+    protected boolean attemptShowViews(boolean fireEvent) {
+        SlottedPlace loadingPlace = root.getFirstLoadingPlace();
+        if (loadingPlace == null) {
+            root.showViews();
+            if (fireEvent) {
+                eventBus.fireEvent(new LoadingEvent(false));
+            }
+            return true;
+        } else {
+            log.warning("Waiting for loading place:" + loadingPlace);
+        }
+        return false;
     }
 
     //todo javadoc

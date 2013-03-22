@@ -1,7 +1,8 @@
-package com.googlecode.slotted.testharness.client.activity;
+package com.googlecode.slotted.testharness.client.flow;
 
 import com.googlecode.slotted.client.Slot;
 import com.googlecode.slotted.client.SlottedController;
+import com.googlecode.slotted.testharness.client.TestPlace;
 
 public class BPlace extends TestPlace {
     public static final Slot Slot1 = new Slot(new BPlace(), new B1aPlace());

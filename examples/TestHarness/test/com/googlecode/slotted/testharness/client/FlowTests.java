@@ -1,24 +1,25 @@
 package com.googlecode.slotted.testharness.client;
 
 import com.google.gwt.junit.client.GWTTestCase;
+import com.googlecode.slotted.client.LoadingEvent;
 import com.googlecode.slotted.client.SlottedPlace;
-import com.googlecode.slotted.testharness.client.activity.A1a1aPlace;
-import com.googlecode.slotted.testharness.client.activity.A1aPlace;
-import com.googlecode.slotted.testharness.client.activity.APlace;
-import com.googlecode.slotted.testharness.client.activity.B1aPlace;
-import com.googlecode.slotted.testharness.client.activity.B1bPlace;
-import com.googlecode.slotted.testharness.client.activity.B2aPlace;
-import com.googlecode.slotted.testharness.client.activity.BPlace;
-import com.googlecode.slotted.testharness.client.activity.GoTo1aPlace;
-import com.googlecode.slotted.testharness.client.activity.GoTo1bPlace;
-import com.googlecode.slotted.testharness.client.activity.GoTo2aPlace;
-import com.googlecode.slotted.testharness.client.activity.GoTo2bPlace;
-import com.googlecode.slotted.testharness.client.activity.GoToActivity;
-import com.googlecode.slotted.testharness.client.activity.GoToPlace;
-import com.googlecode.slotted.testharness.client.activity.HomePlace;
-import com.googlecode.slotted.testharness.client.activity.OnCancelPlace;
-import com.googlecode.slotted.testharness.client.activity.TestActivity;
-import com.googlecode.slotted.testharness.client.activity.TestPlace;
+import com.googlecode.slotted.testharness.client.flow.A1a1aPlace;
+import com.googlecode.slotted.testharness.client.flow.A1aPlace;
+import com.googlecode.slotted.testharness.client.flow.APlace;
+import com.googlecode.slotted.testharness.client.flow.B1aPlace;
+import com.googlecode.slotted.testharness.client.flow.B1bPlace;
+import com.googlecode.slotted.testharness.client.flow.B2aPlace;
+import com.googlecode.slotted.testharness.client.flow.BPlace;
+import com.googlecode.slotted.testharness.client.flow.GoTo1aPlace;
+import com.googlecode.slotted.testharness.client.flow.GoTo1bPlace;
+import com.googlecode.slotted.testharness.client.flow.GoTo2aPlace;
+import com.googlecode.slotted.testharness.client.flow.GoTo2bPlace;
+import com.googlecode.slotted.testharness.client.flow.GoToActivity;
+import com.googlecode.slotted.testharness.client.flow.GoToPlace;
+import com.googlecode.slotted.testharness.client.flow.HomePlace;
+import com.googlecode.slotted.testharness.client.flow.Loading1aPlace;
+import com.googlecode.slotted.testharness.client.flow.LoadingPlace;
+import com.googlecode.slotted.testharness.client.flow.OnCancelPlace;
 
 public class FlowTests extends GWTTestCase {
     @Override public String getModuleName() {
@@ -395,5 +396,96 @@ public class FlowTests extends GWTTestCase {
         assertEquals(0, goTo2bActivity.onStopCount);
         assertEquals(1, goTo2bActivity.onRefreshCount);
 
+    }
+
+    class LoadingHandler implements LoadingEvent.Handler {
+        public int startCount = 0;
+        public int stopCount = 0;
+
+        @Override public void startLoading() {
+            startCount++;
+        }
+
+        @Override public void stopLoading() {
+            stopCount++;
+        }
+    }
+
+    public void testLoadingDelayedSetWidget() {
+        LoadingHandler loadingHandler = new LoadingHandler();
+        TestHarness.slottedController.getEventBus().addHandler(LoadingEvent.Type, loadingHandler);
+
+        TestActivity loadingActivity = TestPlace.getActivity(LoadingPlace.class);
+        TestActivity loading1aActivity = TestPlace.getActivity(Loading1aPlace.class);
+        loading1aActivity.isStartLoading = false;
+        loading1aActivity.isShowDisplay = false;
+
+        TestHarness.slottedController.goTo(new LoadingPlace());
+
+        assertTrue(loadingActivity.testDisplay.isDisplayed());
+        assertFalse(loading1aActivity.testDisplay.isDisplayed());
+        assertEquals(0, loadingHandler.startCount);
+        assertEquals(0, loadingHandler.stopCount);
+
+        loading1aActivity.showDisplay();
+
+        assertTrue(loading1aActivity.testDisplay.isDisplayed());
+        assertEquals(0, loadingHandler.startCount);
+        assertEquals(0, loadingHandler.stopCount);
+    }
+
+    public void testLoadingStartLoading() {
+        LoadingHandler loadingHandler = new LoadingHandler();
+        TestHarness.slottedController.getEventBus().addHandler(LoadingEvent.Type, loadingHandler);
+
+        TestActivity loadingActivity = TestPlace.getActivity(LoadingPlace.class);
+        TestActivity loading1aActivity = TestPlace.getActivity(Loading1aPlace.class);
+        loading1aActivity.isStartLoading = true;
+        loading1aActivity.isShowDisplay = true;
+
+        TestHarness.slottedController.goTo(new LoadingPlace());
+
+        assertFalse(loadingActivity.testDisplay.isDisplayed());
+        assertFalse(loading1aActivity.testDisplay.isDisplayed());
+        assertEquals(1, loadingHandler.startCount);
+        assertEquals(0, loadingHandler.stopCount);
+
+        loading1aActivity.setLoadingComplete();
+
+        assertTrue(loadingActivity.testDisplay.isDisplayed());
+        assertTrue(loading1aActivity.testDisplay.isDisplayed());
+        assertEquals(1, loadingHandler.startCount);
+        assertEquals(1, loadingHandler.stopCount);
+
+    }
+
+    public void testLoadingOnCancel() {
+        LoadingHandler loadingHandler = new LoadingHandler();
+        TestHarness.slottedController.getEventBus().addHandler(LoadingEvent.Type, loadingHandler);
+
+        TestActivity loadingActivity = TestPlace.getActivity(LoadingPlace.class);
+        TestActivity loading1aActivity = TestPlace.getActivity(Loading1aPlace.class);
+        loading1aActivity.isStartLoading = true;
+        loading1aActivity.isShowDisplay = true;
+
+        TestHarness.slottedController.goTo(new LoadingPlace());
+        loadingActivity.resetCounts();
+        loading1aActivity.resetCounts();
+
+        TestHarness.slottedController.goTo(new HomePlace());
+
+        assertEquals(0, loadingActivity.setChildSlotDisplayCount);
+        assertEquals(0, loadingActivity.startCount);
+        assertEquals(1, loadingActivity.mayStopCount);
+        assertEquals(0, loadingActivity.onCancelCount);
+        assertEquals(1, loadingActivity.onStopCount);
+        assertEquals(0, loadingActivity.onRefreshCount);
+
+        assertEquals(0, loading1aActivity.setChildSlotDisplayCount);
+        assertEquals(0, loading1aActivity.startCount);
+        assertEquals(1, loading1aActivity.mayStopCount);
+        assertEquals(1, loading1aActivity.onCancelCount);
+        assertEquals(0, loading1aActivity.onStopCount);
+        assertEquals(0, loading1aActivity.onRefreshCount);
     }
 }

@@ -34,15 +34,29 @@ public class ActiveSlot {
      */
     private class ProtectedDisplay implements AcceptsOneWidget {
         private final Activity activity;
+        private boolean loading = false;
+        private IsWidget view;
+        private boolean widgetShown = false;
 
         ProtectedDisplay(Activity activity) {
             this.activity = activity;
         }
 
         public void setWidget(IsWidget view) {
-            if (this.activity == ActiveSlot.this.activity) {
+            this.view = view;
+            if (!loading) {
                 activityStarting = false;
-                showWidget(view);
+            }
+            if (widgetShown && this.activity == ActiveSlot.this.activity) {
+                showWidget();
+            }
+        }
+
+        private void showWidget() {
+            widgetShown = true;
+            if (view != null) {
+                slot.getDisplay().setWidget(view);
+                activityStarting = false;
             }
         }
     }
@@ -54,6 +68,7 @@ public class ActiveSlot {
     private SlottedPlace newPlace;
     private Activity activity;
     private boolean activityStarting;
+    private ProtectedDisplay currentProtectedDisplay;
     private SlottedController slottedController;
     private ResettableEventBus resettableEventBus;
 
@@ -64,12 +79,6 @@ public class ActiveSlot {
         this.slot = slot;
         this.slottedController = slottedController;
         this.resettableEventBus = new ResettableEventBus(eventBus);
-    }
-
-    private void showWidget(IsWidget view) {
-        if (slot.getDisplay() != null) {
-            slot.getDisplay().setWidget(view);
-        }
     }
 
     public void maybeGoTo(Iterable<SlottedPlace> nonDefaultPlaces, boolean reloadAll,
@@ -126,6 +135,7 @@ public class ActiveSlot {
                 }
                 children.clear();
             }
+            currentProtectedDisplay = null;
         } finally {
             resettableEventBus.removeHandlers();
         }
@@ -193,12 +203,13 @@ public class ActiveSlot {
         }
         if (activity instanceof SlottedActivity) {
             ((SlottedActivity) activity).init(slottedController, place, parameters,
-                    resettableEventBus);
+                    resettableEventBus, this);
         }
         com.google.gwt.event.shared.ResettableEventBus legacyBus =
                 new com.google.gwt.event.shared.ResettableEventBus(resettableEventBus);
         activityStarting = true;
-        activity.start(new ProtectedDisplay(activity), legacyBus);
+        currentProtectedDisplay = new ProtectedDisplay(activity);
+        activity.start(currentProtectedDisplay, legacyBus);
 
         if (activity instanceof SlottedActivity) {
             for (ActiveSlot child: children) {
@@ -218,7 +229,7 @@ public class ActiveSlot {
         if (activity instanceof SlottedActivity) {
             SlottedActivity slottedActivity = (SlottedActivity) activity;
             slottedActivity.init(slottedController, place, parameters,
-                    resettableEventBus);
+                    resettableEventBus, this);
             slottedActivity.onRefresh();
         }
     }
@@ -235,6 +246,42 @@ public class ActiveSlot {
         }
     }
 
+    public void setLoading(boolean loading) {
+        if (currentProtectedDisplay == null) {
+            throw new IllegalStateException("Attempting to set loading before activity started.");
+        }
+        currentProtectedDisplay.loading = loading;
+        if (!loading) {
+            slottedController.attemptShowViews();
+        }
+    }
+
+    public SlottedPlace getFirstLoadingPlace() {
+        if (currentProtectedDisplay == null || currentProtectedDisplay.loading) {
+            return place;
+        }
+        if (children!= null) {
+            for (ActiveSlot child: children) {
+                SlottedPlace childPlace = child.getFirstLoadingPlace();
+                if (childPlace != null) {
+                    return childPlace;
+                }
+            }
+        }
+        return null;
+    }
+
+    public void showViews() {
+        if (currentProtectedDisplay == null || currentProtectedDisplay.loading) {
+            throw new IllegalStateException("Attempting to show a view for a loading slot:" + place);
+        }
+        currentProtectedDisplay.showWidget();
+        if (children!= null) {
+            for (ActiveSlot child: children) {
+                child.showViews();
+            }
+        }
+    }
 
     public ActiveSlot getParent() {
         return parent;
