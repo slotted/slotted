@@ -50,7 +50,7 @@ abstract public class HistoryMapper {
     }
 
     private PlaceFactory placeFactory = GWT.create(PlaceFactory.class);
-    private HashMap<String, PlaceTokenizer<? extends SlottedPlace>> nameToPlaceMap = new HashMap<String, PlaceTokenizer<? extends SlottedPlace>>();
+    private HashMap<String, PlaceTokenizer<? extends SlottedPlace>> nameToTokenizerMap = new HashMap<String, PlaceTokenizer<? extends SlottedPlace>>();
     private HashMap<Class, String> placeToNameMap = new HashMap<Class, String>();
     private SlottedPlace defaultPlace;
     private SlottedController controller;
@@ -247,7 +247,7 @@ abstract public class HistoryMapper {
             }
         }
 
-        nameToPlaceMap.put(name, tokenizer);
+        nameToTokenizerMap.put(name, tokenizer);
         placeToNameMap.put(placeClass, name);
     }
 
@@ -297,7 +297,7 @@ abstract public class HistoryMapper {
                         parameterToken = placeParts[1];
                     }
 
-                    PlaceTokenizer<? extends SlottedPlace> tokenizer = nameToPlaceMap.get(placeParts[0]);
+                    PlaceTokenizer<? extends SlottedPlace> tokenizer = nameToTokenizerMap.get(placeParts[0]);
                     places[i] = tokenizer.getPlace(parameterToken);
                     if (places[i] == null) {
                         throw new IllegalStateException("Place not defined:" + placeTokens[i]);
@@ -371,9 +371,18 @@ abstract public class HistoryMapper {
     }
 
     private String createPageList(ActiveSlot activeSlot) {
-        String token = placeToNameMap.get(activeSlot.getPlace().getClass());
-        if (token == null) {
+        SlottedPlace place = activeSlot.getPlace();
+        String name = placeToNameMap.get(place.getClass());
+        if (name == null) {
             throw new IllegalStateException("Place not registered:" + activeSlot.getPlace().getClass().getName());
+        }
+        PlaceTokenizer tokenizer = nameToTokenizerMap.get(name);
+        @SuppressWarnings("unchecked")
+        String params = tokenizer.getToken(place);
+
+        String token = name;
+        if (params != null && !params.isEmpty()) {
+            token += ":" + params;
         }
 
         for (ActiveSlot child: activeSlot.getChildren()) {
