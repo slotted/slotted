@@ -1,7 +1,7 @@
 package com.googlecode.slotted.client.rebind;
 
-import com.google.gwt.place.shared.Place;
+import com.googlecode.slotted.client.SlottedPlace;
 
 public interface PlaceFactory {
-    Place newInstance(String className);
+    SlottedPlace newInstance(Class placeClass);
 }

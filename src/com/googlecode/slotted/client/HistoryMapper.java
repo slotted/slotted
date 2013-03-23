@@ -15,11 +15,14 @@
  */
 package com.googlecode.slotted.client;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.place.shared.PlaceHistoryMapper;
+import com.google.gwt.place.shared.PlaceTokenizer;
 import com.google.gwt.user.client.History;
+import com.googlecode.slotted.client.rebind.PlaceFactory;
 
 import java.util.HashMap;
 
@@ -30,7 +33,24 @@ import java.util.HashMap;
  */
 abstract public class HistoryMapper {
 
-    private HashMap<String, SlottedPlace> nameToPlaceMap = new HashMap<String, SlottedPlace>();
+    class DefaultPlaceTokenizer implements PlaceTokenizer<SlottedPlace> {
+        private Class<? extends SlottedPlace> placeClass;
+
+        DefaultPlaceTokenizer(Class<? extends SlottedPlace> placeClass) {
+            this.placeClass = placeClass;
+        }
+
+        @Override public SlottedPlace getPlace(String token) {
+            return placeFactory.newInstance(placeClass);
+        }
+
+        @Override public String getToken(SlottedPlace place) {
+            return "";
+        }
+    }
+
+    private PlaceFactory placeFactory = GWT.create(PlaceFactory.class);
+    private HashMap<String, PlaceTokenizer<? extends SlottedPlace>> nameToPlaceMap = new HashMap<String, PlaceTokenizer<? extends SlottedPlace>>();
     private HashMap<Class, String> placeToNameMap = new HashMap<Class, String>();
     private SlottedPlace defaultPlace;
     private SlottedController controller;
@@ -86,34 +106,48 @@ abstract public class HistoryMapper {
     }
 
     /**
-     * Registers the passed SlottedPlace as the default location to navigate to if the history
-     * token is empty.  It also registers the SlottedPlace as a normal page.
+     * Sets the SlottedPlace that should be displayed when the History token is empty.
      *
      * @param place The place with correct parameters to display.
-     * @throws IllegalStateException if default place has already be registered.
-     * @see #registerPlace(SlottedPlace)
      */
-    public void registerDefaultPlace(SlottedPlace place) {
+    public void setDefaultPlace(SlottedPlace place) {
         if (defaultPlace != null) {
             throw new IllegalStateException("Default place already set.");
         }
         defaultPlace = place;
-        registerPlace(place);
     }
 
     /**
-     * Same as {@link #registerDefaultPlace(SlottedPlace)}, but allows Places URL token to be
-     * overridden, instead of using the simple class name.
+     * @deprecated
+     * This was broken into 2 calls.
      *
-     * @param place The place with correct parameters to display.
-     * @param name The new URL token to display in the History token, must be URL safe.
+     * @see #setDefaultPlace(SlottedPlace)
+     * @see #registerPlace(Class)
+     */
+    public void registerDefaultPlace(SlottedPlace place) {
+        setDefaultPlace(place);
+        registerPlace(place.getClass());
+    }
+
+    /**
+     * @deprecated
+     * This was broken into 2 calls.
+     *
+     * @see #setDefaultPlace(SlottedPlace)
+     * @see #registerPlace(Class, String)
      */
     public void registerDefaultPlace(SlottedPlace place, String name) {
-        if (defaultPlace != null) {
-            throw new IllegalStateException("Default place already set.");
-        }
-        defaultPlace = place;
-        registerPlace(place, name);
+        setDefaultPlace(place);
+        registerPlace(place.getClass(), name);
+    }
+
+    /**
+     * @deprecated
+     *
+     * This method is replaced by {@link #registerPlace(Class)}
+     */
+    public void registerPlace(SlottedPlace place) {
+        registerPlace(place.getClass());
     }
 
     /**
@@ -121,30 +155,69 @@ abstract public class HistoryMapper {
      * SlottedPlace's simple class name will be used in the HistoryToken.  If the name ends with
      * "Place", that will be stripped off.  (i.e. "HomePlace" will appear as "Home" in the token)
      *
-     * @param place The place instance to be managed.  The parameters aren't important, because
-     *              they are replaced during parsing.
+     * @param placeClass The Class of the place to be managed.  The Place must have a default
+     *                   constructor, but it may be private.
      * @see #registerPlace(SlottedPlace, String)
      */
-    public void registerPlace(SlottedPlace place) {
-        String name = place.getClass().getName();
-        int index = name.lastIndexOf(".");
-        if (name.endsWith("Place")) {
-            name = name.substring(index + 1, name.length() - 5);
-        } else {
-            name = name.substring(index + 1);
-        }
+    public void registerPlace(Class<? extends SlottedPlace> placeClass) {
+        registerPlace(placeClass, null, null);
+    }
 
-        registerPlace(place, name);
+    /**
+     * Same as {@link #registerPlace(SlottedPlace)}, but allows for the Place to create token
+     * with parameters specific to the Place.  This allows parameters to be Place specific to
+     * prevent name collisions.
+     *
+     * @param placeClass The Class of the place to be managed.  The Place must have a default
+     *                   constructor, but it may be private.
+     * @param tokenizer That handles the creation of the token and parsing the token into a Place.
+     */
+    public void registerPlace(Class<? extends SlottedPlace> placeClass,
+            PlaceTokenizer<? extends SlottedPlace> tokenizer)
+    {
+        registerPlace(placeClass, null, tokenizer);
+    }
+
+    /**
+     * @deprecated
+     * This method is replaced by {@link #registerPlace(Class, String)}
+     */
+    public void registerPlace(SlottedPlace place, String name) {
+        registerPlace(place.getClass(), name);
     }
 
     /**
      * Same as {@link #registerPlace(SlottedPlace)}, but allows Places URL token to be
      * overridden, instead of using the simple class name.
      *
-     * @param place The place with correct parameters to display.
+     * @param placeClass The Class of the place to be managed.  The Place must have a default
+     *                   constructor, but it may be private.
      * @param name The new URL token to display in the History token, must be URL safe.
      */
-    public void registerPlace(SlottedPlace place, String name) {
+    public void registerPlace(Class<? extends SlottedPlace> placeClass, String name) {
+        registerPlace(placeClass, name, null);
+    }
+
+    /**
+     * Same as {@link #registerPlace(SlottedPlace)}, but allows for overridden name, and
+     * parameter tokens.
+     *
+     * @param placeClass The Class of the place to be managed.  The Place must have a default
+     *                   constructor, but it may be private.
+     * @param name The new URL token to display in the History token, must be URL safe.
+     * @param tokenizer That handles the creation of the token and parsing the token into a Place.
+     *
+     * @see #registerPlace(Class, PlaceTokenizer)
+     * @see #registerPlace(Class, String)
+     */
+    public void registerPlace(Class<? extends SlottedPlace> placeClass, String name,
+            PlaceTokenizer<? extends SlottedPlace> tokenizer)
+    {
+        SlottedPlace place = placeFactory.newInstance(placeClass);
+        if (place == null) {
+            throw new IllegalStateException("To register a Place, it must have a default " +
+                    "constructor that may be private: " + placeClass.getName());
+        }
         Slot[] childSlots = place.getChildSlots();
         if (childSlots != null) {
             for (Slot child: childSlots) {
@@ -160,8 +233,22 @@ abstract public class HistoryMapper {
             }
         }
 
-        nameToPlaceMap.put(name, place);
-        placeToNameMap.put(place.getClass(), name);
+        if (tokenizer == null) {
+            tokenizer = new DefaultPlaceTokenizer(placeClass);
+        }
+
+        if (name == null) {
+            name = placeClass.getName();
+            int index = name.lastIndexOf(".");
+            if (name.endsWith("Place")) {
+                name = name.substring(index + 1, name.length() - 5);
+            } else {
+                name = name.substring(index + 1);
+            }
+        }
+
+        nameToPlaceMap.put(name, tokenizer);
+        placeToNameMap.put(placeClass, name);
     }
 
     /**
@@ -191,7 +278,7 @@ abstract public class HistoryMapper {
                 PlaceParameters parameters = new PlaceParameters();
 
                 String[] split = token.split("\\?");
-                String[] placeNames = split[0].split("/");
+                String[] placeTokens = split[0].split("/");
 
                 if (split.length > 1) {
                     String[] paramPairs = split[1].split("&");
@@ -202,11 +289,18 @@ abstract public class HistoryMapper {
                     }
                 }
 
-                SlottedPlace[] places = new SlottedPlace[placeNames.length];
+                SlottedPlace[] places = new SlottedPlace[placeTokens.length];
                 for (int i = 0; i < places.length; i++) {
-                    places[i] = nameToPlaceMap.get(placeNames[i]);
+                    String[] placeParts = placeTokens[i].split(":", 2);
+                    String parameterToken = "";
+                    if (placeParts.length == 2) {
+                        parameterToken = placeParts[1];
+                    }
+
+                    PlaceTokenizer<? extends SlottedPlace> tokenizer = nameToPlaceMap.get(placeParts[0]);
+                    places[i] = tokenizer.getPlace(parameterToken);
                     if (places[i] == null) {
-                        throw new IllegalStateException("Place not defined:" + placeNames[i]);
+                        throw new IllegalStateException("Place not defined:" + placeTokens[i]);
                     }
                     places[i].setPlaceParameters(parameters);
                 }

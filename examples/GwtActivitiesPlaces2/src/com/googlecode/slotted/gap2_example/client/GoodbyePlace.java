@@ -4,6 +4,8 @@ import com.googlecode.slotted.client.MappedSlottedPlace;
 import com.googlecode.slotted.client.Slot;
 
 public class GoodbyePlace extends MappedSlottedPlace {
+    public GoodbyePlace() {
+    }
 
     public GoodbyePlace(String token) {
         setParameter("helloName", token);
