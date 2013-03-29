@@ -68,18 +68,14 @@ public class PlaceFactoryGenerator extends Generator {
                 logger.log(TreeLogger.INFO, "Done Generating source for "
                         + clazz.getName(), null);
 
-                return clazz.getQualifiedSourceName() + "Wrapper";
-
             }
 
         } catch (NotFoundException e) {
-
             e.printStackTrace();
-
+            throw new UnableToCompleteException();
         }
 
-        return null;
-
+        return clazz.getQualifiedSourceName() + "Wrapper";
     }
 
     public SourceWriter getSourceWriter(JClassType classType,
