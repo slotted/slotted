@@ -18,6 +18,8 @@ package com.googlecode.slotted.client;
 import com.google.gwt.activity.shared.ActivityMapper;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Document;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.place.shared.PlaceHistoryMapper;
@@ -124,10 +126,15 @@ public class SlottedController {
      * @param eventBus the {@link EventBus}
      * @param delegate the {@link Delegate} in charge of Window-related events
      */
-    public SlottedController(HistoryMapper historyMapper, EventBus eventBus, Delegate delegate) {
+    public SlottedController(final HistoryMapper historyMapper, EventBus eventBus, Delegate delegate) {
         this.eventBus = eventBus;
         this.historyMapper = historyMapper;
         historyMapper.setController(this);
+        History.addValueChangeHandler(new ValueChangeHandler<String>() {
+            @Override public void onValueChange(ValueChangeEvent<String> event) {
+                historyMapper.handleHistory(event.getValue());
+            }
+        });
 
         this.delegate = delegate;
         delegate.addWindowClosingHandler(new ClosingHandler() {

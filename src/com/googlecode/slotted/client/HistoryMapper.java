@@ -16,13 +16,10 @@
 package com.googlecode.slotted.client;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.place.shared.PlaceHistoryMapper;
 import com.google.gwt.place.shared.PlaceTokenizer;
 import com.google.gwt.user.client.History;
-import com.googlecode.slotted.client.rebind.PlaceFactory;
 
 import java.util.HashMap;
 
@@ -62,12 +59,6 @@ abstract public class HistoryMapper {
      * class to register all SlottedPlaces.
      */
     public HistoryMapper() {
-        History.addValueChangeHandler(new ValueChangeHandler<String>() {
-            @Override public void onValueChange(ValueChangeEvent<String> event) {
-                handleHistory(event.getValue());
-            }
-        });
-
         init();
         if (defaultPlace == null) {
             System.out.println("WARNING: Default place not set.");

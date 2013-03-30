@@ -10,8 +10,8 @@ import com.google.gwt.core.ext.typeinfo.NotFoundException;
 import com.google.gwt.core.ext.typeinfo.TypeOracle;
 import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
 import com.google.gwt.user.rebind.SourceWriter;
+import com.googlecode.slotted.client.PlaceFactory;
 import com.googlecode.slotted.client.SlottedPlace;
-import com.googlecode.slotted.client.rebind.PlaceFactory;
 
 import java.io.PrintWriter;
 

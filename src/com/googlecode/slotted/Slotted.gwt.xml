@@ -9,7 +9,11 @@
     <entry-point class='com.googlecode.slotted.client.Slotted'/>
 
     <generate-with class="com.googlecode.slotted.rebind.PlaceFactoryGenerator" >
-        <when-type-assignable class="com.googlecode.slotted.client.rebind.PlaceFactory" />
+        <when-type-assignable class="com.googlecode.slotted.client.PlaceFactory" />
+    </generate-with>
+
+    <generate-with class="com.googlecode.slotted.rebind.AutoHistoryManagerGenerator" >
+        <when-type-assignable class="com.googlecode.slotted.client.AutoHistoryMapper" />
     </generate-with>
 
 </module>

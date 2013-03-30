@@ -9,9 +9,10 @@ import com.googlecode.slotted.simple_example.client.place.ParentPlace;
 public class SimpleHistoryMapper extends HistoryMapper {
     @Override
     protected void init() {
-        registerDefaultPlace(new HomePlace(), "home");
-        registerPlace(new NestedLevelTwoPlace(), "level2");
-        registerPlace(new NestedPlace());
-        registerPlace(new ParentPlace());
+        setDefaultPlace(new HomePlace());
+        registerPlace(HomePlace.class, "home");
+        registerPlace(NestedLevelTwoPlace.class, "level2");
+        registerPlace(NestedPlace.class);
+        registerPlace(ParentPlace.class);
     }
 }
