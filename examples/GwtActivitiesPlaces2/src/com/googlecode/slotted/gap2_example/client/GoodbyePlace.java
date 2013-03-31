@@ -1,6 +1,7 @@
 package com.googlecode.slotted.gap2_example.client;
 
 import com.google.gwt.place.shared.PlaceTokenizer;
+import com.google.gwt.place.shared.Prefix;
 import com.googlecode.slotted.client.MappedSlottedPlace;
 import com.googlecode.slotted.client.Slot;
 import com.googlecode.slotted.client.TokenizerUtil;
@@ -27,6 +28,7 @@ public class GoodbyePlace extends MappedSlottedPlace {
         return null;
     }
 
+    @Prefix("gb")
     public static class Tokenizer implements PlaceTokenizer<GoodbyePlace> {
         @Override
         public String getToken(GoodbyePlace place) {

@@ -8,12 +8,15 @@ import com.google.gwt.core.ext.UnableToCompleteException;
 import com.google.gwt.core.ext.typeinfo.JClassType;
 import com.google.gwt.core.ext.typeinfo.NotFoundException;
 import com.google.gwt.core.ext.typeinfo.TypeOracle;
+import com.google.gwt.place.shared.PlaceTokenizer;
+import com.google.gwt.place.shared.Prefix;
 import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
 import com.google.gwt.user.rebind.SourceWriter;
 import com.googlecode.slotted.client.AutoHistoryMapper;
 import com.googlecode.slotted.client.SlottedPlace;
 
 import java.io.PrintWriter;
+import java.lang.annotation.Annotation;
 
 public class AutoHistoryManagerGenerator extends Generator {
     private static String NamePostfix = "Gen";
@@ -59,6 +62,7 @@ public class AutoHistoryManagerGenerator extends Generator {
         String implementName = AutoHistoryMapper.class.getName();
         composer.setSuperclass(implementName);
         composer.addImport(GWT.class.getCanonicalName());
+        composer.addImport(PlaceTokenizer.class.getCanonicalName());
 
         PrintWriter printWriter = context.tryCreate(logger, packageName,simpleName);
 
@@ -74,24 +78,73 @@ public class AutoHistoryManagerGenerator extends Generator {
     private void writeInitMethod(TypeOracle typeOracle, SourceWriter sourceWriter)
             throws NotFoundException
     {
-        String markerName = SlottedPlace.class.getName();
-        JClassType placeType = typeOracle.getType(markerName);
+        JClassType placeType = typeOracle.getType(SlottedPlace.class.getName());
+        JClassType tokenizerType = typeOracle.getType(PlaceTokenizer.class.getName());
 
         sourceWriter.println("protected void init() {");
         sourceWriter.indent();
 
         JClassType[] types = typeOracle.getTypes();
 
-        for (int i = 0; i < types.length; i++) {
-            if (!types[i].isAbstract() && types[i].isDefaultInstantiable() &&
-                    types[i].isAssignableTo(placeType))
+        for (JClassType place: types) {
+            if (!place.isAbstract() && place.isDefaultInstantiable() &&
+                    place.isAssignableTo(placeType))
             {
-                sourceWriter.println("registerPlace(" + types[i].getQualifiedSourceName() + ".class);");
+                JClassType tokenizer = getTokenizer(place, tokenizerType);
+                String prefix = getPrefix(place, tokenizer);
+
+                String tokenizerParam = null;
+                if (tokenizer != null) {
+                    tokenizerParam = "(PlaceTokenizer) GWT.create(" +
+                            tokenizer.getQualifiedSourceName() + ".class)";
+                }
+
+                sourceWriter.println("registerPlace(" + place.getQualifiedSourceName() +
+                        ".class, " + prefix + ", " + tokenizerParam + ");");
             }
         }
 
         sourceWriter.outdent();
         sourceWriter.println("}");
     }
+
+    private JClassType getTokenizer(JClassType place, JClassType tokenizerType) {
+        JClassType[] nestedTypes = place.getNestedTypes();
+        JClassType tokenizer = null;
+        for (JClassType nestedType: nestedTypes) {
+            if (!nestedType.isAbstract() && nestedType.isDefaultInstantiable() &&
+                    nestedType.isAssignableTo(tokenizerType))
+            {
+                tokenizer = nestedType;
+                break;
+            }
+        }
+        return tokenizer;
+    }
+
+    private String getPrefix(JClassType place, JClassType tokenizer) {
+        String prefix = null;
+        if (tokenizer != null) {
+            prefix = findPrefix(tokenizer);
+        }
+        if (prefix == null) {
+            prefix = findPrefix(place);
+        }
+
+        return prefix;
+    }
+
+    private String findPrefix(JClassType type) {
+        Annotation[] annotations = type.getAnnotations();
+        for (Annotation annotation: annotations) {
+            if (annotation instanceof Prefix) {
+                Prefix prefixAnnotation = (Prefix) annotation;
+                return "\"" + prefixAnnotation.value() + "\"";
+            }
+        }
+        return null;
+    }
+
+
 
 }
