@@ -18,11 +18,14 @@ package com.googlecode.slotted.client;
 import com.google.gwt.activity.shared.Activity;
 import com.google.gwt.place.shared.Place;
 
+import java.util.LinkedList;
+
 //todo javadoc
 abstract public class SlottedPlace extends Place implements HasParameters {
 
     private String[] equalsParameterNames = new String[0];
     private PlaceParameters placeParameters;
+    private LinkedList<String> setKeys;
 
     abstract public Slot getParentSlot();
     abstract public Slot[] getChildSlots();
@@ -31,9 +34,11 @@ abstract public class SlottedPlace extends Place implements HasParameters {
     public void setParameter(String name, String value) {
         if (placeParameters == null) {
             placeParameters = new PlaceParameters();
+            setKeys = new LinkedList<String>();
         }
 
         placeParameters.setParameter(name, value);
+        setKeys.add(name);
     }
 
     public String getParameter(String name) {
@@ -49,7 +54,7 @@ abstract public class SlottedPlace extends Place implements HasParameters {
 
     @Override public void extractParameters(PlaceParameters intoPlaceParameters) {
         if (this.placeParameters != null) {
-            intoPlaceParameters.addPlaceParameters(this.placeParameters);
+            intoPlaceParameters.addPlaceParameters(this.placeParameters, setKeys);
         }
     }
 

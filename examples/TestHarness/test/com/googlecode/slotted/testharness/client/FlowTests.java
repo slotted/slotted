@@ -2,6 +2,7 @@ package com.googlecode.slotted.testharness.client;
 
 import com.google.gwt.junit.client.GWTTestCase;
 import com.googlecode.slotted.client.LoadingEvent;
+import com.googlecode.slotted.client.PlaceParameters;
 import com.googlecode.slotted.client.SlottedPlace;
 import com.googlecode.slotted.testharness.client.flow.A1a1aPlace;
 import com.googlecode.slotted.testharness.client.flow.A1aPlace;
@@ -10,6 +11,8 @@ import com.googlecode.slotted.testharness.client.flow.B1aPlace;
 import com.googlecode.slotted.testharness.client.flow.B1bPlace;
 import com.googlecode.slotted.testharness.client.flow.B2aPlace;
 import com.googlecode.slotted.testharness.client.flow.BPlace;
+import com.googlecode.slotted.testharness.client.flow.GParam1aPlace;
+import com.googlecode.slotted.testharness.client.flow.GParam1bPlace;
 import com.googlecode.slotted.testharness.client.flow.GoTo1aPlace;
 import com.googlecode.slotted.testharness.client.flow.GoTo1bPlace;
 import com.googlecode.slotted.testharness.client.flow.GoTo2aPlace;
@@ -398,6 +401,26 @@ public class FlowTests extends GWTTestCase {
 
     }
 
+    public void testGlobalParams() {
+        TestHarness.slottedController.goTo(new GParam1aPlace());
+
+        PlaceParameters params = TestHarness.slottedController.getCurrentParameters();
+        assertEquals("GParam1a", params.getParameter("global"));
+        assertEquals("set", params.getParameter("GParam"));
+        assertEquals("set", params.getParameter("GParam1a"));
+        assertEquals(null, params.getParameter("GParam1b"));
+        assertEquals("set", params.getParameter("GParam2a"));
+
+        TestHarness.slottedController.goTo(new GParam1bPlace());
+
+        params = TestHarness.slottedController.getCurrentParameters();
+        assertEquals("GParam1b", params.getParameter("global"));
+        assertEquals("set", params.getParameter("GParam"));
+        assertEquals(null, params.getParameter("GParam1a"));
+        assertEquals("set", params.getParameter("GParam1b"));
+        assertEquals("set", params.getParameter("GParam2a"));
+    }
+
     class LoadingHandler implements LoadingEvent.Handler {
         public int startCount = 0;
         public int stopCount = 0;
@@ -488,4 +511,6 @@ public class FlowTests extends GWTTestCase {
         assertEquals(0, loading1aActivity.onStopCount);
         assertEquals(0, loading1aActivity.onRefreshCount);
     }
+
+
 }

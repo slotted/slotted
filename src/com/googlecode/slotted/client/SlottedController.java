@@ -165,6 +165,11 @@ public class SlottedController {
         this.legacyActivityMapper = legacyActivityMapper;
     }
 
+    //todo javadoc
+    public void setDefaultPlace(SlottedPlace defaultPlace) {
+        historyMapper.setDefaultPlace(defaultPlace);
+    }
+
     /**
      * Sets the widget that displays the root slot content.  This must be set before any content can
      * be displayed.
@@ -264,12 +269,11 @@ public class SlottedController {
                 nextGoToNonDefaultPlaces = null;
                 nextGoToReloadAll = false;
 
-                currentParameters = new PlaceParameters();
-                newPlace.extractParameters(currentParameters);
-
                 ArrayList<SlottedPlace> completeNonDefaults = new ArrayList<SlottedPlace>();
                 completeNonDefaults.add(newPlace);
                 Collections.addAll(completeNonDefaults, nonDefaultPlaces);
+
+                currentParameters = historyMapper.extractParameters(completeNonDefaults);
 
                 if (navigationOverride != null) {
                     completeNonDefaults = navigationOverride.checkOverrides(completeNonDefaults);
@@ -305,6 +309,7 @@ public class SlottedController {
             }
         } catch (Exception e) {
             log.log(Level.SEVERE, "Problem while goTo:" + newPlace, e);
+            throw SlottedException.wrap(e);
         }
     }
 
@@ -389,6 +394,13 @@ public class SlottedController {
      */
     public EventBus getEventBus() {
         return eventBus;
+    }
+
+    /**
+     * Returns the HistoryMapper used for processing history tokens.
+     */
+    public HistoryMapper getHistoryMapper() {
+        return historyMapper;
     }
 
     /**

@@ -21,6 +21,7 @@ import com.google.gwt.place.shared.PlaceHistoryMapper;
 import com.google.gwt.place.shared.PlaceTokenizer;
 import com.google.gwt.user.client.History;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -312,6 +313,27 @@ abstract public class HistoryMapper {
         }
 
         handlingHistory = false;
+    }
+
+    public void extractParameters(SlottedPlace place, PlaceParameters intoPlaceParameters) {
+        place.extractParameters(intoPlaceParameters);
+
+        String name = placeToNameMap.get(place.getClass());
+        PlaceTokenizer tokenizer = nameToTokenizerMap.get(name);
+        if (tokenizer instanceof SlottedTokenizer) {
+            //noinspection unchecked
+            ((SlottedTokenizer) tokenizer).extractParameters(intoPlaceParameters, place);
+        }
+    }
+
+    public PlaceParameters extractParameters(ArrayList<SlottedPlace> completeNonDefaults) {
+        PlaceParameters placeParameters = new PlaceParameters();
+
+        for (SlottedPlace place: completeNonDefaults) {
+            extractParameters(place, placeParameters);
+        }
+
+        return placeParameters;
     }
 
     /**

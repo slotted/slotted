@@ -70,6 +70,7 @@ public class ActiveSlot {
     private boolean activityStarting;
     private ProtectedDisplay currentProtectedDisplay;
     private SlottedController slottedController;
+    private HistoryMapper historyMapper;
     private ResettableEventBus resettableEventBus;
 
     public ActiveSlot(ActiveSlot parent, Slot slot, EventBus eventBus,
@@ -78,6 +79,7 @@ public class ActiveSlot {
         this.parent = parent;
         this.slot = slot;
         this.slottedController = slottedController;
+        this.historyMapper = slottedController.getHistoryMapper();
         this.resettableEventBus = new ResettableEventBus(eventBus);
     }
 
@@ -147,7 +149,9 @@ public class ActiveSlot {
         if (newPlace == null) {
             newPlace = getPlace(nonDefaultPlaces);
         }
+        historyMapper.extractParameters(newPlace, parameters);
         newPlace.setPlaceParameters(parameters);
+
         if (reloadAll || !newPlace.equals(place)) {
             stopActivities();
         }

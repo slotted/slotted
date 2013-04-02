@@ -16,10 +16,13 @@
 package com.googlecode.slotted.client;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.logging.Logger;
 
 //todo javadoc
 public class PlaceParameters {
+    private static final Logger log = Logger.getLogger(SlottedController.class.getName());
     private HashMap<String, String> paramMap = new HashMap<String, String>();
 
     public void setParameter(String name, String value) {
@@ -38,8 +41,18 @@ public class PlaceParameters {
         return param;
     }
 
-    public void addPlaceParameters(PlaceParameters placeParameters) {
-        paramMap.putAll(placeParameters.paramMap);
+    public void addPlaceParameters(PlaceParameters fromPlaceParameters, List<String> setKeys) {
+        if (setKeys != null) {
+            for (String key: setKeys) {
+                String existingValue = paramMap.get(key);
+                String fromValue = fromPlaceParameters.paramMap.get(key);
+                if (existingValue == null) {
+                    paramMap.put(key, fromValue);
+                } else if (!existingValue.equals(fromValue)) {
+                    log.warning(key + " has second value that is being ignored: " + fromValue);
+                }
+            }
+        }
     }
 
     public String toString() {

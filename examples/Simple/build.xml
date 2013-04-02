@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="Slotted"
-         default="build" basedir=".">
+<project name="Simple" default="build" basedir=".">
     <!--         App specifics              -->
     <property name="gwt.modules" value="com.googlecode.slotted.simple_example.Simple"/>
 
