@@ -165,9 +165,23 @@ public class SlottedController {
         this.legacyActivityMapper = legacyActivityMapper;
     }
 
-    //todo javadoc
+    /**
+     * Sets the SlottedPlace that should be displayed when the History token is empty.
+     *
+     * @param defaultPlace The place with correct parameters to display.
+     */
     public void setDefaultPlace(SlottedPlace defaultPlace) {
         historyMapper.setDefaultPlace(defaultPlace);
+    }
+
+    /**
+     * Sets the SlottedPlace that should be displayed when there is an error parsing the History
+     * token.  If this is not set, the default place is used instead.
+     *
+     * @param errorPlace The place with correct parameters to display.
+     */
+    public void setErrorPlace(SlottedPlace errorPlace) {
+        historyMapper.setErrorPlace(errorPlace);
     }
 
     /**

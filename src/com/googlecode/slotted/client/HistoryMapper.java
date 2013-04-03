@@ -23,6 +23,8 @@ import com.google.gwt.user.client.History;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * HistoryMapper is an abstract base class that manages generation and parsing of History Tokens.
@@ -47,10 +49,12 @@ abstract public class HistoryMapper {
         }
     }
 
+    private static final Logger log = Logger.getLogger(HistoryMapper.class.getName());
     private PlaceFactory placeFactory = GWT.create(PlaceFactory.class);
     private HashMap<String, PlaceTokenizer<? extends SlottedPlace>> nameToTokenizerMap = new HashMap<String, PlaceTokenizer<? extends SlottedPlace>>();
     private HashMap<Class, String> placeToNameMap = new HashMap<Class, String>();
     private SlottedPlace defaultPlace;
+    private SlottedPlace errorPlace;
     private SlottedController controller;
     private PlaceHistoryMapper legacyHistoryMapper;
     private boolean handlingHistory;
@@ -61,9 +65,6 @@ abstract public class HistoryMapper {
      */
     public HistoryMapper() {
         init();
-        if (defaultPlace == null) {
-            System.out.println("WARNING: Default place not set.");
-        }
     }
 
     /**
@@ -98,15 +99,27 @@ abstract public class HistoryMapper {
     }
 
     /**
-     * Sets the SlottedPlace that should be displayed when the History token is empty.
-     *
-     * @param place The place with correct parameters to display.
+     * @see SlottedController#setDefaultPlace(SlottedPlace)
      */
     public void setDefaultPlace(SlottedPlace place) {
         if (defaultPlace != null) {
             throw new IllegalStateException("Default place already set.");
         }
         defaultPlace = place;
+        if (errorPlace == null) {
+            errorPlace = defaultPlace;
+        }
+    }
+
+    /**
+     * @see SlottedController#setErrorPlace(SlottedPlace)
+     */
+    public void setErrorPlace(SlottedPlace place) {
+        if (errorPlace == null || errorPlace == defaultPlace) {
+            errorPlace = place;
+        } else {
+            throw new IllegalStateException("Error place already set.");
+        }
     }
 
     /**
@@ -259,60 +272,83 @@ abstract public class HistoryMapper {
     protected void handleHistory(String token) {
         RuntimeException parsingException = null;
         handlingHistory = true;
-        if (token == null || token.trim().isEmpty()) {
-            if (defaultPlace == null) {
-                throw new IllegalStateException("No default place defined.  Make sure that " +
-                        "registerDefaultPlace() is called");
-            }
-            controller.goTo(defaultPlace);
-        } else {
-            try {
-                PlaceParameters parameters = new PlaceParameters();
-
-                String[] split = token.split("\\?");
-                String[] placeTokens = split[0].split("/");
-
-                if (split.length > 1) {
-                    String[] paramPairs = split[1].split("&");
-
-                    for (String pair: paramPairs) {
-                        String[] pairSplit = pair.split("=");
-                        parameters.setParameter(pairSplit[0], pairSplit[1]);
-                    }
-                }
-
-                SlottedPlace[] places = new SlottedPlace[placeTokens.length];
-                for (int i = 0; i < places.length; i++) {
-                    String[] placeParts = placeTokens[i].split(":", 2);
-                    String parameterToken = "";
-                    if (placeParts.length == 2) {
-                        parameterToken = placeParts[1];
-                    }
-
-                    PlaceTokenizer<? extends SlottedPlace> tokenizer = nameToTokenizerMap.get(placeParts[0]);
-                    places[i] = tokenizer.getPlace(parameterToken);
-                    if (places[i] == null) {
-                        throw new IllegalStateException("Place not defined:" + placeTokens[i]);
-                    }
-                    places[i].setPlaceParameters(parameters);
-                }
-
-                controller.goTo(places[0], places);
-            } catch (RuntimeException e) {
-                parsingException = e;
-            }
-        }
-
-        if (parsingException != null) {
-            if (legacyHistoryMapper != null) {
-                Place place = legacyHistoryMapper.getPlace(token);
-                controller.goTo(place);
+        try {
+            if (token == null || token.trim().isEmpty()) {
+                navDefaultPlace();
             } else {
-                throw parsingException;
-            }
-        }
+                SlottedPlace[] places = null;
+                try {
+                    PlaceParameters parameters = new PlaceParameters();
 
+                    String[] split = token.split("\\?");
+                    String[] placeTokens = split[0].split("/");
+
+                    if (split.length > 1) {
+                        String[] paramPairs = split[1].split("&");
+
+                        for (String pair: paramPairs) {
+                            String[] pairSplit = pair.split("=");
+                            parameters.setParameter(pairSplit[0], pairSplit[1]);
+                        }
+                    }
+
+                    places = new SlottedPlace[placeTokens.length];
+                    for (int i = 0; i < places.length; i++) {
+                        String[] placeParts = placeTokens[i].split(":", 2);
+                        String parameterToken = "";
+                        if (placeParts.length == 2) {
+                            parameterToken = placeParts[1];
+                        }
+
+                        PlaceTokenizer<? extends SlottedPlace> tokenizer = nameToTokenizerMap.get(placeParts[0]);
+                        places[i] = tokenizer.getPlace(parameterToken);
+                        if (places[i] == null) {
+                            throw new IllegalStateException("Place not defined:" + placeTokens[i]);
+                        }
+                        places[i].setPlaceParameters(parameters);
+                    }
+                } catch (RuntimeException e) {
+                    parsingException = e;
+                }
+
+                if (parsingException == null) {
+                    controller.goTo(places[0], places);
+                } else {
+                    if (legacyHistoryMapper != null) {
+                        Place place = legacyHistoryMapper.getPlace(token);
+                        if (place != null) {
+                            parsingException = null;
+                            controller.goTo(place);
+                        }
+                    }
+                }
+
+                if (parsingException != null) {
+                    log.log(Level.SEVERE, "Error parsing url", parsingException);
+                    navDefaultPlace();
+                }
+            }
+        } catch (Exception e) {
+            log.log(Level.SEVERE, "Error processing goTo", e);
+            navErrorPlace();
+        }
         handlingHistory = false;
+    }
+
+    private void navDefaultPlace() {
+        if (defaultPlace == null) {
+            throw new IllegalStateException("No default place defined.  Make sure that " +
+                    "setDefaultPlace() is called");
+        }
+        controller.goTo(defaultPlace);
+    }
+
+    private void navErrorPlace() {
+        if (errorPlace == null) {
+            throw new IllegalStateException("No error or default place defined.  Make sure that " +
+                    "setErrorPlace() or setDefaultPlace() is called");
+        }
+        controller.goTo(errorPlace);
     }
 
     public void extractParameters(SlottedPlace place, PlaceParameters intoPlaceParameters) {
