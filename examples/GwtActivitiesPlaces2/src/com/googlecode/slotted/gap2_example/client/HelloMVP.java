@@ -13,6 +13,7 @@ public class HelloMVP implements EntryPoint {
     public void onModuleLoad() {
         ClientFactory clientFactory = GWT.create(ClientFactory.class);
         SlottedController slottedController = clientFactory.getPlaceController();
+        slottedController.setDefaultPlace(new HelloPlace("World!"));
 
         // Start ActivityManager for the main widget with our ActivityMapper
         ActivityMapper activityMapper = new AppActivityMapper(clientFactory);

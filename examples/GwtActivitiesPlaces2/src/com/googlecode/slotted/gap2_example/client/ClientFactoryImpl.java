@@ -10,15 +10,13 @@ import com.googlecode.slotted.client.SlottedController;
 public class ClientFactoryImpl implements ClientFactory {
     private final EventBus eventBus = new SimpleEventBus();
     //private final AppHistoryMapper appHistoryMapper = new AppHistoryMapper();
-    private final HistoryMapper appHistoryMapper;
+    private final HistoryMapper appHistoryMapper = GWT.create(AutoHistoryMapper.class);
     private final SlottedController placeController;
     private final BaseView baseView = new BaseViewImpl();
     private final HelloView helloView = new HelloViewImpl();
     private final GoodbyeView goodbyeView = new GoodbyeViewImpl();
 
     public ClientFactoryImpl() {
-        appHistoryMapper = GWT.create(AutoHistoryMapper.class);
-        appHistoryMapper.setDefaultPlace(new HelloPlace("World!"));
         placeController = new SlottedController(appHistoryMapper, eventBus);
     }
 

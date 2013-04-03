@@ -24,8 +24,6 @@ public class AutoHistoryManagerGenerator extends Generator {
     public String generate(TreeLogger logger, GeneratorContext context, String typeName)
             throws UnableToCompleteException
     {
-
-
         TypeOracle typeOracle = context.getTypeOracle();
         JClassType clazz = typeOracle.findType(typeName);
 
@@ -45,7 +43,7 @@ public class AutoHistoryManagerGenerator extends Generator {
             }
 
         } catch (NotFoundException e) {
-            e.printStackTrace();
+            logger.log(TreeLogger.ERROR, "Error Generating source for " + typeName, e);
             throw new UnableToCompleteException();
         }
 
@@ -112,9 +110,7 @@ public class AutoHistoryManagerGenerator extends Generator {
         JClassType[] nestedTypes = place.getNestedTypes();
         JClassType tokenizer = null;
         for (JClassType nestedType: nestedTypes) {
-            if (!nestedType.isAbstract() && nestedType.isDefaultInstantiable() &&
-                    nestedType.isAssignableTo(tokenizerType))
-            {
+            if (nestedType.isAssignableTo(tokenizerType)) {
                 tokenizer = nestedType;
                 break;
             }

@@ -65,13 +65,13 @@ public class PlaceFactoryGenerator extends Generator {
                 sourceWriter.println("return null;");
                 sourceWriter.println("}");
                 sourceWriter.commit(logger);
-                logger.log(TreeLogger.INFO, "Done Generating source for "
+                logger.log(TreeLogger.DEBUG, "Done Generating source for "
                         + clazz.getName(), null);
 
             }
 
         } catch (NotFoundException e) {
-            e.printStackTrace();
+            logger.log(TreeLogger.ERROR, "Error Generating source for " + typeName, e);
             throw new UnableToCompleteException();
         }
 
