@@ -71,6 +71,8 @@
             <jvmarg value="-Xmx256M"/>
             <arg line="-war"/>
             <arg value="${build.gwt.dir}"/>
+            <arg line="-gen"/>
+            <arg value="${build.dir}/generator"/>
             <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
             <arg line="${gwt.args}"/>
             <arg value="${gwt.modules}"/>

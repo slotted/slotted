@@ -35,7 +35,7 @@ public class AutoHistoryManagerGenerator extends Generator {
 
             SourceWriter sourceWriter = getSourceWriter(clazz, context, logger);
             if (sourceWriter != null) {
-                writeInitMethod(typeOracle, sourceWriter);
+                writeInitMethod(logger, context, typeOracle, sourceWriter);
 
                 sourceWriter.commit(logger);
                 logger.log(TreeLogger.DEBUG, "Done Generating source for "
@@ -73,8 +73,8 @@ public class AutoHistoryManagerGenerator extends Generator {
 
     }
 
-    private void writeInitMethod(TypeOracle typeOracle, SourceWriter sourceWriter)
-            throws NotFoundException
+    private void writeInitMethod(TreeLogger logger, GeneratorContext context, TypeOracle typeOracle,
+            SourceWriter sourceWriter) throws NotFoundException, UnableToCompleteException
     {
         JClassType placeType = typeOracle.getType(SlottedPlace.class.getName());
         JClassType tokenizerType = typeOracle.getType(PlaceTokenizer.class.getName());
@@ -91,10 +91,14 @@ public class AutoHistoryManagerGenerator extends Generator {
                 JClassType tokenizer = getTokenizer(place, tokenizerType);
                 String prefix = getPrefix(place, tokenizer);
 
-                String tokenizerParam = null;
+                String tokenizerParam;
                 if (tokenizer != null) {
                     tokenizerParam = "(PlaceTokenizer) GWT.create(" +
                             tokenizer.getQualifiedSourceName() + ".class)";
+                } else {
+                    String autoTokenizer = new AutoTokenizerGenerator().generate(logger, context,
+                            place.getQualifiedSourceName());
+                    tokenizerParam = "(PlaceTokenizer) GWT.create(" + autoTokenizer + ".class)";
                 }
 
                 sourceWriter.println("registerPlace(" + place.getQualifiedSourceName() +

@@ -22,8 +22,8 @@ public class Simple implements EntryPoint {
     public void onModuleLoad() {
 
         HistoryMapper historyMapper = GWT.create(AutoHistoryMapper.class);
-        historyMapper.setDefaultPlace(new HomePlace());
         slottedController = new SlottedController(historyMapper, new SimpleEventBus());
+        slottedController.setDefaultPlace(new HomePlace());
 
         //slottedController = new SlottedController(
         //        new SimpleHistoryMapper(),

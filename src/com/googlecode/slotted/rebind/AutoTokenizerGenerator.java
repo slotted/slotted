@@ -153,11 +153,15 @@ public class AutoTokenizerGenerator extends Generator {
     private void writeGetToken(SourceWriter sourceWriter, List<JField> fields, JClassType placeType) {
         sourceWriter.println("public String getToken(" +
                 placeType.getQualifiedSourceName() + " place) {");
-        sourceWriter.println("    TokenizerUtil builder = TokenizerUtil.build();");
-        for (JField field: fields) {
-            sourceWriter.println("     builder.add(get" + field.getName() + "(place));");
+        if (fields.isEmpty()) {
+            sourceWriter.println("    return \"\";");
+        } else {
+            sourceWriter.println("    TokenizerUtil builder = TokenizerUtil.build();");
+            for (JField field: fields) {
+                sourceWriter.println("     builder.add(get" + field.getName() + "(place));");
+            }
+            sourceWriter.println("    return builder.tokenize();");
         }
-        sourceWriter.println("    return builder.tokenize();");
         sourceWriter.println("}");
         sourceWriter.println();
     }
@@ -166,10 +170,12 @@ public class AutoTokenizerGenerator extends Generator {
         String placeString = placeType.getQualifiedSourceName();
         sourceWriter.println("public " + placeString + " getPlace(String token) {");
         sourceWriter.println("    " + placeString + " place = GWT.create(" + placeString + ".class);");
-        sourceWriter.println("    TokenizerUtil extractor = TokenizerUtil.extract(token);");
-        for (JField field: fields) {
-        sourceWriter.println("    set" + field.getName() + "(place, extractor.get" +
-                getGetMethod(field) + "());");
+        if (!fields.isEmpty()) {
+            sourceWriter.println("    TokenizerUtil extractor = TokenizerUtil.extract(token);");
+            for (JField field: fields) {
+                sourceWriter.println("    set" + field.getName() + "(place, extractor.get" +
+                        getGetMethod(field) + "());");
+            }
         }
         sourceWriter.println("    return place;");
         sourceWriter.println("}");
