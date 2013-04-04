@@ -1,11 +1,11 @@
 package com.googlecode.slotted.gap2_example.client;
 
 import com.google.gwt.place.shared.Prefix;
+import com.googlecode.slotted.client.AutoTokenizer;
 import com.googlecode.slotted.client.GlobalParameter;
 import com.googlecode.slotted.client.MappedSlottedPlace;
 import com.googlecode.slotted.client.Slot;
 import com.googlecode.slotted.client.SlottedController;
-import com.googlecode.slotted.client.SlottedTokenizer;
 import com.googlecode.slotted.client.TokenizerParameter;
 
 @Prefix("b")
@@ -14,7 +14,9 @@ public class BasePlace extends MappedSlottedPlace {
 
     @TokenizerParameter
     private int tokenNum;
-    @GlobalParameter
+    @TokenizerParameter
+    private String tokenString;
+    @GlobalParameter()
     private String global;
 
     public BasePlace() {
@@ -33,5 +35,5 @@ public class BasePlace extends MappedSlottedPlace {
         return new Slot[] {SLOT};
     }
 
-    public static interface Tokenizer extends SlottedTokenizer<BasePlace>{}
+    public static interface Tokenizer extends AutoTokenizer<BasePlace> {}
 }

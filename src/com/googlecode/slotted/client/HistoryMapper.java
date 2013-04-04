@@ -302,6 +302,10 @@ abstract public class HistoryMapper {
 
                         PlaceTokenizer<? extends SlottedPlace> tokenizer = nameToTokenizerMap.get(placeParts[0]);
                         places[i] = tokenizer.getPlace(parameterToken);
+                        if (tokenizer instanceof AutoTokenizer) {
+                            //noinspection unchecked
+                            ((AutoTokenizer) tokenizer).fillFields(parameters, places[i]);
+                        }
                         if (places[i] == null) {
                             throw new IllegalStateException("Place not defined:" + placeTokens[i]);
                         }
@@ -356,9 +360,9 @@ abstract public class HistoryMapper {
 
         String name = placeToNameMap.get(place.getClass());
         PlaceTokenizer tokenizer = nameToTokenizerMap.get(name);
-        if (tokenizer instanceof SlottedTokenizer) {
+        if (tokenizer instanceof AutoTokenizer) {
             //noinspection unchecked
-            ((SlottedTokenizer) tokenizer).extractParameters(intoPlaceParameters, place);
+            ((AutoTokenizer) tokenizer).extractFields(intoPlaceParameters, place);
         }
     }
 

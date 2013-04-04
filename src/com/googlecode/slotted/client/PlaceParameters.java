@@ -29,8 +29,64 @@ public class PlaceParameters {
         paramMap.put(name, value);
     }
 
+    public void set(String name, String value) {
+        paramMap.put(name, value);
+    }
+
+    public void set(String name, int value) {
+        paramMap.put(name, "" + value);
+    }
+
+    public void set(String name, long value) {
+        paramMap.put(name, "" + value);
+    }
+
+    public void set(String name, float value) {
+        paramMap.put(name, "" + value);
+    }
+
+    public void set(String name, double value) {
+        paramMap.put(name, "" + value);
+    }
+
     public String getParameter(String name) {
         return paramMap.get(name);
+    }
+
+    public String get(String name) {
+        return paramMap.get(name);
+    }
+
+    public int getInt(String name) {
+        String value = paramMap.get(name);
+        if (value != null) {
+            return new Integer(value);
+        }
+        return 0;
+    }
+
+    public long getLong(String name) {
+        String value = paramMap.get(name);
+        if (value != null) {
+            return new Long(value);
+        }
+        return 0;
+    }
+
+    public float getFloat(String name) {
+        String value = paramMap.get(name);
+        if (value != null) {
+            return new Float(value);
+        }
+        return 0;
+    }
+
+    public double getDouble(String name) {
+        String value = paramMap.get(name);
+        if (value != null) {
+            return new Double(value);
+        }
+        return 0;
     }
 
     public String getRequiredParameter(String name) {

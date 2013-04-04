@@ -47,6 +47,10 @@ public class TokenizerUtil {
         return sb.toString();
     }
 
+    public boolean hasMore() {
+        return !parameters.isEmpty();
+    }
+
     public String get() {
         return parameters.removeFirst();
     }

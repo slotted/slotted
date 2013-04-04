@@ -12,10 +12,10 @@ import com.google.gwt.core.ext.typeinfo.TypeOracle;
 import com.google.gwt.place.shared.PlaceTokenizer;
 import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
 import com.google.gwt.user.rebind.SourceWriter;
+import com.googlecode.slotted.client.AutoTokenizer;
 import com.googlecode.slotted.client.GlobalParameter;
 import com.googlecode.slotted.client.PlaceParameters;
 import com.googlecode.slotted.client.SlottedPlace;
-import com.googlecode.slotted.client.SlottedTokenizer;
 import com.googlecode.slotted.client.TokenizerParameter;
 import com.googlecode.slotted.client.TokenizerUtil;
 
@@ -58,6 +58,7 @@ public class AutoTokenizerGenerator extends Generator {
                 writeAccessors(sourceWriter, tokenParams, placeType);
                 writeAccessors(sourceWriter, globalParams, placeType);
                 writeGlobalExtractor(sourceWriter, globalParams, placeType);
+                writeGlobalSetter(sourceWriter, globalParams, placeType);
                 writeGetToken(sourceWriter, tokenParams, placeType);
                 writeGetPlace(sourceWriter, tokenParams, placeType);
 
@@ -78,7 +79,7 @@ public class AutoTokenizerGenerator extends Generator {
     {
         JClassType placeType = null;
         JClassType placeBaseType = typeOracle.getType(SlottedPlace.class.getName());
-        JClassType tokenizerBaseType = typeOracle.getType(SlottedTokenizer.class.getName());
+        JClassType tokenizerBaseType = typeOracle.getType(AutoTokenizer.class.getName());
         JClassType type = typeOracle.findType(typeName);
 
         if (type.isAssignableTo(placeBaseType)) {
@@ -99,7 +100,7 @@ public class AutoTokenizerGenerator extends Generator {
         ClassSourceFileComposerFactory composer =
                 new ClassSourceFileComposerFactory(packageName, simpleName);
 
-        composer.addImplementedInterface(SlottedTokenizer.class.getCanonicalName() +
+        composer.addImplementedInterface(AutoTokenizer.class.getCanonicalName() +
                 "<" + classType.getQualifiedSourceName() + ">");
         composer.addImport(GWT.class.getCanonicalName());
         composer.addImport(PlaceTokenizer.class.getCanonicalName());
@@ -140,12 +141,27 @@ public class AutoTokenizerGenerator extends Generator {
     }
 
     private void writeGlobalExtractor(SourceWriter sourceWriter, List<JField> fields, JClassType placeType) {
-        sourceWriter.println("public void extractParameters(PlaceParameters intoPlaceParameters, " +
+        sourceWriter.println("public void extractFields(PlaceParameters intoPlaceParameters, " +
                 placeType.getQualifiedSourceName() +" place) {");
+        sourceWriter.indent();
         for (JField field: fields) {
-            sourceWriter.println("    intoPlaceParameters.setParameter(\"" +
-                    field.getName() + "\", get" + field.getName() + "(place));");
+            sourceWriter.println("intoPlaceParameters.set(\"" + field.getName() + "\", get" +
+                    field.getName() + "(place));");
         }
+        sourceWriter.outdent();
+        sourceWriter.println("}");
+        sourceWriter.println();
+    }
+
+    private void writeGlobalSetter(SourceWriter sourceWriter, List<JField> fields, JClassType placeType) {
+        sourceWriter.println("public void fillFields(PlaceParameters placeParameters, " +
+                placeType.getQualifiedSourceName() +" place) {");
+        sourceWriter.indent();
+        for (JField field: fields) {
+            sourceWriter.println("set" + field.getName() + "(place, placeParameters.get" +
+                                    getGetMethod(field) + "(\"" + field.getName() + "\"));");
+        }
+        sourceWriter.outdent();
         sourceWriter.println("}");
         sourceWriter.println();
     }
@@ -169,15 +185,21 @@ public class AutoTokenizerGenerator extends Generator {
     private void writeGetPlace(SourceWriter sourceWriter, List<JField> fields, JClassType placeType) {
         String placeString = placeType.getQualifiedSourceName();
         sourceWriter.println("public " + placeString + " getPlace(String token) {");
-        sourceWriter.println("    " + placeString + " place = GWT.create(" + placeString + ".class);");
+        sourceWriter.indent();
+        sourceWriter.println(placeString + " place = GWT.create(" + placeString + ".class);");
         if (!fields.isEmpty()) {
-            sourceWriter.println("    TokenizerUtil extractor = TokenizerUtil.extract(token);");
+            sourceWriter.println("TokenizerUtil extractor = TokenizerUtil.extract(token);");
             for (JField field: fields) {
-                sourceWriter.println("    set" + field.getName() + "(place, extractor.get" +
+                sourceWriter.println("if (extractor.hasMore()) {");
+                sourceWriter.indent();
+                sourceWriter.println("set" + field.getName() + "(place, extractor.get" +
                         getGetMethod(field) + "());");
+                sourceWriter.outdent();
+                sourceWriter.println("}");
             }
         }
-        sourceWriter.println("    return place;");
+        sourceWriter.println("return place;");
+        sourceWriter.outdent();
         sourceWriter.println("}");
         sourceWriter.println();
     }

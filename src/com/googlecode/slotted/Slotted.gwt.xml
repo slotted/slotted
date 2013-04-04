@@ -17,7 +17,7 @@
     </generate-with>
 
     <generate-with class="com.googlecode.slotted.rebind.AutoTokenizerGenerator" >
-        <when-type-assignable class="com.googlecode.slotted.client.SlottedTokenizer" />
+        <when-type-assignable class="com.googlecode.slotted.client.AutoTokenizer" />
     </generate-with>
 
 </module>
