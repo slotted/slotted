@@ -218,9 +218,11 @@ public class ActiveSlot {
         if (activity instanceof SlottedActivity) {
             for (ActiveSlot child: children) {
                 Slot slot = child.getSlot();
-                ((SlottedActivity) activity).setChildSlotDisplay(slot);
-                if (slot.getDisplay() == null) {
+                AcceptsOneWidget display = ((SlottedActivity) activity).getChildSlotDisplay(slot);
+                if (display == null) {
                     throw new IllegalStateException(activity + " didn't correctly set the display for a Slot.");
+                } else {
+                    slot.setDisplay(display);
                 }
             }
         } else if (!children.isEmpty()) {

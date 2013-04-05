@@ -37,11 +37,21 @@ abstract public class SlottedActivity extends AbstractActivity {
 
     abstract public void start(AcceptsOneWidget panel);
 
+
+    /**
+     * @deprecated
+     *
+     * Use {@link #getChildSlotDisplay(Slot)} instead.
+     */
     public void setChildSlotDisplay(Slot slot) {
         throw new UnsupportedOperationException(this + " doesn't support child slots.  Make sure " +
                 "the SlottedActivity overrides setChildSlotDisplay()");
     }
 
+    public AcceptsOneWidget getChildSlotDisplay(Slot slot) {
+        setChildSlotDisplay(slot);
+        return slot.getDisplay();
+    }
 
     public void init(SlottedController slottedController, SlottedPlace currentPlace,
             PlaceParameters placeParameters, EventBus eventBus, ActiveSlot activeSlot)
