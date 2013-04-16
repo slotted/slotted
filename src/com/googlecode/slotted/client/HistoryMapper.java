@@ -367,13 +367,17 @@ abstract public class HistoryMapper {
     }
 
     public PlaceParameters extractParameters(ArrayList<SlottedPlace> completeNonDefaults) {
-        PlaceParameters placeParameters = new PlaceParameters();
+        if (!handlingHistory) {
+            PlaceParameters placeParameters = new PlaceParameters();
 
-        for (SlottedPlace place: completeNonDefaults) {
-            extractParameters(place, placeParameters);
+            for (SlottedPlace place: completeNonDefaults) {
+                extractParameters(place, placeParameters);
+            }
+
+            return placeParameters;
+        } else {
+            return completeNonDefaults.get(0).getPlaceParameters();
         }
-
-        return placeParameters;
     }
 
     /**

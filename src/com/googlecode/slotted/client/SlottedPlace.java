@@ -62,6 +62,10 @@ abstract public class SlottedPlace extends Place implements HasParameters {
         this.placeParameters = placeParameters;
     }
 
+    public PlaceParameters getPlaceParameters() {
+        return placeParameters;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
