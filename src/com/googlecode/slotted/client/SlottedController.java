@@ -322,6 +322,7 @@ public class SlottedController {
                 }
             }
         } catch (Exception e) {
+            processingGoTo = false;
             log.log(Level.SEVERE, "Problem while goTo:" + newPlace, e);
             throw SlottedException.wrap(e);
         }
