@@ -271,7 +271,12 @@ public class SlottedController {
      */
     public void goTo(SlottedPlace newPlace, SlottedPlace[] nonDefaultPlaces, boolean reloadAll) {
         try {
-            log.info("GoTo: " + newPlace);
+            String goToLog = "GoTo: " + newPlace;
+            for (SlottedPlace place: nonDefaultPlaces) {
+                goToLog += "/" + place;
+            }
+            log.info(goToLog);
+
             if (processingGoTo) {
                 nextGoToPlace = newPlace;
                 nextGoToNonDefaultPlaces = nonDefaultPlaces;
