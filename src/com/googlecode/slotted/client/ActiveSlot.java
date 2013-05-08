@@ -86,19 +86,25 @@ public class ActiveSlot {
     public void maybeGoTo(Iterable<SlottedPlace> nonDefaultPlaces, boolean reloadAll,
             ArrayList<String> warnings)
     {
+        boolean checkMayStop = false;
         newPlace = getPlace(nonDefaultPlaces);
         if (reloadAll || !newPlace.equals(place)) {
             if (activity != null) {
-                String warning = activity.mayStop();
-                if (warning != null) {
-                    warnings.add(warning);
-                }
+                checkMayStop = true;
             }
             reloadAll = true;
         }
         if (children != null) {
             for (ActiveSlot child : children) {
                 child.maybeGoTo(nonDefaultPlaces, reloadAll, warnings);
+            }
+        }
+
+        //Children should be checked before parent in case child mayStop() saves data.
+        if (checkMayStop) {
+            String warning = activity.mayStop();
+            if (warning != null) {
+                warnings.add(warning);
             }
         }
     }
