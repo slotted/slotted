@@ -337,7 +337,7 @@ public class SlottedController {
 
                 processingGoTo = false;
 
-                if (!attemptShowViews(false)) {
+                if (!attemptShowViews()) {
                     eventBus.fireEvent(new LoadingEvent(true));
                 }
 
@@ -381,18 +381,20 @@ public class SlottedController {
         return root.getFirstLoadingPlace() != null;
     }
 
-    protected boolean attemptShowViews() {
-        return attemptShowViews(true);
+    protected void showLoading() {
+        SlottedPlace loadingPlace = root.getFirstLoadingPlace();
+        if (loadingPlace != null) {
+            log.warning("Place loading:" + loadingPlace);
+            eventBus.fireEvent(new LoadingEvent(true));
+        }
     }
 
-    protected boolean attemptShowViews(boolean fireEvent) {
+    protected boolean attemptShowViews() {
         if (!processingGoTo) {
             SlottedPlace loadingPlace = root.getFirstLoadingPlace();
             if (loadingPlace == null) {
                 root.showViews();
-                if (fireEvent) {
-                    eventBus.fireEvent(new LoadingEvent(false));
-                }
+                eventBus.fireEvent(new LoadingEvent(false));
                 return true;
             } else {
                 log.warning("Waiting for loading place:" + loadingPlace);

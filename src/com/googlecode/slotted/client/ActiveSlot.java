@@ -263,7 +263,9 @@ public class ActiveSlot {
             throw new IllegalStateException("Attempting to set loading before activity started.");
         }
         currentProtectedDisplay.loading = loading;
-        if (!loading) {
+        if (loading) {
+            slottedController.showLoading();
+        } else {
             slottedController.attemptShowViews();
         }
     }
