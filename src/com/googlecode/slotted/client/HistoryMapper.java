@@ -112,14 +112,24 @@ abstract public class HistoryMapper {
     }
 
     /**
-     * @see SlottedController#setErrorPlace(SlottedPlace)
+     * @see SlottedController#setErrorPlace(SlottedErrorPlace)
      */
-    public void setErrorPlace(SlottedPlace place) {
+    public void setErrorPlace(SlottedErrorPlace place) {
         if (errorPlace == null || errorPlace == defaultPlace) {
             errorPlace = place;
         } else {
             throw new IllegalStateException("Error place already set.");
         }
+    }
+
+    /**
+     * @see SlottedController#getErrorPlace()
+     */
+    public SlottedErrorPlace getErrorPlace() {
+        if (errorPlace instanceof SlottedErrorPlace) {
+            return (SlottedErrorPlace) errorPlace;
+        }
+        return null;
     }
 
     /**
@@ -334,7 +344,7 @@ abstract public class HistoryMapper {
             }
         } catch (Exception e) {
             log.log(Level.SEVERE, "Error processing goTo", e);
-            navErrorPlace();
+            navErrorPlace(e);
         }
         handlingHistory = false;
     }
@@ -347,10 +357,13 @@ abstract public class HistoryMapper {
         controller.goTo(defaultPlace);
     }
 
-    private void navErrorPlace() {
+    private void navErrorPlace(Exception e) {
         if (errorPlace == null) {
             throw new IllegalStateException("No error or default place defined.  Make sure that " +
                     "setErrorPlace() or setDefaultPlace() is called");
+        }
+        if (errorPlace instanceof SlottedErrorPlace) {
+            ((SlottedErrorPlace) errorPlace).setException(e);
         }
         controller.goTo(errorPlace);
     }

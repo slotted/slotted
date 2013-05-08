@@ -180,8 +180,17 @@ public class SlottedController {
      *
      * @param errorPlace The place with correct parameters to display.
      */
-    public void setErrorPlace(SlottedPlace errorPlace) {
+    public void setErrorPlace(SlottedErrorPlace errorPlace) {
         historyMapper.setErrorPlace(errorPlace);
+    }
+
+    /**
+     * Gets the ErrorPlace that was set or null if none was set.
+     *
+     * @see #setErrorPlace
+     */
+    public SlottedErrorPlace getErrorPlace() {
+        return historyMapper.getErrorPlace();
     }
 
     /**
@@ -223,6 +232,16 @@ public class SlottedController {
      */
     protected void goToDefaultPlace() {
         historyMapper.goToDefaultPlace();
+    }
+
+    public void goToErrorPlace(Throwable exception) {
+        SlottedErrorPlace errorPlace = getErrorPlace();
+        if (errorPlace != null) {
+            errorPlace.setException(exception);
+            goTo(errorPlace);
+        } else {
+            throw new IllegalStateException("ErrorPlace hasn't been set properly");
+        }
     }
 
     /**
@@ -329,7 +348,13 @@ public class SlottedController {
         } catch (Exception e) {
             processingGoTo = false;
             log.log(Level.SEVERE, "Problem while goTo:" + newPlace, e);
-            throw SlottedException.wrap(e);
+            SlottedErrorPlace errorPlace = historyMapper.getErrorPlace();
+            if (errorPlace != null && !(newPlace instanceof SlottedErrorPlace)) {
+                errorPlace.setException(e);
+                goTo(errorPlace);
+            } else {
+                throw SlottedException.wrap(e);
+            }
         }
     }
 
