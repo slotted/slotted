@@ -60,6 +60,7 @@ abstract public class SlottedPlace extends Place implements HasParameters {
 
     @Override public void setPlaceParameters(PlaceParameters placeParameters) {
         this.placeParameters = placeParameters;
+        setKeys = new LinkedList<String>();
     }
 
     public PlaceParameters getPlaceParameters() {
