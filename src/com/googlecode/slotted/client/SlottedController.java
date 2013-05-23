@@ -45,6 +45,7 @@ public class SlottedController {
      * displayed in the root slot.
      */
     public static final RootSlotImpl RootSlot = new RootSlotImpl();
+    public static SlottedController instance;
 
     public static class RootSlotImpl extends Slot {
         public RootSlotImpl() {
@@ -98,6 +99,7 @@ public class SlottedController {
     private ActivityMapper legacyActivityMapper;
 
     private boolean processingGoTo;
+    private boolean tokenDone;
     private SlottedPlace nextGoToPlace;
     private SlottedPlace[] nextGoToNonDefaultPlaces;
     private boolean nextGoToReloadAll;
@@ -106,6 +108,8 @@ public class SlottedController {
     private ActiveSlot root;
     private PlaceParameters currentParameters;
     private NavigationOverride navigationOverride;
+    private String referringToken;
+    private String currentToken;
 
     /**
      * Create a new SlottedController with a {@link DefaultDelegate}. The DefaultDelegate is created
@@ -127,6 +131,7 @@ public class SlottedController {
      * @param delegate the {@link Delegate} in charge of Window-related events
      */
     public SlottedController(final HistoryMapper historyMapper, EventBus eventBus, Delegate delegate) {
+        instance = this;
         this.eventBus = eventBus;
         this.historyMapper = historyMapper;
         historyMapper.setController(this);
@@ -245,6 +250,28 @@ public class SlottedController {
     }
 
     /**
+     * Returns the History Token for the referring page (the page that triggered the goTo()).
+     */
+    public String getReferringToken() {
+        if (processingGoTo && !tokenDone) {
+            return currentToken;
+        } else {
+            return referringToken;
+        }
+    }
+
+    /**
+     * Request a change to a historyToken string.  This is used with {@link #getReferringToken()} to
+     * save a location to jump to.  This will add a new Item to the History list, so the browser
+     * back button with show the page that called the goTo().
+     *
+     * @param historyToken Just the part of the url following the #.  Don't send complete URLs.
+     */
+    public void goTo(String historyToken) {
+        History.newItem(historyToken, true);
+    }
+
+    /**
      * Request a change to a new place. It is not a given that we'll actually get there. First all
      * active {@link SlottedActivity#mayStop()} will called. If any activities return a warning
      * message, it will be presented to the user via {@link Delegate#confirm(String[])} (which is
@@ -303,6 +330,7 @@ public class SlottedController {
 
             } else {
                 processingGoTo = true;
+                tokenDone = false;
                 nextGoToPlace = null;
                 nextGoToNonDefaultPlaces = null;
                 nextGoToReloadAll = false;
@@ -330,8 +358,9 @@ public class SlottedController {
                     LinkedList<SlottedPlace> places = new LinkedList<SlottedPlace>();
                     fillPlaces(root, places);
 
-                    historyMapper.createToken();
-
+                    referringToken = currentToken;
+                    currentToken = historyMapper.createToken();
+                    tokenDone = true;
                     eventBus.fireEvent(new NewPlaceEvent(places));
                 }
 

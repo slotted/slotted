@@ -414,11 +414,13 @@ abstract public class HistoryMapper {
     /**
      * Generates the History token for the currently display Places.
      */
-    public void createToken() {
+    public String createToken() {
         if (!handlingHistory) {
             String token = createToken(controller.getRoot());
-
             History.newItem(token, false);
+            return token;
+        } else {
+            return History.getToken();
         }
     }
 
