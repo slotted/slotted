@@ -5,6 +5,7 @@ import com.googlecode.slotted.client.Slot;
 import com.googlecode.slotted.client.SlottedPlace;
 
 public class GoodbyePlace extends SlottedPlace {
+    private GoodbyePlace() {}
 
     public GoodbyePlace(String token) {
         setParameter("helloName", token);

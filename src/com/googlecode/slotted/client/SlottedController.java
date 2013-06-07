@@ -458,6 +458,25 @@ public class SlottedController {
         return root;
     }
 
+    public <T> T getCurrentPlace(Class<T> placeType) {
+        return getPlace(root, placeType);
+    }
+
+    private <T> T getPlace(ActiveSlot slot, Class<T> placeType) {
+        SlottedPlace place = slot.getPlace();
+        if (place.getClass().equals(placeType)) {
+            return (T) place;
+        }
+
+        for (ActiveSlot child: slot.getChildren()) {
+            place = (SlottedPlace) getPlace(child, placeType);
+            if (place != null) {
+                return (T) place;
+            }
+        }
+        return null;
+    }
+
     /**
      * Returns the {@link PlaceParameters} that used to display the current state.
      *

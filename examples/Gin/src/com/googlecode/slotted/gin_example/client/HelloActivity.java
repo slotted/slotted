@@ -17,7 +17,7 @@ public class HelloActivity extends SlottedActivity implements HelloView.Presente
      */
     @Override
     public void start(AcceptsOneWidget containerWidget) {
-        HelloPlace place = (HelloPlace) getCurrentPlace();
+        HelloPlace place = getCurrentPlace(HelloPlace.class);
         helloView.setName(place.getHelloName());
         helloView.setPresenter(this);
         containerWidget.setWidget(helloView.asWidget());

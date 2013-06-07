@@ -88,6 +88,10 @@ abstract public class SlottedActivity extends AbstractActivity {
         return slottedController;
     }
 
+    public <T> T getCurrentPlace(Class<T> type) {
+        return slottedController.getCurrentPlace(type);
+    }
+
     public SlottedPlace getCurrentPlace() {
         return currentPlace;
     }
