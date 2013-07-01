@@ -25,27 +25,19 @@ abstract public class SlottedPlace extends Place implements HasParameters {
 
     private String[] equalsParameterNames = new String[0];
     private PlaceParameters placeParameters = new PlaceParameters();
-    private LinkedList<String> setKeys;
+    private LinkedList<String> setKeys = new LinkedList<String>();
 
     abstract public Slot getParentSlot();
     abstract public Slot[] getChildSlots();
     abstract public Activity getActivity();
 
     public void setParameter(String name, String value) {
-        if (placeParameters == null) {
-            placeParameters = new PlaceParameters();
-            setKeys = new LinkedList<String>();
-        }
-
         placeParameters.setParameter(name, value);
         setKeys.add(name);
     }
 
     public String getParameter(String name) {
-        if (placeParameters != null) {
-            return placeParameters.getParameter(name);
-        }
-        return null;
+        return placeParameters.getParameter(name);
     }
 
     protected void setEqualsParameters(String... parameterName) {
@@ -53,9 +45,7 @@ abstract public class SlottedPlace extends Place implements HasParameters {
     }
 
     @Override public void extractParameters(PlaceParameters intoPlaceParameters) {
-        if (this.placeParameters != null) {
-            intoPlaceParameters.addPlaceParameters(this.placeParameters, setKeys);
-        }
+        intoPlaceParameters.addPlaceParameters(this.placeParameters, setKeys);
     }
 
     @Override public void setPlaceParameters(PlaceParameters placeParameters) {
