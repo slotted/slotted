@@ -393,20 +393,40 @@ abstract public class HistoryMapper {
         }
     }
 
+    private String createPlaceToken(SlottedPlace place) {
+        String name = placeToNameMap.get(place.getClass());
+        if (name == null) {
+            throw new IllegalStateException("Place not registered:" + place.getClass().getName());
+        }
+        PlaceTokenizer tokenizer = nameToTokenizerMap.get(name);
+        @SuppressWarnings("unchecked")
+        String params = tokenizer.getToken(place);
+
+        String token = name;
+        if (params != null && !params.isEmpty()) {
+            token += ":" + params;
+        }
+
+        return token;
+    }
+
     /**
-     * Creates a History token for the passed place, which can be used in links or other navigation
+     * Creates a History token for the passed places, which can be used in links or other navigation
      * URLs.
      *
      * @param place The SlottedPlace that will be navigated to.
-     * @param parameters The parameters that should be added to the token.
      * @return History token that can be added to a base URL for navigation.
      */
-    public String createToken(SlottedPlace place, PlaceParameters parameters) {
-        String token = placeToNameMap.get(place.getClass());
-
-        if (parameters != null) {
-            token += parameters.toString();
+    public String createToken(SlottedPlace place, SlottedPlace... nonDefaultPlaces) {
+        PlaceParameters placeParameters = new PlaceParameters();
+        String token = createPlaceToken(place);
+        place.extractParameters(placeParameters);
+        for (SlottedPlace nonDefaultPlace: nonDefaultPlaces) {
+            token += "/" + createPlaceToken(nonDefaultPlace);
+            nonDefaultPlace.extractParameters(placeParameters);
         }
+
+        token += placeParameters.toString();
 
         return token;
     }
@@ -444,19 +464,8 @@ abstract public class HistoryMapper {
 
     private String createPageList(ActiveSlot activeSlot) {
         SlottedPlace place = activeSlot.getPlace();
-        String name = placeToNameMap.get(place.getClass());
-        if (name == null) {
-            throw new IllegalStateException("Place not registered:" + activeSlot.getPlace().getClass().getName());
-        }
-        PlaceTokenizer tokenizer = nameToTokenizerMap.get(name);
-        @SuppressWarnings("unchecked")
-        String params = tokenizer.getToken(place);
 
-        String token = name;
-        if (params != null && !params.isEmpty()) {
-            token += ":" + params;
-        }
-
+        String token = createPlaceToken(place);
         for (ActiveSlot child: activeSlot.getChildren()) {
             token += "/" + createPageList(child);
         }

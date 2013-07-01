@@ -41,7 +41,9 @@ public class TokenizerUtil {
             } else {
                 first = false;
             }
-            sb.append(URL.encodePathSegment(param));
+            if (param != null) {
+                sb.append(URL.encodePathSegment(param));
+            }
         }
 
         return sb.toString();

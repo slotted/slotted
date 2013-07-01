@@ -18,11 +18,14 @@ package com.googlecode.slotted.client;
 import com.google.gwt.activity.shared.ActivityMapper;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.place.shared.PlaceHistoryMapper;
+import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.ClosingEvent;
@@ -110,6 +113,7 @@ public class SlottedController {
     private NavigationOverride navigationOverride;
     private String referringToken;
     private String currentToken;
+    private boolean openNewWindow;
 
     /**
      * Create a new SlottedController with a {@link DefaultDelegate}. The DefaultDelegate is created
@@ -149,6 +153,13 @@ public class SlottedController {
                 if (!warnings.isEmpty()) {
                     event.setMessage(warnings.get(0));
                 }
+            }
+        });
+
+        Event.addNativePreviewHandler(new Event.NativePreviewHandler() {
+            public void onPreviewNativeEvent(NativePreviewEvent event) {
+                NativeEvent ne = event.getNativeEvent();
+                openNewWindow =  ne.getMetaKey() || ne.getCtrlKey();
             }
         });
     }
@@ -323,55 +334,60 @@ public class SlottedController {
             }
             log.info(goToLog);
 
-            if (processingGoTo) {
-                nextGoToPlace = newPlace;
-                nextGoToNonDefaultPlaces = nonDefaultPlaces;
-                nextGoToReloadAll = reloadAll;
+            if (openNewWindow) {
+                Window.open(createUrl(newPlace), "_blank", "");
 
             } else {
-                processingGoTo = true;
-                tokenDone = false;
-                nextGoToPlace = null;
-                nextGoToNonDefaultPlaces = null;
-                nextGoToReloadAll = false;
+                if (processingGoTo) {
+                    nextGoToPlace = newPlace;
+                    nextGoToNonDefaultPlaces = nonDefaultPlaces;
+                    nextGoToReloadAll = reloadAll;
 
-                ArrayList<SlottedPlace> completeNonDefaults = new ArrayList<SlottedPlace>();
-                completeNonDefaults.add(newPlace);
-                Collections.addAll(completeNonDefaults, nonDefaultPlaces);
+                } else {
+                    processingGoTo = true;
+                    tokenDone = false;
+                    nextGoToPlace = null;
+                    nextGoToNonDefaultPlaces = null;
+                    nextGoToReloadAll = false;
 
-                currentParameters = historyMapper.extractParameters(completeNonDefaults);
+                    ArrayList<SlottedPlace> completeNonDefaults = new ArrayList<SlottedPlace>();
+                    completeNonDefaults.add(newPlace);
+                    Collections.addAll(completeNonDefaults, nonDefaultPlaces);
 
-                if (navigationOverride != null) {
-                    completeNonDefaults = navigationOverride.checkOverrides(completeNonDefaults);
-                    newPlace = completeNonDefaults.get(0);
-                }
+                    currentParameters = historyMapper.extractParameters(completeNonDefaults);
 
-                addParents(newPlace, completeNonDefaults);
+                    if (navigationOverride != null) {
+                        completeNonDefaults = navigationOverride.checkOverrides(completeNonDefaults);
+                        newPlace = completeNonDefaults.get(0);
+                    }
 
-                ArrayList<String> warnings = new ArrayList<String>();
-                root.maybeGoTo(completeNonDefaults, reloadAll, warnings);
+                    addParents(newPlace, completeNonDefaults);
 
-                if (warnings.isEmpty() || delegate.confirm(warnings.toArray(new String[warnings.size()]))) {
+                    ArrayList<String> warnings = new ArrayList<String>();
+                    root.maybeGoTo(completeNonDefaults, reloadAll, warnings);
 
-                    root.constructStopStart(currentParameters, completeNonDefaults, reloadAll);
+                    if (warnings.isEmpty() || delegate.confirm(warnings.toArray(new String[warnings.size()]))) {
 
-                    LinkedList<SlottedPlace> places = new LinkedList<SlottedPlace>();
-                    fillPlaces(root, places);
+                        root.constructStopStart(currentParameters, completeNonDefaults, reloadAll);
 
-                    referringToken = currentToken;
-                    currentToken = historyMapper.createToken();
-                    tokenDone = true;
-                    eventBus.fireEvent(new NewPlaceEvent(places));
-                }
+                        LinkedList<SlottedPlace> places = new LinkedList<SlottedPlace>();
+                        fillPlaces(root, places);
 
-                processingGoTo = false;
+                        referringToken = currentToken;
+                        currentToken = historyMapper.createToken();
+                        tokenDone = true;
+                        eventBus.fireEvent(new NewPlaceEvent(places));
+                    }
 
-                if (!attemptShowViews()) {
-                    eventBus.fireEvent(new LoadingEvent(true));
-                }
+                    processingGoTo = false;
 
-                if (nextGoToPlace != null) {
-                    goTo(nextGoToPlace, nextGoToNonDefaultPlaces, nextGoToReloadAll);
+                    if (!attemptShowViews()) {
+                        eventBus.fireEvent(new LoadingEvent(true));
+                    }
+
+                    if (nextGoToPlace != null) {
+                        goTo(nextGoToPlace, nextGoToNonDefaultPlaces, nextGoToReloadAll);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -433,7 +449,7 @@ public class SlottedController {
     }
 
     //todo javadoc
-    public String createUrl(SlottedPlace newPlace) {
+    public String createUrl(SlottedPlace newPlace, SlottedPlace... nonDefaultPlaces) {
         String url = Document.get().getURL();
         String[] splitUrl = url.split("#");
         String token = createToken(newPlace);
@@ -442,10 +458,10 @@ public class SlottedController {
     }
 
     //todo javadoc
-    public String createToken(SlottedPlace newPlace) {
+    public String createToken(SlottedPlace newPlace, SlottedPlace... nonDefaultPlaces) {
         PlaceParameters placeParameters = new PlaceParameters();
         newPlace.extractParameters(placeParameters);
-        String token = historyMapper.createToken(newPlace, placeParameters);
+        String token = historyMapper.createToken(newPlace, nonDefaultPlaces);
         return token;
     }
 

@@ -45,7 +45,7 @@ abstract public class SlottedActivity extends AbstractActivity {
      */
     public void setChildSlotDisplay(Slot slot) {
         throw new UnsupportedOperationException(this + " doesn't support child slots.  Make sure " +
-                "the SlottedActivity overrides setChildSlotDisplay()");
+                "the SlottedActivity overrides getChildSlotDisplay()");
     }
 
     public AcceptsOneWidget getChildSlotDisplay(Slot slot) {

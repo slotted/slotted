@@ -24,7 +24,7 @@ import java.util.LinkedList;
 abstract public class SlottedPlace extends Place implements HasParameters {
 
     private String[] equalsParameterNames = new String[0];
-    private PlaceParameters placeParameters;
+    private PlaceParameters placeParameters = new PlaceParameters();
     private LinkedList<String> setKeys;
 
     abstract public Slot getParentSlot();
