@@ -113,7 +113,9 @@ public class SlottedController {
     private NavigationOverride navigationOverride;
     private String referringToken;
     private String currentToken;
+    private boolean openNewTab;
     private boolean openNewWindow;
+    private String openWindowFeatures = "directories=yes,location=yes,menubar=yes,status=yes,titlebar=yes,toolbar=yes";
 
     /**
      * Create a new SlottedController with a {@link DefaultDelegate}. The DefaultDelegate is created
@@ -159,7 +161,8 @@ public class SlottedController {
         Event.addNativePreviewHandler(new Event.NativePreviewHandler() {
             public void onPreviewNativeEvent(NativePreviewEvent event) {
                 NativeEvent ne = event.getNativeEvent();
-                openNewWindow =  ne.getMetaKey() || ne.getCtrlKey();
+                openNewWindow = ne.getShiftKey();
+                openNewTab = ne.getMetaKey() || ne.getCtrlKey();
             }
         });
     }
@@ -240,6 +243,14 @@ public class SlottedController {
     //todo javadoc
     public void setNavigationOverride(NavigationOverride navigationOverride) {
         this.navigationOverride = navigationOverride;
+    }
+
+    /**
+     * Set the features to pass to {@link Window#open(String, String, String)} when the SHIFT key is
+     * pressed.
+     */
+    public void setOpenWindowFeature(String features) {
+        openWindowFeatures = features;
     }
 
     /**
@@ -334,8 +345,11 @@ public class SlottedController {
             }
             log.info(goToLog);
 
-            if (openNewWindow) {
+            if (openNewTab) {
                 Window.open(createUrl(newPlace), "_blank", "");
+
+            }else if (openNewWindow) {
+                Window.open(createUrl(newPlace), "_blank", openWindowFeatures);
 
             } else {
                 if (processingGoTo) {
