@@ -40,6 +40,10 @@ abstract public class SlottedPlace extends Place implements HasParameters {
         return placeParameters.getParameter(name);
     }
 
+    @Deprecated
+    /**
+     * AutoTokenizer is the preferred method of having parameters included in equals()
+     */
     protected void setEqualsParameters(String... parameterName) {
         equalsParameterNames = parameterName;
     }
@@ -63,6 +67,11 @@ abstract public class SlottedPlace extends Place implements HasParameters {
             return true;
         }
         if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        AutoTokenizer tokenizer = AutoTokenizer.tokenizers.get(this.getClass());
+        if (tokenizer != null && !tokenizer.equals(this, (Place) o)) {
             return false;
         }
 

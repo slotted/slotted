@@ -77,11 +77,11 @@ abstract public class SlottedActivity extends AbstractActivity {
     }
 
     public void setLoadingStarted() {
-        activeSlot.setLoading(true);
+        activeSlot.setLoading(true, this);
     }
 
     public void setLoadingComplete() {
-        activeSlot.setLoading(false);
+        activeSlot.setLoading(false, this);
     }
 
     public SlottedController getSlottedController() {

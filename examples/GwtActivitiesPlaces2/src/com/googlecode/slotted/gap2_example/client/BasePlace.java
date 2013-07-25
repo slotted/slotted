@@ -14,9 +14,9 @@ public class BasePlace extends MappedSlottedPlace {
 
     @TokenizerParameter
     private int tokenNum;
-    @TokenizerParameter
+    @TokenizerParameter(useInEquals = false)
     private String tokenString;
-    @GlobalParameter()
+    @GlobalParameter
     private String global;
 
     public BasePlace() {

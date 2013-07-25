@@ -39,28 +39,38 @@ public class AutoTokenizerGenerator extends Generator {
 
             LinkedList<JField> tokenParams = new LinkedList<JField>();
             LinkedList<JField> globalParams = new LinkedList<JField>();
+            LinkedList<JField> equalsParams = new LinkedList<JField>();
 
             JField[] fields = placeType.getFields();
             for (JField field: fields) {
                 for (Annotation annotation: field.getAnnotations()) {
                     if (annotation instanceof TokenizerParameter) {
                         tokenParams.add(field);
+                        if (((TokenizerParameter) annotation).useInEquals()) {
+                            equalsParams.add(field);
+                        }
                         break;
 
                     } else if (annotation instanceof GlobalParameter) {
                         globalParams.add(field);
+                        if (((GlobalParameter) annotation).useInEquals()) {
+                            equalsParams.add(field);
+                        }
+                        break;
                     }
                 }
             }
 
             SourceWriter sourceWriter = getSourceWriter(placeType, context, logger);
             if (sourceWriter != null) {
+                writeConstructor(sourceWriter, placeType);
                 writeAccessors(sourceWriter, tokenParams, placeType);
                 writeAccessors(sourceWriter, globalParams, placeType);
                 writeGlobalExtractor(sourceWriter, globalParams, placeType);
                 writeGlobalSetter(sourceWriter, globalParams, placeType);
                 writeGetToken(sourceWriter, tokenParams, placeType);
                 writeGetPlace(sourceWriter, tokenParams, placeType);
+                writeEquals(sourceWriter, equalsParams, placeType);
 
                 sourceWriter.commit(logger);
                 logger.log(TreeLogger.DEBUG, "Done Generating source for " + placeType.getName(), null);
@@ -118,6 +128,14 @@ public class AutoTokenizerGenerator extends Generator {
 
     }
 
+    private void writeConstructor(SourceWriter sourceWriter, JClassType placeType) {
+        sourceWriter.println("public " + placeType.getSimpleSourceName() + NamePostfix + "() {");
+        sourceWriter.indent();
+        sourceWriter.println("com.googlecode.slotted.client.AutoTokenizer.tokenizers.put(" + placeType.getQualifiedSourceName() + ".class, this);");
+        sourceWriter.outdent();
+        sourceWriter.println("}");
+    }
+
     private void writeAccessors(SourceWriter sourceWriter, List<JField> fields, JClassType placeType) {
         for (JField field: fields) {
             writeAccessors(sourceWriter, field, placeType);
@@ -161,6 +179,30 @@ public class AutoTokenizerGenerator extends Generator {
             sourceWriter.println("set" + field.getName() + "(place, placeParameters.get" +
                                     getGetMethod(field) + "(\"" + field.getName() + "\"));");
         }
+        sourceWriter.outdent();
+        sourceWriter.println("}");
+        sourceWriter.println();
+    }
+
+    private void writeEquals(SourceWriter sourceWriter, List<JField> fields, JClassType placeType) {
+        sourceWriter.println("public boolean equals(" + placeType.getQualifiedSourceName() +" p1, " +
+                placeType.getQualifiedSourceName() +" p2) {");
+        sourceWriter.indent();
+        for (JField field: fields) {
+            String fieldName = field.getName();
+            if (field.getType().isPrimitive() != null) {
+                sourceWriter.println("if (get" + fieldName + "(p1) != get" + fieldName + "(p2)) {");
+            } else {
+                sourceWriter.println("if (get" + fieldName + "(p1) != null ? !get" + fieldName +
+                        "(p1).equals(get" + fieldName + "(p2)) : get" + fieldName + "(p2) != null) {");
+            }
+            sourceWriter.indent();
+            sourceWriter.println("return false;");
+            sourceWriter.outdent();
+            sourceWriter.println("}");
+        }
+
+        sourceWriter.println("return true;");
         sourceWriter.outdent();
         sourceWriter.println("}");
         sourceWriter.println();
