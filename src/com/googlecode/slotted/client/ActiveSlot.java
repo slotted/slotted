@@ -258,15 +258,14 @@ public class ActiveSlot {
         }
     }
 
-    public void setLoading(boolean loading) {
-        if (currentProtectedDisplay == null) {
-            throw new IllegalStateException("Attempting to set loading before activity started.");
-        }
-        currentProtectedDisplay.loading = loading;
-        if (loading) {
-            slottedController.showLoading();
-        } else {
-            slottedController.attemptShowViews();
+    public void setLoading(boolean loading, SlottedActivity activity) {
+        if (currentProtectedDisplay != null && currentProtectedDisplay.activity == activity) {
+            currentProtectedDisplay.loading = loading;
+            if (loading) {
+                slottedController.showLoading();
+            } else {
+                slottedController.attemptShowViews();
+            }
         }
     }
 
