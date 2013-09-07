@@ -1,0 +1,137 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+group = 'com.googlecode.slotted'
+version = '0.2rc1'
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src'
+        }
+        resources {
+            srcDir 'src'
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'com.google.gwt:gwt-user:2.4.0'
+    compile 'com.google.gwt:gwt-dev:2.4.0'
+    testCompile group: 'junit', name: 'junit', version: '4.+'
+}
+
+task compileGwt (dependsOn: classes, type: JavaExec) {
+	ext.buildDir = "${project.buildDir}/gwt"
+	ext.extraDir = "${project.buildDir}/extra"
+
+	inputs.source sourceSets.main.java.srcDirs
+	inputs.dir sourceSets.main.output.resourcesDir
+	outputs.dir buildDir
+
+	// Workaround for incremental build (GRADLE-1483)
+	outputs.upToDateSpec = new org.gradle.api.specs.AndSpec()
+
+	doFirst {
+		file(buildDir).mkdirs()
+		//classpath.each { println it.name}
+	}
+
+	main = 'com.google.gwt.dev.Compiler'
+
+	classpath {
+		[
+			sourceSets.main.java.srcDirs,           // Java source
+			sourceSets.main.output.resourcesDir,    // Generated resources
+			sourceSets.main.output.classesDir,      // Generated classes
+			sourceSets.main.compileClasspath,       // Deps
+		]
+	}
+
+	args =
+	[
+		'com.googlecode.slotted.Slotted', // Your GWT module
+		'-war', buildDir,
+		'-logLevel', 'INFO',
+		'-localWorkers', '2',
+		'-compileReport',
+		'-extra', extraDir,
+		// '-draftCompile' // Speeds up compile with 25%
+	]
+
+	maxHeapSize = '256M'
+}
+
+jar.dependsOn compileGwt
+jar {
+   from sourceSets.main.allJava
+}
+
+javadoc {
+    options.addStringOption("sourcepath", "src/")
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from 'build/docs/javadoc'
+}
+ 
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allSource
+    classifier = 'sources'
+}
+
+artifacts {
+    archives jar
+    archives javadocJar
+    archives sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment)}
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+              authentication(userName: sonatypeUsername, password: sonatypePassword)
+            }
+
+            pom.project {
+               name 'Slotted'
+               packaging 'jar'
+               description 'An extension of GWT Activities and Places, which adds the ability to nest Activities.'
+               url 'http://code.google.com/p/slotted/'
+
+               scm {
+                   url 'scm:git:https://code.google.com/p/slotted/'
+                   connection 'scm:git:https://code.google.com/p/slotted/'
+                   developerConnection 'scm:git:https://code.google.com/p/slotted/'
+               }
+
+               licenses {
+                   license {
+                       name 'The Apache Software License, Version 2.0'
+                       url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                       distribution 'repo'
+                   }
+               }
+
+               developers {
+                   developer {
+                       id 'jeffgnpc'
+                       name 'Jeffrey Kleiss'
+                   }
+               }
+           }
+        }
+    }
+}
+

@@ -1,5 +1,6 @@
 ivylib
 build
 out
+docs
 .idea/workspace.xml
 .idea/tasks.xml
