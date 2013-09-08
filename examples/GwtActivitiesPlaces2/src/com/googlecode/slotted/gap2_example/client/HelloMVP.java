@@ -3,21 +3,24 @@ package com.googlecode.slotted.gap2_example.client;
 import com.google.gwt.activity.shared.ActivityMapper;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.place.shared.Place;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.googlecode.slotted.client.SlottedController;
 
 public class HelloMVP implements EntryPoint {
+    private Place defaultPlace = new HelloPlace("World!");
     private SimplePanel appWidget = new SimplePanel();
 
     public void onModuleLoad() {
         ClientFactory clientFactory = GWT.create(ClientFactory.class);
         SlottedController slottedController = clientFactory.getPlaceController();
-        slottedController.setDefaultPlace(new HelloPlace("World!"));
 
         // Start ActivityManager for the main widget with our ActivityMapper
         ActivityMapper activityMapper = new AppActivityMapper(clientFactory);
         slottedController.setActivityMapper(activityMapper);
+
+        slottedController.setDefaultPlace(defaultPlace);
 
         RootPanel.get().add(appWidget);
         // Goes to the place represented on URL else default place
