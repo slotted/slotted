@@ -10,6 +10,7 @@ public class HelloMVP implements EntryPoint {
 
     public void onModuleLoad() {
         SlottedController slottedController = AppGinjector.instance.getSlottedController();
+        slottedController.setDefaultPlace(new HelloPlace("World!"));
         RootPanel.get().add(appWidget);
         // Goes to the place represented on URL else default place
         slottedController.setDisplay(appWidget);

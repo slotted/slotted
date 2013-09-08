@@ -10,8 +10,7 @@ public class HelloPlace extends MappedSlottedPlace {
     @TokenizerParameter
     private String helloName;
 
-    private HelloPlace() {
-    }
+    private HelloPlace() {}
 
     public HelloPlace(String token) {
         this.helloName = token;
