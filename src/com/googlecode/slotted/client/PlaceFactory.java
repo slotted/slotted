@@ -1,5 +1,7 @@
 package com.googlecode.slotted.client;
 
+import com.google.gwt.place.shared.Place;
+
 public interface PlaceFactory {
-    SlottedPlace newInstance(Class placeClass);
+    Place newInstance(Class placeClass);
 }

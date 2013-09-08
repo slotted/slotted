@@ -15,6 +15,7 @@
  */
 package com.googlecode.slotted.client;
 
+import com.google.gwt.activity.shared.ActivityMapper;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.place.shared.PlaceHistoryMapper;
@@ -34,14 +35,21 @@ import java.util.logging.Logger;
 abstract public class HistoryMapper {
 
     class DefaultPlaceTokenizer implements PlaceTokenizer<SlottedPlace> {
-        private Class<? extends SlottedPlace> placeClass;
+        private Class<? extends Place> placeClass;
+        private ActivityMapper legacyActivityMapper;
 
-        DefaultPlaceTokenizer(Class<? extends SlottedPlace> placeClass) {
+        DefaultPlaceTokenizer(Class<? extends Place> placeClass, ActivityMapper legacyActivityMapper) {
             this.placeClass = placeClass;
+            this.legacyActivityMapper = legacyActivityMapper;
         }
 
         @Override public SlottedPlace getPlace(String token) {
-            return placeFactory.newInstance(placeClass);
+            Place place = placeFactory.newInstance(placeClass);
+            if (place instanceof SlottedPlace) {
+                return (SlottedPlace) place;
+            } else {
+                return new WrappedPlace(place, legacyActivityMapper);
+            }
         }
 
         @Override public String getToken(SlottedPlace place) {
@@ -56,6 +64,7 @@ abstract public class HistoryMapper {
     private SlottedPlace defaultPlace;
     private SlottedPlace errorPlace;
     private SlottedController controller;
+    private ActivityMapper legacyActivityMapper;
     private PlaceHistoryMapper legacyHistoryMapper;
     private boolean handlingHistory;
 
@@ -91,6 +100,14 @@ abstract public class HistoryMapper {
     }
 
     /**
+     * Called by SlottedController to provide legacy HistoryMapper to process Places not migrated
+     * to Slotted framework.
+     */
+    protected void setLegacyActivityMapper(ActivityMapper legacyActivityMapper) {
+        this.legacyActivityMapper = legacyActivityMapper;
+    }
+
+    /**
      * Returns the SlottedPlace instance that represents the place to navigate to if the history
      * token is empty.
      */
@@ -99,7 +116,7 @@ abstract public class HistoryMapper {
     }
 
     /**
-     * @see SlottedController#setDefaultPlace(SlottedPlace)
+     * @see SlottedController#setDefaultPlace(Place)
      */
     public void setDefaultPlace(SlottedPlace place) {
         if (defaultPlace != null) {
@@ -225,15 +242,18 @@ abstract public class HistoryMapper {
      * @see #registerPlace(Class, PlaceTokenizer)
      * @see #registerPlace(Class, String)
      */
-    public void registerPlace(Class<? extends SlottedPlace> placeClass, String name,
+    public void registerPlace(Class<? extends Place> placeClass, String name,
             PlaceTokenizer<? extends SlottedPlace> tokenizer)
     {
-        SlottedPlace place = placeFactory.newInstance(placeClass);
+        Place place = placeFactory.newInstance(placeClass);
         if (place == null) {
             throw new IllegalStateException("To register a Place, it must have a default " +
                     "constructor that may be private: " + placeClass.getName());
         }
-        Slot[] childSlots = place.getChildSlots();
+        Slot[] childSlots = null;
+        if (place instanceof SlottedPlace) {
+            childSlots = ((SlottedPlace) place).getChildSlots();
+        }
         if (childSlots != null) {
             for (Slot child: childSlots) {
                 if (child.getOwnerPlace() == null || child.getDefaultPlace() == null) {
@@ -249,7 +269,7 @@ abstract public class HistoryMapper {
         }
 
         if (tokenizer == null) {
-            tokenizer = new DefaultPlaceTokenizer(placeClass);
+            tokenizer = new DefaultPlaceTokenizer(placeClass, legacyActivityMapper);
         }
 
         if (name == null) {
@@ -394,17 +414,27 @@ abstract public class HistoryMapper {
     }
 
     private String createPlaceToken(SlottedPlace place) {
-        String name = placeToNameMap.get(place.getClass());
-        if (name == null) {
-            throw new IllegalStateException("Place not registered:" + place.getClass().getName());
+        Place actualPlace = place;
+        if (place instanceof WrappedPlace) {
+            actualPlace = ((WrappedPlace) place).getPlace();
         }
-        PlaceTokenizer tokenizer = nameToTokenizerMap.get(name);
-        @SuppressWarnings("unchecked")
-        String params = tokenizer.getToken(place);
+        String token;
+        String name = placeToNameMap.get(actualPlace.getClass());
+        if (name != null) {
+            PlaceTokenizer tokenizer = nameToTokenizerMap.get(name);
+            @SuppressWarnings("unchecked")
+            String params = tokenizer.getToken(actualPlace);
 
-        String token = name;
-        if (params != null && !params.isEmpty()) {
-            token += ":" + params;
+            token = name;
+            if (params != null && !params.isEmpty()) {
+                token += ":" + params;
+            }
+
+        } else if (legacyHistoryMapper != null) {
+            token = legacyHistoryMapper.getToken(actualPlace);
+
+        } else {
+            throw new IllegalStateException("Place not registered:" + place.getClass().getName());
         }
 
         return token;
@@ -446,17 +476,11 @@ abstract public class HistoryMapper {
 
     protected String createToken(ActiveSlot activeSlot) {
         String token;
-        if (activeSlot.getPlace() instanceof WrappedPlace) {
-            Place place = ((WrappedPlace) activeSlot.getPlace()).getPlace();
-            token = legacyHistoryMapper.getToken(place);
+        token = createPageList(activeSlot);
 
-        } else {
-            token = createPageList(activeSlot);
-
-            PlaceParameters parameters = controller.getCurrentParameters();
-            if (parameters != null) {
-                token += parameters.toString();
-            }
+        PlaceParameters parameters = controller.getCurrentParameters();
+        if (parameters != null) {
+            token += parameters.toString();
         }
 
         return token;

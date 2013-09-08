@@ -172,9 +172,10 @@ public class SlottedController {
             PlaceHistoryMapper legacyHistoryMapper, Place defaultPlace)
     {
         this.legacyActivityMapper = legacyActivityMapper;
+        historyMapper.setLegacyActivityMapper(legacyActivityMapper);
         historyMapper.setLegacyHistoryMapper(legacyHistoryMapper);
         if (historyMapper.getDefaultPlace() == null) {
-            historyMapper.registerDefaultPlace(
+            historyMapper.setDefaultPlace(
                     new WrappedPlace(defaultPlace, legacyActivityMapper));
         }
     }
@@ -182,6 +183,7 @@ public class SlottedController {
     //todo javadoc
     public void setActivityMapper(ActivityMapper legacyActivityMapper) {
         this.legacyActivityMapper = legacyActivityMapper;
+        historyMapper.setLegacyActivityMapper(legacyActivityMapper);
     }
 
     /**
@@ -189,8 +191,20 @@ public class SlottedController {
      *
      * @param defaultPlace The place with correct parameters to display.
      */
-    public void setDefaultPlace(SlottedPlace defaultPlace) {
-        historyMapper.setDefaultPlace(defaultPlace);
+    public void setDefaultPlace(Place defaultPlace) {
+        SlottedPlace slottedPlace;
+        if (defaultPlace instanceof SlottedPlace) {
+            slottedPlace = (SlottedPlace) defaultPlace;
+        } else {
+            if (legacyActivityMapper == null) {
+                throw new IllegalStateException(
+                        "Must use SlottedPlace unless LegacyActivityMapper is set");
+            }
+
+            slottedPlace = new WrappedPlace(defaultPlace, legacyActivityMapper);
+        }
+
+        historyMapper.setDefaultPlace(slottedPlace);
     }
 
     /**

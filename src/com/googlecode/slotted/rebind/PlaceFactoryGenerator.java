@@ -8,10 +8,10 @@ import com.google.gwt.core.ext.UnableToCompleteException;
 import com.google.gwt.core.ext.typeinfo.JClassType;
 import com.google.gwt.core.ext.typeinfo.NotFoundException;
 import com.google.gwt.core.ext.typeinfo.TypeOracle;
+import com.google.gwt.place.shared.Place;
 import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
 import com.google.gwt.user.rebind.SourceWriter;
 import com.googlecode.slotted.client.PlaceFactory;
-import com.googlecode.slotted.client.SlottedPlace;
 
 import java.io.PrintWriter;
 
@@ -30,7 +30,7 @@ public class PlaceFactoryGenerator extends Generator {
 
         try {
 
-            String markerName = SlottedPlace.class.getName();
+            String markerName = Place.class.getName();
             JClassType placeType = typeOracle.getType(markerName);
 
             SourceWriter sourceWriter = getSourceWriter(clazz, context, logger);

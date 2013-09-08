@@ -8,12 +8,12 @@ import com.google.gwt.core.ext.UnableToCompleteException;
 import com.google.gwt.core.ext.typeinfo.JClassType;
 import com.google.gwt.core.ext.typeinfo.NotFoundException;
 import com.google.gwt.core.ext.typeinfo.TypeOracle;
+import com.google.gwt.place.shared.Place;
 import com.google.gwt.place.shared.PlaceTokenizer;
 import com.google.gwt.place.shared.Prefix;
 import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
 import com.google.gwt.user.rebind.SourceWriter;
 import com.googlecode.slotted.client.AutoHistoryMapper;
-import com.googlecode.slotted.client.SlottedPlace;
 
 import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
@@ -76,7 +76,7 @@ public class AutoHistoryManagerGenerator extends Generator {
     private void writeInitMethod(TreeLogger logger, GeneratorContext context, TypeOracle typeOracle,
             SourceWriter sourceWriter) throws NotFoundException, UnableToCompleteException
     {
-        JClassType placeType = typeOracle.getType(SlottedPlace.class.getName());
+        JClassType placeType = typeOracle.getType(Place.class.getName());
         JClassType tokenizerType = typeOracle.getType(PlaceTokenizer.class.getName());
 
         sourceWriter.println("protected void init() {");
