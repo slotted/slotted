@@ -76,6 +76,9 @@ abstract public class SlottedActivity extends AbstractActivity {
     public void onRefresh() {
     }
 
+    public void onLoadComplete() {
+    }
+
     public void setLoadingStarted() {
         activeSlot.setLoading(true, this);
     }
