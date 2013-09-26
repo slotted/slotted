@@ -315,7 +315,7 @@ public class SlottedController {
      * cancels, the current location will not change. Otherwise, the location changes and the new
      * place and all dependent places are created.
      *
-     * @param newPlace a {@link SlottedPlace} instance
+     * @param newPlace a {@link SlottedPlace} instance to navigate to.  This place is used to create the hierarchy.
      */
     public void goTo(Place newPlace) {
         SlottedPlace slottedPlace;
@@ -476,7 +476,42 @@ public class SlottedController {
         return false;
     }
 
-    //todo javadoc
+    /**
+     * Clones the passed place by converting it to a token, and then parsing the token.  This means any data not tokenized
+     * will be lost in the cloning process.
+     *
+     * @param place The SlottedPlace to clone.
+     * @return A new instance of the Place that can be changed without effecting existing hierarchy.
+     */
+    public <T extends SlottedPlace> T clonePlace(T place) {
+        String token = createToken(place);
+        SlottedPlace[] places = historyMapper.parseToken(token);
+        //noinspection unchecked
+        return (T) places[0];
+    }
+
+    /**
+     * Updates the History with just the passed Places.  This might cause current non default places to get replaced on refresh,
+     * or forward/back navigation.
+     *
+     * @param newPlace a {@link SlottedPlace} instance to navigate.
+     * @param nonDefaultPlaces array of {@link SlottedPlace}s that should be used instead of the
+     * default places defined for the slots.
+     */
+    public void updateToken(SlottedPlace newPlace, SlottedPlace... nonDefaultPlaces) {
+        History.newItem(createToken(newPlace, nonDefaultPlaces), false);
+    }
+
+    /**
+     * Creates a full URL which can be used to navigate from anywhere.
+     *
+     * Using this token to navigate might cause current non default places
+     * to get replaced on refresh, or forward/back navigation.
+     *
+     * @param newPlace a {@link SlottedPlace} instance to navigate.
+     * @param nonDefaultPlaces array of {@link SlottedPlace}s that should be used instead of the
+     * default places defined for the slots.
+     */
     public String createUrl(SlottedPlace newPlace, SlottedPlace... nonDefaultPlaces) {
         String url = Document.get().getURL();
         String[] splitUrl = url.split("#");
@@ -485,7 +520,16 @@ public class SlottedController {
         return splitUrl[0] + "#" + token;
     }
 
-    //todo javadoc
+    /**
+     * Creates a token with just the passed Places.  This is just the portion after the '#' mark.
+     *
+     * Using this token to navigate might cause current non default places
+     * to get replaced on refresh, or forward/back navigation.
+     *
+     * @param newPlace a {@link SlottedPlace} instance to navigate.
+     * @param nonDefaultPlaces array of {@link SlottedPlace}s that should be used instead of the
+     * default places defined for the slots.
+     */
     public String createToken(SlottedPlace newPlace, SlottedPlace... nonDefaultPlaces) {
         PlaceParameters placeParameters = new PlaceParameters();
         newPlace.extractParameters(placeParameters);

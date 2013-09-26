@@ -308,39 +308,7 @@ abstract public class HistoryMapper {
             } else {
                 SlottedPlace[] places = null;
                 try {
-                    PlaceParameters parameters = new PlaceParameters();
-
-                    String[] split = token.split("\\?");
-                    String[] placeTokens = split[0].split("/");
-
-                    if (split.length > 1) {
-                        String[] paramPairs = split[1].split("&");
-
-                        for (String pair: paramPairs) {
-                            String[] pairSplit = pair.split("=");
-                            parameters.setParameter(pairSplit[0], pairSplit[1]);
-                        }
-                    }
-
-                    places = new SlottedPlace[placeTokens.length];
-                    for (int i = 0; i < places.length; i++) {
-                        String[] placeParts = placeTokens[i].split(":", 2);
-                        String parameterToken = "";
-                        if (placeParts.length == 2) {
-                            parameterToken = placeParts[1];
-                        }
-
-                        PlaceTokenizer<? extends SlottedPlace> tokenizer = nameToTokenizerMap.get(placeParts[0]);
-                        places[i] = tokenizer.getPlace(parameterToken);
-                        if (tokenizer instanceof AutoTokenizer) {
-                            //noinspection unchecked
-                            ((AutoTokenizer) tokenizer).fillFields(parameters, places[i]);
-                        }
-                        if (places[i] == null) {
-                            throw new IllegalStateException("Place not defined:" + placeTokens[i]);
-                        }
-                        places[i].setPlaceParameters(parameters);
-                    }
+                    places = parseToken(token);
                 } catch (RuntimeException e) {
                     parsingException = e;
                 }
@@ -367,6 +335,44 @@ abstract public class HistoryMapper {
             navErrorPlace(e);
         }
         handlingHistory = false;
+    }
+
+    public SlottedPlace[] parseToken(String token) {
+        PlaceParameters parameters = new PlaceParameters();
+
+        String[] split = token.split("\\?");
+        String[] placeTokens = split[0].split("/");
+
+        if (split.length > 1) {
+            String[] paramPairs = split[1].split("&");
+
+            for (String pair: paramPairs) {
+                String[] pairSplit = pair.split("=");
+                parameters.setParameter(pairSplit[0], pairSplit[1]);
+            }
+        }
+
+        SlottedPlace[] places = new SlottedPlace[placeTokens.length];
+        for (int i = 0; i < places.length; i++) {
+            String[] placeParts = placeTokens[i].split(":", 2);
+            String parameterToken = "";
+            if (placeParts.length == 2) {
+                parameterToken = placeParts[1];
+            }
+
+            PlaceTokenizer<? extends SlottedPlace> tokenizer = nameToTokenizerMap.get(placeParts[0]);
+            places[i] = tokenizer.getPlace(parameterToken);
+            if (tokenizer instanceof AutoTokenizer) {
+                //noinspection unchecked
+                ((AutoTokenizer) tokenizer).fillFields(parameters, places[i]);
+            }
+            if (places[i] == null) {
+                throw new IllegalStateException("Place not defined:" + placeTokens[i]);
+            }
+            places[i].setPlaceParameters(parameters);
+        }
+
+        return places;
     }
 
     private void navDefaultPlace() {
