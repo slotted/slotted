@@ -1,0 +1,30 @@
+package com.googlecode.slotted.testharness.client;
+
+import com.google.gwt.junit.client.GWTTestCase;
+import com.googlecode.slotted.testharness.client.flow.HomePlace;
+import com.googlecode.slotted.testharness.client.tokenizer.BasePlace;
+
+public class AutoTokenizerTests extends GWTTestCase {
+    @Override public String getModuleName() {
+        return "com.googlecode.slotted.testharness.TestHarness";
+    }
+
+    @Override protected void gwtSetUp() throws Exception {
+        super.gwtSetUp();
+
+        TestHarness.startTestHarness();
+        TestHarness.slottedController.goTo(new HomePlace());
+        TestPlace.resetCounts();
+    }
+
+    public void testTokens() {
+        BasePlace place = new BasePlace(2);
+        String token = TestHarness.slottedController.createToken(place);
+        BasePlace clone = TestHarness.slottedController.clonePlace(place);
+
+        assertEquals(place, clone);
+        assertEquals(place.superString, clone.superString);
+    }
+
+
+}

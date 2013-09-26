@@ -23,6 +23,7 @@ import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 public class AutoTokenizerGenerator extends Generator {
     private static String NamePostfix = "Tokenizer";
@@ -41,22 +42,25 @@ public class AutoTokenizerGenerator extends Generator {
             LinkedList<JField> globalParams = new LinkedList<JField>();
             LinkedList<JField> equalsParams = new LinkedList<JField>();
 
-            JField[] fields = placeType.getFields();
-            for (JField field: fields) {
-                for (Annotation annotation: field.getAnnotations()) {
-                    if (annotation instanceof TokenizerParameter) {
-                        tokenParams.add(field);
-                        if (((TokenizerParameter) annotation).useInEquals()) {
-                            equalsParams.add(field);
-                        }
-                        break;
+            Set<? extends JClassType> allTypes = placeType.getFlattenedSupertypeHierarchy();
+            for (JClassType type: allTypes) {
+                JField[] fields = type.getFields();
+                for (JField field: fields) {
+                    for (Annotation annotation: field.getAnnotations()) {
+                        if (annotation instanceof TokenizerParameter) {
+                            tokenParams.add(field);
+                            if (((TokenizerParameter) annotation).useInEquals()) {
+                                equalsParams.add(field);
+                            }
+                            break;
 
-                    } else if (annotation instanceof GlobalParameter) {
-                        globalParams.add(field);
-                        if (((GlobalParameter) annotation).useInEquals()) {
-                            equalsParams.add(field);
+                        } else if (annotation instanceof GlobalParameter) {
+                            globalParams.add(field);
+                            if (((GlobalParameter) annotation).useInEquals()) {
+                                equalsParams.add(field);
+                            }
+                            break;
                         }
-                        break;
                     }
                 }
             }
@@ -146,13 +150,13 @@ public class AutoTokenizerGenerator extends Generator {
         sourceWriter.println("private native void set" + field.getName() + "(" +
                 placeType.getQualifiedSourceName() + " place, " +
                 field.getType().getSimpleSourceName() + " value) /*-{");
-        sourceWriter.println("    place.@" + placeType.getQualifiedSourceName() + "::" +
+        sourceWriter.println("    place.@" + field.getEnclosingType().getQualifiedSourceName() + "::" +
                 field.getName() + " = value;");
         sourceWriter.println("}-*/;");
 
         sourceWriter.println("private native " + field.getType().getSimpleSourceName() + " get" +
                 field.getName() + "(" + placeType.getQualifiedSourceName() + " place) /*-{");
-        sourceWriter.println("    return place.@" + placeType.getQualifiedSourceName() + "::" +
+        sourceWriter.println("    return place.@" + field.getEnclosingType().getQualifiedSourceName() + "::" +
                 field.getName() + ";");
         sourceWriter.println("}-*/;");
         sourceWriter.println();
