@@ -27,7 +27,7 @@ public class TokenizerUtil {
         String[] params = token.split("&");
         parameters = new LinkedList<String>();
         for (String param: params) {
-            param = URL.decode(param);
+            param = URL.decodePathSegment(param);
             parameters.add(param);
         }
     }
