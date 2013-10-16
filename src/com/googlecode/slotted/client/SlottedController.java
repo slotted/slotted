@@ -389,7 +389,7 @@ public class SlottedController {
                         newPlace = completeNonDefaults.get(0);
                     }
 
-                    addParents(newPlace, completeNonDefaults);
+                    addParents(newPlace, root, completeNonDefaults);
 
                     ArrayList<String> warnings = new ArrayList<String>();
                     root.maybeGoTo(completeNonDefaults, reloadAll, warnings);
@@ -431,11 +431,17 @@ public class SlottedController {
         }
     }
 
-    private void addParents(SlottedPlace newPlace, ArrayList<SlottedPlace> completeNonDefaults) {
+    private void addParents(SlottedPlace newPlace, ActiveSlot root, ArrayList<SlottedPlace> completeNonDefaults) {
         SlottedPlace parent = newPlace;
         while (parent.getParentSlot() != null && parent.getParentSlot().getOwnerPlace() != null) {
-            parent = parent.getParentSlot().getOwnerPlace();
-            completeNonDefaults.add(parent);
+            Slot parentSlot = parent.getParentSlot();
+            parent = parentSlot.getOwnerPlace();
+            ActiveSlot current = root.findSlot(parentSlot);
+            if (current != null) {
+                completeNonDefaults.add(current.getPlace());
+            } else {
+                completeNonDefaults.add(parent);
+            }
         }
     }
 

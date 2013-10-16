@@ -180,7 +180,7 @@ public class FlowTests extends GWTTestCase {
     }
 
     public void test2SlotConstruction() {
-        TestHarness.slottedController.goTo(new BPlace());
+        TestHarness.slottedController.goTo(new BPlace(2));
 
         TestActivity bActivity = TestPlace.getActivity(BPlace.class);
         assertEquals(2, bActivity.setChildSlotDisplayCount);
@@ -453,8 +453,8 @@ public class FlowTests extends GWTTestCase {
         loading1aActivity.showDisplay();
 
         assertTrue(loading1aActivity.testDisplay.isDisplayed());
-        assertEquals(0, loadingHandler.startCount);
-        assertEquals(0, loadingHandler.stopCount);
+        assertEquals(1, loadingHandler.startCount);
+        assertEquals(1, loadingHandler.stopCount);
     }
 
     public void testLoadingStartLoading() {
