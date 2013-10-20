@@ -38,6 +38,13 @@ public class SlottedTabBar extends TabBar implements SelectionHandler<Integer>, 
     private SlottedController slottedController;
 
     /**
+     * Constructs SlottedTabBar with the SlottedController static instance variable.
+     */
+    public SlottedTabBar() {
+        this(SlottedController.instance);
+    }
+
+    /**
      * Constructs SlottedTabBar widget empty of tabs, but ready to navigate.
      *
      * @param slottedController The SlottedController used for the site.  Needed for navigation.
@@ -55,7 +62,7 @@ public class SlottedTabBar extends TabBar implements SelectionHandler<Integer>, 
      * @param label The label that will be displayed on the tab.
      */
     public void addTab(SlottedPlace place, String label) {
-        this.addTab(label);
+        super.addTab(label);
         places.add(place);
     }
 

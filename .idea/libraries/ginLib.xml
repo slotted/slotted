@@ -1,5 +1,5 @@
 <component name="libraryTable">
-  <library name="lib">
+  <library name="ginLib">
     <CLASSES>
       <root url="file://$PROJECT_DIR$/examples/Gin/war/WEB-INF/lib" />
       <root url="file://$PROJECT_DIR$/examples/Gin/war/WEB-INF/lib" />
