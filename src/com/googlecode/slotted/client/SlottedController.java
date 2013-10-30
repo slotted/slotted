@@ -505,7 +505,10 @@ public class SlottedController {
      * default places defined for the slots.
      */
     public void updateToken(SlottedPlace newPlace, SlottedPlace... nonDefaultPlaces) {
-        History.newItem(createToken(newPlace, nonDefaultPlaces), false);
+        String token = createToken(newPlace, nonDefaultPlaces);
+        History.newItem(token, false);
+        referringToken = currentToken;
+        currentToken = token;
     }
 
     /**
