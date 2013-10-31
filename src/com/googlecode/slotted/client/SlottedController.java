@@ -104,7 +104,9 @@ public class SlottedController {
     private boolean processingGoTo;
     private boolean tokenDone;
     private SlottedPlace nextGoToPlace;
+    @SuppressWarnings("FieldCanBeLocal")
     private SlottedPlace[] nextGoToNonDefaultPlaces;
+    @SuppressWarnings("FieldCanBeLocal")
     private boolean nextGoToReloadAll;
     private final Delegate delegate;
     private boolean reloadAll = false;
@@ -167,7 +169,13 @@ public class SlottedController {
         });
     }
 
-    //todo javadoc
+    /**
+     * Sets the GWT Activity and Places controller objects so that Slotted can run legacy code without changes.
+     *
+     * @param legacyActivityMapper The A&P ActivityMapper that is used to create an Activity from a Place.
+     * @param legacyHistoryMapper The A&P HistoryMapper that will be used to parse the URL if Slotted have those places.
+     * @param defaultPlace The Place to be navigated to in the URL token is blank.
+     */
     public void setLegacyMappers(ActivityMapper legacyActivityMapper,
             PlaceHistoryMapper legacyHistoryMapper, Place defaultPlace)
     {
@@ -180,10 +188,16 @@ public class SlottedController {
         }
     }
 
-    //todo javadoc
-    public void setActivityMapper(ActivityMapper legacyActivityMapper) {
-        this.legacyActivityMapper = legacyActivityMapper;
-        historyMapper.setLegacyActivityMapper(legacyActivityMapper);
+    /**
+     * Sets an ActivityMapper that is responsible for creating the Activities.  This is used in conjunction with
+     * {@link MappedSlottedPlace} when you don't want to use {@link SlottedPlace#getActivity()} or if you are dealing
+     * legacy around the creation of Activities.
+     *
+     * @param activityMapper The A&P ActivityMapper this will be used to create Activities.
+     */
+    public void setActivityMapper(ActivityMapper activityMapper) {
+        this.legacyActivityMapper = activityMapper;
+        historyMapper.setLegacyActivityMapper(activityMapper);
     }
 
     /**
@@ -254,7 +268,12 @@ public class SlottedController {
         this.reloadAll = reloadAll;
     }
 
-    //todo javadoc
+    /**
+     * Allows for a NavigationOverride object to evaluate the Places before Slotted creates the Activities.
+     *
+     * @param navigationOverride That will called before on every goTo().
+     * @see NavigationOverride for examples
+     */
     public void setNavigationOverride(NavigationOverride navigationOverride) {
         this.navigationOverride = navigationOverride;
     }
@@ -275,6 +294,11 @@ public class SlottedController {
         historyMapper.goToDefaultPlace();
     }
 
+    /**
+     * Convenience method for navigating to the ErrorPage.
+     *
+     * @param exception that caused the error.
+     */
     public void goToErrorPlace(Throwable exception) {
         SlottedErrorPlace errorPlace = getErrorPlace();
         if (errorPlace != null) {
@@ -456,6 +480,10 @@ public class SlottedController {
         return nextGoToPlace == null;
     }
 
+    /**
+     * Returns true if Slotted is processing a goTo() request or the {@link SlottedActivity#setLoadingStarted()} and the
+     * {@link SlottedActivity#setLoadingComplete()} hasn't been called.
+     */
     public boolean isLoading() {
         return root.getFirstLoadingPlace() != null;
     }
@@ -468,6 +496,12 @@ public class SlottedController {
         }
     }
 
+    /**
+     * Called internally to show all the activities if none of them are loading.  Prints warning of the first Activity that
+     * is loading.
+     *
+     * @return Return true if the pages were shown, or false if a loading page is blocking.
+     */
     protected boolean attemptShowViews() {
         if (!processingGoTo) {
             SlottedPlace loadingPlace = root.getFirstLoadingPlace();
@@ -555,10 +589,19 @@ public class SlottedController {
         return root;
     }
 
+    /**
+     * Gets a the Place of the specified type in the hierarchy.  This can be used to get a parent Place, child Place, or
+     * any Place that might be displayed.
+     *
+     * @param placeType The Class object of the Place you want to get.
+     * @param <T> Used to prevent casting.
+     * @return The Place requested, or null if that type is not in the hierarchy.
+     */
     public <T> T getCurrentPlace(Class<T> placeType) {
         return getPlace(root, placeType);
     }
 
+    @SuppressWarnings("unchecked")
     private <T> T getPlace(ActiveSlot slot, Class<T> placeType) {
         SlottedPlace place = slot.getPlace();
         if (place.getClass().equals(placeType)) {
