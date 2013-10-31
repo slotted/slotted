@@ -21,7 +21,10 @@ public class BaseActivity extends SlottedActivity {
         containerWidget.setWidget(baseView.asWidget());
     }
 
-    @Override public void setChildSlotDisplay(Slot slot) {
-        slot.setDisplay(baseView.getSlotDisplay());
+    @Override public AcceptsOneWidget getChildSlotDisplay(Slot slot) {
+        if (BasePlace.SLOT == slot) {
+            return baseView.getSlotDisplay();
+        }
+        return null;
     }
 }

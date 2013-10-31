@@ -6,6 +6,7 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.googlecode.slotted.client.Slot;
 import com.googlecode.slotted.client.SlottedActivity;
+import com.googlecode.slotted.simple_example.client.place.NestedPlace;
 
 public class NestedActivity extends SlottedActivity {
     private SimplePanel slotPNL;
@@ -20,7 +21,10 @@ public class NestedActivity extends SlottedActivity {
         mainPNL.add(slotPNL);
     }
 
-    @Override public void setChildSlotDisplay(Slot slot) {
-        slot.setDisplay(slotPNL);
+    @Override public AcceptsOneWidget getChildSlotDisplay(Slot slot) {
+        if (NestedPlace.SLOT == slot) {
+            return slotPNL;
+        }
+        return null;
     }
 }
