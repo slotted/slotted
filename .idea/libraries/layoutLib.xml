@@ -1,17 +1,17 @@
 <component name="libraryTable">
   <library name="layoutLib">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/examples/FlowExample/war/WEB-INF/lib/aopalliance.jar!/" />
-      <root url="jar://$PROJECT_DIR$/examples/FlowExample/war/WEB-INF/lib/asm.jar!/" />
-      <root url="jar://$PROJECT_DIR$/examples/FlowExample/war/WEB-INF/lib/cglib.jar!/" />
-      <root url="jar://$PROJECT_DIR$/examples/FlowExample/war/WEB-INF/lib/gin.jar!/" />
-      <root url="jar://$PROJECT_DIR$/examples/FlowExample/war/WEB-INF/lib/guice-assistedinject.jar!/" />
-      <root url="jar://$PROJECT_DIR$/examples/FlowExample/war/WEB-INF/lib/guice.jar!/" />
-      <root url="jar://$PROJECT_DIR$/examples/FlowExample/war/WEB-INF/lib/javax.inject.jar!/" />
+      <root url="jar://$PROJECT_DIR$/examples/Layout/war/WEB-INF/lib/aopalliance.jar!/" />
+      <root url="jar://$PROJECT_DIR$/examples/Layout/war/WEB-INF/lib/asm.jar!/" />
+      <root url="jar://$PROJECT_DIR$/examples/Layout/war/WEB-INF/lib/cglib.jar!/" />
+      <root url="jar://$PROJECT_DIR$/examples/Layout/war/WEB-INF/lib/gin.jar!/" />
+      <root url="jar://$PROJECT_DIR$/examples/Layout/war/WEB-INF/lib/guice-assistedinject.jar!/" />
+      <root url="jar://$PROJECT_DIR$/examples/Layout/war/WEB-INF/lib/guice.jar!/" />
+      <root url="jar://$PROJECT_DIR$/examples/Layout/war/WEB-INF/lib/javax.inject.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
-      <root url="jar://$PROJECT_DIR$/examples/FlowExample/war/WEB-INF/lib/gin.jar!/" />
+      <root url="jar://$PROJECT_DIR$/examples/Layout/war/WEB-INF/lib/gin.jar!/" />
     </SOURCES>
   </library>
 </component>

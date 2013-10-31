@@ -15,7 +15,7 @@
           <deploymentDescriptor name="web.xml" url="file://$MODULE_DIR$/war/WEB-INF/web.xml" />
         </descriptors>
         <webroots>
-          <root url="file://$MODULE_DIR$/war" relative="/" />
+          <root url="file://$MODULE_DIR$/../FlowExample/war" relative="/" />
         </webroots>
         <sourceRoots />
       </configuration>
