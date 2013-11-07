@@ -152,10 +152,12 @@ public class SlottedController {
         this.delegate = delegate;
         delegate.addWindowClosingHandler(new ClosingHandler() {
             public void onWindowClosing(ClosingEvent event) {
-                ArrayList<String> warnings = new ArrayList<String>();
-                root.maybeGoTo(new ArrayList<SlottedPlace>(), true, warnings);
-                if (!warnings.isEmpty()) {
-                    event.setMessage(warnings.get(0));
+                if (root != null) {
+                    ArrayList<String> warnings = new ArrayList<String>();
+                    root.maybeGoTo(new ArrayList<SlottedPlace>(), true, warnings);
+                    if (!warnings.isEmpty()) {
+                        event.setMessage(warnings.get(0));
+                    }
                 }
             }
         });
