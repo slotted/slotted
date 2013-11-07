@@ -73,6 +73,10 @@ public class TokenizerUtil {
         return Double.parseDouble(parameters.removeFirst());
     }
 
+    public boolean getBoolean() {
+        return Boolean.parseBoolean(parameters.removeFirst());
+    }
+
     public TokenizerUtil add(String param) {
         parameters.add(param);
         return this;
@@ -94,6 +98,11 @@ public class TokenizerUtil {
     }
 
     public TokenizerUtil add(double param) {
+        parameters.add("" + param);
+        return this;
+    }
+
+    public TokenizerUtil add(boolean param) {
         parameters.add("" + param);
         return this;
     }

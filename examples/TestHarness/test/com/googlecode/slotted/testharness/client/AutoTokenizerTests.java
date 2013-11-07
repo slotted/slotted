@@ -24,6 +24,10 @@ public class AutoTokenizerTests extends GWTTestCase {
 
         assertEquals(place, clone);
         assertEquals(place.superString, clone.superString);
+        assertEquals(place.baseString, clone.baseString);
+        assertEquals(place.baseInt, clone.baseInt);
+        assertEquals(place.baseDouble, clone.baseDouble);
+        assertEquals(place.baseBoolean, clone.baseBoolean);
     }
 
 

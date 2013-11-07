@@ -12,6 +12,8 @@ public class BasePlace extends SuperPlace {
     public int baseInt;
     @TokenizerParameter
     public double baseDouble;
+    @TokenizerParameter
+    public boolean baseBoolean;
 
     private BasePlace() {
     }
