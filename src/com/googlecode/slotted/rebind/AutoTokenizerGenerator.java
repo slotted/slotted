@@ -21,6 +21,8 @@ import com.googlecode.slotted.client.TokenizerUtil;
 
 import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -120,6 +122,8 @@ public class AutoTokenizerGenerator extends Generator {
         composer.addImport(PlaceTokenizer.class.getCanonicalName());
         composer.addImport(PlaceParameters.class.getCanonicalName());
         composer.addImport(TokenizerUtil.class.getCanonicalName());
+        composer.addImport(Date.class.getCanonicalName());
+        composer.addImport(Timestamp.class.getCanonicalName());
 
         PrintWriter printWriter = context.tryCreate(logger, packageName,simpleName);
 

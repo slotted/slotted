@@ -1,5 +1,8 @@
 package com.googlecode.slotted.testharness.client.tokenizer;
 
+import java.sql.Timestamp;
+import java.util.Date;
+
 import com.google.gwt.activity.shared.Activity;
 import com.googlecode.slotted.client.Slot;
 import com.googlecode.slotted.client.SlottedController;
@@ -14,14 +17,20 @@ public class BasePlace extends SuperPlace {
     public double baseDouble;
     @TokenizerParameter
     public boolean baseBoolean;
+    @TokenizerParameter
+    public Date baseDate;
+    @TokenizerParameter
+    public Timestamp baseTimestamp;
 
     private BasePlace() {
     }
 
-    public BasePlace(int value) {
+    public BasePlace(int value, Date date, Timestamp timestamp) {
         superString = "super" + value;
         baseString = "" + value;
         baseInt = value;
+        baseDate = date;
+        baseTimestamp = timestamp;
     }
 
     @Override public Slot getParentSlot() {

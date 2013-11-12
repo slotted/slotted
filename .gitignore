@@ -4,3 +4,9 @@ out
 docs
 .idea/workspace.xml
 .idea/tasks.xml
+/bin
+/.classpath
+/.project
+/lib
+/gwt-unitCache
+/www-test
