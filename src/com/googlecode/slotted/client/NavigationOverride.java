@@ -15,7 +15,7 @@
  */
 package com.googlecode.slotted.client;
 
-import java.util.ArrayList;
+import java.util.List;
 
 //todo javadoc
 public interface NavigationOverride {
@@ -27,5 +27,5 @@ public interface NavigationOverride {
      *                        other are non default places.
      * @return The places that should be navigated to.  Null is not allowed.
      */
-    ArrayList<SlottedPlace> checkOverrides(ArrayList<SlottedPlace> requestedPlaces);
+    List<SlottedPlace> checkOverrides(List<SlottedPlace> requestedPlaces);
 }

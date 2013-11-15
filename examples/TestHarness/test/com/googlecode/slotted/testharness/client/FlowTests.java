@@ -6,6 +6,9 @@ import com.googlecode.slotted.client.PlaceParameters;
 import com.googlecode.slotted.client.SlottedPlace;
 import com.googlecode.slotted.testharness.client.flow.A1a1aPlace;
 import com.googlecode.slotted.testharness.client.flow.A1aPlace;
+import com.googlecode.slotted.testharness.client.flow.A1b1aPlace;
+import com.googlecode.slotted.testharness.client.flow.A1b1bPlace;
+import com.googlecode.slotted.testharness.client.flow.A1bPlace;
 import com.googlecode.slotted.testharness.client.flow.APlace;
 import com.googlecode.slotted.testharness.client.flow.B1aPlace;
 import com.googlecode.slotted.testharness.client.flow.B1bPlace;
@@ -177,6 +180,48 @@ public class FlowTests extends GWTTestCase {
         assertEquals(0, a1a1aActivity.onCancelCount);
         assertEquals(0, a1a1aActivity.onStopCount);
         assertEquals(0, a1a1aActivity.onRefreshCount);
+    }
+
+    public void testNonDefaults() {
+        TestHarness.slottedController.goTo(new BPlace(), new B1bPlace());
+
+        TestActivity bActivity = TestPlace.getActivity(BPlace.class);
+        assertEquals(2, bActivity.setChildSlotDisplayCount); //2 child slots
+        assertEquals(1, bActivity.startCount);
+        assertEquals(0, bActivity.mayStopCount);
+        assertEquals(0, bActivity.onCancelCount);
+        assertEquals(0, bActivity.onStopCount);
+        assertEquals(0, bActivity.onRefreshCount);
+
+        TestActivity b1bActivity = TestPlace.getActivity(B1bPlace.class);
+        assertEquals(0, b1bActivity.setChildSlotDisplayCount);
+        assertEquals(1, b1bActivity.startCount);
+        assertEquals(0, b1bActivity.mayStopCount);
+        assertEquals(0, b1bActivity.onCancelCount);
+        assertEquals(0, b1bActivity.onStopCount);
+        assertEquals(0, b1bActivity.onRefreshCount);
+
+        TestActivity b1aActivity = TestPlace.getActivity(B1aPlace.class);
+        assertEquals(0, b1aActivity.setChildSlotDisplayCount);
+        assertEquals(0, b1aActivity.startCount);
+        assertEquals(0, b1aActivity.mayStopCount);
+        assertEquals(0, b1aActivity.onCancelCount);
+        assertEquals(0, b1aActivity.onStopCount);
+        assertEquals(0, b1aActivity.onRefreshCount);
+    }
+
+    public void testGoToToken() {
+        String token = TestHarness.slottedController.createToken(new A1b1bPlace());
+        TestHarness.slottedController.goTo(token);
+
+        TestActivity bActivity = TestPlace.getActivity(APlace.class);
+        assertEquals(1, bActivity.startCount);
+
+        TestActivity b1bActivity = TestPlace.getActivity(A1bPlace.class);
+        assertEquals(1, b1bActivity.startCount);
+
+        TestActivity b1aActivity = TestPlace.getActivity(A1b1aPlace.class);
+        assertEquals(1, b1aActivity.startCount);
     }
 
     public void test2SlotConstruction() {

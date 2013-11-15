@@ -22,8 +22,8 @@ import com.google.gwt.place.shared.PlaceHistoryMapper;
 import com.google.gwt.place.shared.PlaceTokenizer;
 import com.google.gwt.user.client.History;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -265,6 +265,11 @@ abstract public class HistoryMapper {
                     throw new IllegalStateException(place + " has a Slot with a default place " +
                             "for different slot: " + defaultPlace);
                 }
+                SlottedPlace defaultParentPlace = child.getOwnerPlace();
+                if (!placeClass.equals(defaultParentPlace.getClass())) {
+                    throw new IllegalStateException(place + " has a Slot with a owner place (" +
+                           defaultParentPlace + ") that doesn't own the slot.");
+                }
             }
         }
 
@@ -405,7 +410,7 @@ abstract public class HistoryMapper {
         }
     }
 
-    public PlaceParameters extractParameters(ArrayList<SlottedPlace> completeNonDefaults) {
+    public PlaceParameters extractParameters(List<SlottedPlace> completeNonDefaults) {
         if (!handlingHistory) {
             PlaceParameters placeParameters = new PlaceParameters();
 

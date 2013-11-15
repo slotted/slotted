@@ -34,8 +34,9 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.web.bindery.event.shared.EventBus;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -108,6 +109,7 @@ public class SlottedController {
     private SlottedPlace[] nextGoToNonDefaultPlaces;
     @SuppressWarnings("FieldCanBeLocal")
     private boolean nextGoToReloadAll;
+    private List<SlottedPlace> currentHierarchyList;
     private final Delegate delegate;
     private boolean reloadAll = false;
     private ActiveSlot root;
@@ -404,25 +406,23 @@ public class SlottedController {
                     nextGoToNonDefaultPlaces = null;
                     nextGoToReloadAll = false;
 
-                    ArrayList<SlottedPlace> completeNonDefaults = new ArrayList<SlottedPlace>();
-                    completeNonDefaults.add(newPlace);
-                    Collections.addAll(completeNonDefaults, nonDefaultPlaces);
-
-                    currentParameters = historyMapper.extractParameters(completeNonDefaults);
+                    List<SlottedPlace> hierarchyList = createHierarchyList(newPlace, Arrays.asList(nonDefaultPlaces), true);
+                    currentParameters = historyMapper.extractParameters(hierarchyList);
 
                     if (navigationOverride != null) {
-                        completeNonDefaults = navigationOverride.checkOverrides(completeNonDefaults);
-                        newPlace = completeNonDefaults.get(0);
+                        List<SlottedPlace> override = navigationOverride.checkOverrides(hierarchyList);
+                        newPlace = override.get(0);
+                        hierarchyList = createHierarchyList(newPlace, Arrays.asList(nonDefaultPlaces), true);
+                        currentParameters = historyMapper.extractParameters(hierarchyList);
+
                     }
 
-                    addParents(newPlace, root, completeNonDefaults);
-
                     ArrayList<String> warnings = new ArrayList<String>();
-                    root.maybeGoTo(completeNonDefaults, reloadAll, warnings);
+                    root.maybeGoTo(hierarchyList, reloadAll, warnings);
 
                     if (warnings.isEmpty() || delegate.confirm(warnings.toArray(new String[warnings.size()]))) {
-
-                        root.constructStopStart(currentParameters, completeNonDefaults, reloadAll);
+                        currentHierarchyList = hierarchyList;
+                        root.constructStopStart(currentParameters, hierarchyList, reloadAll);
 
                         LinkedList<SlottedPlace> places = new LinkedList<SlottedPlace>();
                         fillPlaces(root, places);
@@ -457,19 +457,108 @@ public class SlottedController {
         }
     }
 
-    private void addParents(SlottedPlace newPlace, ActiveSlot root, ArrayList<SlottedPlace> completeNonDefaults) {
-        SlottedPlace parent = newPlace;
-        while (parent.getParentSlot() != null && parent.getParentSlot().getOwnerPlace() != null) {
-            Slot parentSlot = parent.getParentSlot();
-            parent = parentSlot.getOwnerPlace();
-            ActiveSlot current = root.findSlot(parentSlot);
-            if (current != null) {
-                completeNonDefaults.add(current.getPlace());
+    /**
+     * Creates a list of all the Places that will be displayed.
+     *
+     * @param newPlace The place that is being navigated to.
+     * @param nonDefaults The list of places that should be used instead of the default places.
+     * @param useExisting If true, it will use the existing place instead of the default.
+     * @return List all/only the Places that will be displayed.
+     */
+    private List<SlottedPlace> createHierarchyList(SlottedPlace newPlace, List<SlottedPlace> nonDefaults, boolean useExisting) {
+        ArrayList<SlottedPlace> hierarchyList = new ArrayList<SlottedPlace>();
+
+        hierarchyList.add(newPlace);
+        addChildPlaces(newPlace, nonDefaults, useExisting, null, hierarchyList);
+
+        // Adding parent Places
+        Slot childSlot = newPlace.getParentSlot();
+        Slot parentSlot = getActualParentSlot(childSlot);
+        while (parentSlot != null) {
+            SlottedPlace parentPlace = getPlaceForSlot(parentSlot, nonDefaults, childSlot.getOwnerPlace(), useExisting);
+            if (parentPlace != null) {
+                hierarchyList.add(parentPlace);
+                addChildPlaces(parentPlace, nonDefaults, useExisting, childSlot, hierarchyList);
+                childSlot = parentSlot;
+                parentSlot = getActualParentSlot(parentSlot);
             } else {
-                completeNonDefaults.add(parent);
+                parentSlot = null;
+            }
+        }
+
+        return hierarchyList;
+    }
+
+    private Slot getActualParentSlot(Slot slot) {
+        if (slot.getOwnerPlace() != null) {
+            return slot.getOwnerPlace().getParentSlot();
+        }
+        return null;
+    }
+
+    private void addChildPlaces(SlottedPlace parentPlace, List<SlottedPlace> nonDefaults,
+            boolean useExisting, Slot excludeSlot, List<SlottedPlace> hierarchyList)
+    {
+        // This makes sure all children Places are reset if the parent not equal to existing
+        if (useExisting) {
+            ActiveSlot activeSlot = root.findSlot(parentPlace.getParentSlot());
+            if (activeSlot == null || !parentPlace.equals(activeSlot.getPlace())) {
+                useExisting = false;
+            }
+        }
+
+        Slot[] slots = parentPlace.getChildSlots();
+        if (slots != null) {
+            for (Slot childSlot: slots) {
+                if (excludeSlot == null || !excludeSlot.equals(childSlot)) {
+                    SlottedPlace place = getPlaceForSlot(childSlot, nonDefaults, null, useExisting);
+                    hierarchyList.add(place);
+                    addChildPlaces(place, nonDefaults, useExisting, null, hierarchyList);
+                }
             }
         }
     }
+
+    /**
+     * Gets the SlottedPlace for the passed slot, by first checking the nonDefaults, then the existing ActiveSlots, and
+     * finally the Slot's defaultChildPlace.
+     *
+     * @param slot The slot to get the Place for.
+     * @param nonDefaults The list of Places that should be used before existing Places or default Place.
+     * @param defaultPlace The defaultPlace that should be used, or null if the slots defaultPlace should be used.
+     *                     This is needed when child is known but the parent is unknown, because child's defaultParentPlace,
+     *                     might be different then Slot's defaultPlace.
+     * @param useExisting if false, the existing place will be skipped and the default will be used.
+     */
+    private SlottedPlace getPlaceForSlot(Slot slot, List<SlottedPlace> nonDefaults, SlottedPlace defaultPlace,
+            boolean useExisting)
+    {
+        for (SlottedPlace place: nonDefaults) {
+            if (defaultPlace != null && place.getClass().equals(defaultPlace.getClass())) {
+                //This check is made encase the nonDefaults contains a Place that cause the newPlace not to be displayed.
+                return place;
+            } else if (slot.equals(place.getParentSlot())) {
+                return place;
+            }
+        }
+
+        if (useExisting) {
+            ActiveSlot activeSlot = root.findSlot(slot);
+            if (activeSlot != null) {
+                SlottedPlace existingPlace = activeSlot.getPlace();
+                if (defaultPlace == null || (existingPlace != null && existingPlace.getClass().equals(defaultPlace.getClass()))) {
+                    return existingPlace;
+                }
+            }
+        }
+
+        if (defaultPlace != null) {
+            return defaultPlace;
+        }
+
+        return slot.getDefaultPlace();
+    }
+
 
     private void fillPlaces(ActiveSlot slot, LinkedList<SlottedPlace> places) {
         places.add(slot.getPlace());
@@ -560,7 +649,7 @@ public class SlottedController {
     public String createUrl(SlottedPlace newPlace, SlottedPlace... nonDefaultPlaces) {
         String url = Document.get().getURL();
         String[] splitUrl = url.split("#");
-        String token = createToken(newPlace);
+        String token = createToken(newPlace, nonDefaultPlaces);
 
         return splitUrl[0] + "#" + token;
     }
@@ -599,20 +688,10 @@ public class SlottedController {
      * @param <T> Used to prevent casting.
      * @return The Place requested, or null if that type is not in the hierarchy.
      */
-    public <T> T getCurrentPlace(Class<T> placeType) {
-        return getPlace(root, placeType);
-    }
-
     @SuppressWarnings("unchecked")
-    private <T> T getPlace(ActiveSlot slot, Class<T> placeType) {
-        SlottedPlace place = slot.getPlace();
-        if (place.getClass().equals(placeType)) {
-            return (T) place;
-        }
-
-        for (ActiveSlot child: slot.getChildren()) {
-            place = (SlottedPlace) getPlace(child, placeType);
-            if (place != null) {
+    public <T> T getCurrentPlace(Class<T> placeType) {
+        for (SlottedPlace place: currentHierarchyList) {
+            if (place.getClass().equals(placeType)) {
                 return (T) place;
             }
         }
