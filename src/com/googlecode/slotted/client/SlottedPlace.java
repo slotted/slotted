@@ -16,6 +16,7 @@
 package com.googlecode.slotted.client;
 
 import com.google.gwt.activity.shared.Activity;
+import com.google.gwt.core.client.Callback;
 import com.google.gwt.place.shared.Place;
 
 import java.util.LinkedList;
@@ -30,6 +31,10 @@ abstract public class SlottedPlace extends Place implements HasParameters {
     abstract public Slot getParentSlot();
     abstract public Slot[] getChildSlots();
     abstract public Activity getActivity();
+
+    protected void runAsyncActivity(Callback<Activity, Throwable> callback) {
+        callback.onSuccess(getActivity());
+    }
 
     public void setParameter(String name, String value) {
         placeParameters.setParameter(name, value);
