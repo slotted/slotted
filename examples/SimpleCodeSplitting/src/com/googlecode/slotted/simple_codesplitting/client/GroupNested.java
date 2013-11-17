@@ -9,7 +9,7 @@ import com.googlecode.slotted.client.SlottedPlace;
 
 public class GroupNested extends GroupProvider {
     @Override public void get(final SlottedPlace place, final Callback<? super Activity, ? super Throwable> callback) {
-        GWT.runAsync(new RunActivityCallback() {
+        GWT.runAsync(new RunActivityCallback(callback) {
             @Override public Activity getActivity() {
                 if (place instanceof ParentPlace) {
                     return new ParentActivity();

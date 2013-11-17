@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/examples/Gin/Gin.iml" filepath="$PROJECT_DIR$/examples/Gin/Gin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/examples/GwtAPCodeSplitting/GwtAPCodeSplitting.iml" filepath="$PROJECT_DIR$/examples/GwtAPCodeSplitting/GwtAPCodeSplitting.iml" />
       <module fileurl="file://$PROJECT_DIR$/examples/GwtActivitiesPlaces/GwtActivitiesPlaces.iml" filepath="$PROJECT_DIR$/examples/GwtActivitiesPlaces/GwtActivitiesPlaces.iml" />
       <module fileurl="file://$PROJECT_DIR$/examples/GwtActivitiesPlaces2/GwtActivitiesPlaces2.iml" filepath="$PROJECT_DIR$/examples/GwtActivitiesPlaces2/GwtActivitiesPlaces2.iml" />
       <module fileurl="file://$PROJECT_DIR$/examples/Layout/Layout.iml" filepath="$PROJECT_DIR$/examples/Layout/Layout.iml" />

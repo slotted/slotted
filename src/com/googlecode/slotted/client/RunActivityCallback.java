@@ -5,7 +5,11 @@ import com.google.gwt.core.client.Callback;
 import com.google.gwt.core.client.RunAsyncCallback;
 
 abstract public class RunActivityCallback implements RunAsyncCallback {
-    private Callback<Activity, Throwable> callback;
+    private Callback<? super Activity, ? super Throwable> callback;
+
+    protected RunActivityCallback(Callback<? super Activity, ? super Throwable> callback) {
+        this.callback = callback;
+    }
 
     abstract public Activity getActivity();
 
