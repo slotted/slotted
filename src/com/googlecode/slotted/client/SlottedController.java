@@ -15,6 +15,7 @@
  */
 package com.googlecode.slotted.client;
 
+import com.google.gwt.activity.shared.Activity;
 import com.google.gwt.activity.shared.ActivityMapper;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Document;
@@ -689,10 +690,55 @@ public class SlottedController {
      * @return The Place requested, or null if that type is not in the hierarchy.
      */
     @SuppressWarnings("unchecked")
-    public <T> T getCurrentPlace(Class<T> placeType) {
+    public <T extends Place> T getCurrentPlace(Class<T> placeType) {
         for (SlottedPlace place: currentHierarchyList) {
             if (place.getClass().equals(placeType)) {
                 return (T) place;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Gets a the Activity of the specified type in the hierarchy.
+     * WARNING: This can't be used to get the child activity during the start().  The child
+     * activity hasn't been created yet.
+     *
+     * @param type The Class object of the Activity you want to get.
+     * @param <T> Used to prevent casting.
+     * @return The Activity requested, or null if that type is not in the hierarchy.
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends Activity> T getCurrentActivity(Class<T> type) {
+        return (T) getActivity(root, type);
+    }
+
+    /**
+     * Gets a the active Activity for the specified Place type in the hierarchy.
+     * WARNING: This can't be used to get the child activity during the start().  The child
+     * activity hasn't been created yet.
+     *
+     * @param placeType The Class object of the Activity you want to get.
+     * @param <T> Used to prevent casting.
+     * @return The Activity requested, or null if that type is not in the hierarchy.
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends Place> Activity getCurrentActivityByPlace(Class<T> placeType) {
+        return getActivity(root, placeType);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Activity getActivity(ActiveSlot slot, Class type) {
+        Place place = slot.getPlace();
+        Activity activity = slot.getActivity();
+        if (place.getClass().equals(type) || activity.getClass().equals(type)) {
+            return activity;
+        }
+
+        for (ActiveSlot child: slot.getChildren()) {
+            activity = getActivity(child, type);
+            if (activity != null) {
+                return activity;
             }
         }
         return null;
