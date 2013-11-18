@@ -16,6 +16,8 @@
 package com.googlecode.slotted.client;
 
 import com.google.gwt.activity.shared.AbstractActivity;
+import com.google.gwt.activity.shared.Activity;
+import com.google.gwt.place.shared.Place;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.web.bindery.event.shared.EventBus;
 
@@ -91,8 +93,16 @@ abstract public class SlottedActivity extends AbstractActivity {
         return slottedController;
     }
 
-    public <T> T getCurrentPlace(Class<T> type) {
+    public <T extends Place> T getCurrentPlace(Class<T> type) {
         return slottedController.getCurrentPlace(type);
+    }
+
+    public <T extends Activity> T getCurrentActivity(Class<T> type) {
+        return slottedController.getCurrentActivity(type);
+    }
+
+    public Activity getCurrentActivityByPlace(Class<? extends Place> type) {
+        return slottedController.getCurrentActivityByPlace(type);
     }
 
     public SlottedPlace getCurrentPlace() {

@@ -6,7 +6,6 @@ import com.googlecode.slotted.client.PlaceParameters;
 import com.googlecode.slotted.client.SlottedPlace;
 import com.googlecode.slotted.testharness.client.flow.A1a1aPlace;
 import com.googlecode.slotted.testharness.client.flow.A1aPlace;
-import com.googlecode.slotted.testharness.client.flow.A1b1aPlace;
 import com.googlecode.slotted.testharness.client.flow.A1b1bPlace;
 import com.googlecode.slotted.testharness.client.flow.A1bPlace;
 import com.googlecode.slotted.testharness.client.flow.APlace;
@@ -220,7 +219,7 @@ public class FlowTests extends GWTTestCase {
         TestActivity b1bActivity = TestPlace.getActivity(A1bPlace.class);
         assertEquals(1, b1bActivity.startCount);
 
-        TestActivity b1aActivity = TestPlace.getActivity(A1b1aPlace.class);
+        TestActivity b1aActivity = TestPlace.getActivity(A1b1bPlace.class);
         assertEquals(1, b1aActivity.startCount);
     }
 
