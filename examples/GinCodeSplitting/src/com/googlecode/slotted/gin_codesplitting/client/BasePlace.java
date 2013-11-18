@@ -17,7 +17,7 @@ public class BasePlace extends ProviderPlace {
         return new Slot[] {SLOT};
     }
 
-    @Override public AsyncProvider<Activity, Throwable> getActivityProvider() {
-        return new BaseSplitGroup();
+    @Override public AsyncProvider<? extends Activity, Throwable> getActivityProvider() {
+        return AppGinjector.instance.getBaseActivity();
     }
 }

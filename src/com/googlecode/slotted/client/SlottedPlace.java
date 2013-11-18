@@ -32,7 +32,7 @@ abstract public class SlottedPlace extends Place implements HasParameters {
     abstract public Slot[] getChildSlots();
     abstract public Activity getActivity();
 
-    protected void runAsyncActivity(Callback<Activity, Throwable> callback) {
+    protected void runAsyncActivity(Callback<? super Activity, ? super Throwable> callback) {
         callback.onSuccess(getActivity());
     }
 

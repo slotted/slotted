@@ -31,7 +31,7 @@ public class GoodbyePlace extends ProviderPlace {
     }
 
     @Override public AsyncProvider<Activity, Throwable> getActivityProvider() {
-        return new BaseSplitGroup();
+        return new GapSplitGroup();
     }
 
     @Prefix("gb")

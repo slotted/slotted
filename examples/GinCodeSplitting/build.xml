@@ -88,6 +88,7 @@
     <target name="clean" depends="properties" description="Removes all artifacts from build except ivy artifacts">
         <delete includeemptydirs="true" quiet="true">
             <fileset dir="${build.dir}" includes="**/*"/>
+            <fileset dir="extras" includes="**/*"/>
         </delete>
     </target>
 

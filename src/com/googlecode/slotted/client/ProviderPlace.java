@@ -22,14 +22,14 @@ import com.google.gwt.core.client.Callback;
 //todo javadoc
 abstract public class ProviderPlace extends SlottedPlace {
 
-    abstract public AsyncProvider<Activity, Throwable> getActivityProvider();
+    abstract public AsyncProvider<? extends Activity, Throwable> getActivityProvider();
 
     @Override public final Activity getActivity() {
         throw new UnsupportedOperationException("This shouldn't be called except for SlottedPlace.getAsynActivity()");
     }
 
-    @Override protected void runAsyncActivity(Callback<Activity, Throwable> callback) {
-        AsyncProvider<Activity, Throwable> provider = getActivityProvider();
+    @Override protected void runAsyncActivity(Callback<? super Activity, ? super Throwable> callback) {
+        AsyncProvider<? extends Activity, Throwable> provider = getActivityProvider();
         if (provider instanceof GroupProvider) {
             ((GroupProvider) provider).get(this, callback);
         } else {

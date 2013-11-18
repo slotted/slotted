@@ -19,7 +19,7 @@ public class HomePlace extends AsyncPlace {
         return null;
     }
 
-    @Override public void getAsyncActivity(final Callback<Activity, Throwable> callback) {
+    @Override public void getAsyncActivity(Callback<? super Activity, ? super Throwable> callback) {
         GWT.runAsync(new RunActivityCallback(callback) {
             @Override public Activity getActivity() {
                 return new HomeActivity();

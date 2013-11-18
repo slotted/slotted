@@ -21,13 +21,13 @@ import com.google.gwt.core.client.Callback;
 //todo javadoc
 abstract public class AsyncPlace extends SlottedPlace {
 
-    abstract public void getAsyncActivity(Callback<Activity, Throwable> callback);
+    abstract public void getAsyncActivity(Callback<? super Activity, ? super Throwable> callback);
 
     @Override public final Activity getActivity() {
         throw new UnsupportedOperationException("This shouldn't be called except for SlottedPlace.getAsynActivity()");
     }
 
-    @Override protected void runAsyncActivity(Callback<Activity, Throwable> callback) {
+    @Override protected void runAsyncActivity(Callback<? super Activity, ? super Throwable> callback) {
         getAsyncActivity(callback);
     }
 }
