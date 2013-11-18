@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="GinCodeSplitting"
+         default="build" basedir=".">
+    <!--         App specifics              -->
+    <property name="gwt.modules" value="com.googlecode.slotted.gin_codesplitting.HelloMVP"/>
+
+    <!--         Install Versions           -->
+    <property name="ivy.install.version" value="2.1.0-rc2" />
+    <property name="gwt.install.version" value="2.4.0" />
+    <property name="appengine.install.version" value="1.6.6" />
+
+
+    <!--         Library Properties           -->
+    <property name="java.lib.home" value="../../../javalib" />
+
+
+    <!--         BUILD            -->
+    <target name="properties" description="Setup build dependencies and properties" >
+        <property environment="env"/>
+
+        <property name="gwt.sdk" location="${java.lib.home}/gwt-${gwt.install.version}" />
+
+        <property name="src.dir" location="src"/>
+        <property name="lib.dir" location="war/WEB-INF/lib"/>
+
+        <property name="build.dir" location="build"/>
+        <property name="build.classes.dir" value="${build.dir}/classes"/>
+        <property name="build.gwt.dir" value="${build.dir}/gwt"/>
+        <property name="build.package.dir" value="${build.dir}/package"/>
+
+        <property name="gwt.modules" value="${gwt.modules}"/>
+        <property name="gwt.args" value=""/>
+
+    </target>
+
+    <target name="setup" depends="properties" description="Setup build dependencies and properties" >
+        <mkdir dir="lib"/>
+
+        <path id="project.class.path">
+            <pathelement location="../../build/package/slotted-0.2-SNAPSHOT.jar"/>
+            <pathelement location="${build.classes.dir}"/>
+            <pathelement location="${gwt.sdk}/gwt-user.jar"/>
+            <fileset dir="${gwt.sdk}" includes="gwt-dev*.jar"/>
+            <fileset dir="${lib.dir}" includes="*.jar"/>
+        </path>
+
+        <path id="tools.class.path">
+            <path refid="project.class.path"/>
+        </path>
+
+    </target>
+
+    <target name="javac" depends="setup" description="Compile java source to bytecode">
+        <mkdir dir="${build.classes.dir}"/>
+        <javac srcdir="${src.dir}" includes="**" encoding="utf-8"
+               destdir="${build.classes.dir}"
+               source="1.5" target="1.5" nowarn="true"
+               debug="true" debuglevel="lines,vars,source">
+            <classpath refid="project.class.path"/>
+        </javac>
+        <copy todir="${build.classes.dir}">
+            <fileset dir="${src.dir}" excludes="**/*.java"/>
+        </copy>
+    </target>
+
+    <target name="gwtc" depends="javac" description="GWT compile to JavaScript (production mode)">
+        <java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler">
+            <classpath>
+                <pathelement location="${src.dir}"/>
+                <path refid="project.class.path"/>
+            </classpath>
+            <!-- add jvmarg -Xss16M or similar if you see a StackOverflowError -->
+            <jvmarg value="-Xmx256M"/>
+            <arg line="-compileReport"/>
+            <arg line="-war"/>
+            <arg value="${build.gwt.dir}"/>
+            <arg line="-gen"/>
+            <arg value="${build.dir}/generator"/>
+            <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
+            <arg line="${gwt.args}"/>
+            <arg value="${gwt.modules}"/>
+        </java>
+    </target>
+
+    <target name="build" depends="gwtc" description="Compiles the java and the GWT">
+    </target>
+
+    <target name="clean" depends="properties" description="Removes all artifacts from build except ivy artifacts">
+        <delete includeemptydirs="true" quiet="true">
+            <fileset dir="${build.dir}" includes="**/*"/>
+        </delete>
+    </target>
+
+</project>
