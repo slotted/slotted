@@ -31,9 +31,19 @@ import java.util.logging.Logger;
  * HistoryMapper is an abstract base class that manages generation and parsing of History Tokens.
  * This class is extended by every implementation of Slotted and defines which SlottedPlaces need
  * URL management.
+ *
+ * It is possible to implement this class manually, but it is better to have AutoHistoryMapper
+ * generate the code for you.  More information on AutoHistoryMapper can be found on the wiki here:
+ * https://code.google.com/p/slotted/wiki/AutoTokenizerAutoHistoryMapper
+ *
+ * To implement manually, extend HistoryMapper and implement {@link #init()} with calls to
+ * {@link #registerPlace(Class, String, PlaceTokenizer)} for each place to be handled by Slotted.
  */
 abstract public class HistoryMapper {
 
+    /**
+     * Used as a Tokenizer when no tokenizer is registered with a Place
+     */
     class DefaultPlaceTokenizer implements PlaceTokenizer<SlottedPlace> {
         private Class<? extends Place> placeClass;
         private ActivityMapper legacyActivityMapper;
@@ -77,7 +87,7 @@ abstract public class HistoryMapper {
     }
 
     /**
-     * Called by the Constructor to register all the SlottedPlaces that will be managed.
+     * Override this method to register places.
      *
      * @see #registerDefaultPlace(SlottedPlace)
      * @see #registerPlace(SlottedPlace)
@@ -342,6 +352,13 @@ abstract public class HistoryMapper {
         handlingHistory = false;
     }
 
+    /**
+     * Takes a history token and parses into SlottedPlaces bases on the registered PlaceTokenizers.
+     *
+     * @param token The history token which contains a series of place tokens separated by '/', and a optional
+     *              global parameter section starting with '?'.
+     * @return List of SlottedPlaces newly created from the PlaceTokenizers
+     */
     public SlottedPlace[] parseToken(String token) {
         PlaceParameters parameters = new PlaceParameters();
 
@@ -399,6 +416,13 @@ abstract public class HistoryMapper {
         controller.goTo(errorPlace);
     }
 
+    /**
+     * Used to extract the global parameters out of a Place that uses the @GlobalParameter.
+     *
+     * @param place Place that contains global parameters in field variables marked with @GlobalParameter
+     * @param intoPlaceParameters The global parameters for the hierarchy that this method should save the
+     *                            parameters into
+     */
     public void extractParameters(SlottedPlace place, PlaceParameters intoPlaceParameters) {
         place.extractParameters(intoPlaceParameters);
 
@@ -410,17 +434,22 @@ abstract public class HistoryMapper {
         }
     }
 
-    public PlaceParameters extractParameters(List<SlottedPlace> completeNonDefaults) {
+    /**
+     * Loops through the places and extracts the global parameters from the list of places.
+     *
+     * @param places Places that contains global parameters in field variables marked with @GlobalParameter
+     */
+    public PlaceParameters extractParameters(List<SlottedPlace> places) {
         if (!handlingHistory) {
             PlaceParameters placeParameters = new PlaceParameters();
 
-            for (SlottedPlace place: completeNonDefaults) {
+            for (SlottedPlace place: places) {
                 extractParameters(place, placeParameters);
             }
 
             return placeParameters;
         } else {
-            return completeNonDefaults.get(0).getPlaceParameters();
+            return places.get(0).getPlaceParameters();
         }
     }
 
@@ -485,6 +514,13 @@ abstract public class HistoryMapper {
         }
     }
 
+    /**
+     * Creates a token based on the hierarchy defined by passed root slot.
+     *
+     * @param activeSlot The root of the hierarchy for which a token should be generated.  This doesn't have
+     *                   to be the Slotted root ActiveSlot.
+     * @return History token string that contains all the Places in the hierarchy.
+     */
     protected String createToken(ActiveSlot activeSlot) {
         String token;
         token = createPageList(activeSlot);
