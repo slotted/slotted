@@ -547,7 +547,7 @@ public class SlottedController {
             ActiveSlot activeSlot = root.findSlot(slot);
             if (activeSlot != null) {
                 SlottedPlace existingPlace = activeSlot.getPlace();
-                if (defaultPlace == null || (existingPlace != null && existingPlace.getClass().equals(defaultPlace.getClass()))) {
+                if (existingPlace != null && (defaultPlace == null || existingPlace.getClass().equals(defaultPlace.getClass()))) {
                     return existingPlace;
                 }
             }
