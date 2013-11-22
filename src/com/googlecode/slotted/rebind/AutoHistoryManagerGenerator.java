@@ -14,6 +14,7 @@ import com.google.gwt.place.shared.Prefix;
 import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
 import com.google.gwt.user.rebind.SourceWriter;
 import com.googlecode.slotted.client.AutoHistoryMapper;
+import com.googlecode.slotted.client.CacheActivities;
 
 import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
@@ -90,6 +91,7 @@ public class AutoHistoryManagerGenerator extends Generator {
             {
                 JClassType tokenizer = getTokenizer(place, tokenizerType);
                 String prefix = getPrefix(place, tokenizer);
+                String placeActivitiesToCache = getPlaceActivitiesToCache(place);
 
                 String tokenizerParam;
                 if (tokenizer != null) {
@@ -102,7 +104,7 @@ public class AutoHistoryManagerGenerator extends Generator {
                 }
 
                 sourceWriter.println("registerPlace(" + place.getQualifiedSourceName() +
-                        ".class, " + prefix + ", " + tokenizerParam + ");");
+                        ".class, " + prefix + ", " + tokenizerParam + ", " + placeActivitiesToCache + ");");
             }
         }
 
@@ -145,6 +147,21 @@ public class AutoHistoryManagerGenerator extends Generator {
         return null;
     }
 
+    private String getPlaceActivitiesToCache(JClassType place) {
+        for (Annotation annotation: place.getAnnotations()) {
+            if (annotation instanceof CacheActivities) {
+                StringBuilder cacheArray = new StringBuilder();
+                cacheArray.append("new Class[]{");
+                for (Class placeClass: ((CacheActivities) annotation).value()) {
+                    cacheArray.append(placeClass.getCanonicalName());
+                    cacheArray.append(".class,");
 
-
+                }
+                cacheArray.deleteCharAt(cacheArray.length() - 1);
+                cacheArray.append("}");
+                return cacheArray.toString();
+            }
+        }
+        return "null";
+    }
 }

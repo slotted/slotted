@@ -241,7 +241,11 @@ public class ActiveSlot {
      * @param parameters The global parameters for the hierarchy
      */
     private void getStartActivity(PlaceParameters parameters) {
-        activity = place.getActivity();
+        ActivityCache activityCache = slottedController.getActivityCache();
+        activity = activityCache.get(place);
+        if (activity == null) {
+            activity = place.getActivity();
+        }
         if (activity == null) {
             ActivityMapper mapper = slottedController.getLegacyActivityMapper();
             if (mapper == null) {
@@ -254,6 +258,9 @@ public class ActiveSlot {
                         "and LegacyActivityMapper also return null.");
             }
         }
+        activityCache.add(place, activity);
+        slottedController.getHistoryMapper().markActivityCache(place, activityCache);
+
         if (activity instanceof SlottedActivity) {
             ((SlottedActivity) activity).init(slottedController, place, parameters,
                     resettableEventBus, this);

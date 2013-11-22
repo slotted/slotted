@@ -41,6 +41,7 @@ import java.util.logging.Logger;
  */
 abstract public class HistoryMapper {
 
+
     /**
      * Used as a Tokenizer when no tokenizer is registered with a Place
      */
@@ -71,6 +72,7 @@ abstract public class HistoryMapper {
     private PlaceFactory placeFactory = GWT.create(PlaceFactory.class);
     private HashMap<String, PlaceTokenizer<? extends SlottedPlace>> nameToTokenizerMap = new HashMap<String, PlaceTokenizer<? extends SlottedPlace>>();
     private HashMap<Class, String> placeToNameMap = new HashMap<Class, String>();
+    private HashMap<Class, Class<? extends SlottedPlace>[]> activityCacheMap = new HashMap<Class, Class<? extends SlottedPlace>[]>();
     private SlottedPlace defaultPlace;
     private SlottedPlace errorPlace;
     private SlottedController controller;
@@ -255,6 +257,24 @@ abstract public class HistoryMapper {
     public void registerPlace(Class<? extends Place> placeClass, String name,
             PlaceTokenizer<? extends SlottedPlace> tokenizer)
     {
+        registerPlace(placeClass, name, tokenizer, null);
+    }
+
+    /**
+     * Same as {@link #registerPlace(SlottedPlace)}, but allows for overridden name, and
+     * parameter tokens.
+     *
+     * @param placeClass The Class of the place to be managed.  The Place must have a default
+     *                   constructor, but it may be private.
+     * @param name The new URL token to display in the History token, must be URL safe.
+     * @param tokenizer That handles the creation of the token and parsing the token into a Place.
+     *
+     * @see #registerPlace(Class, PlaceTokenizer)
+     * @see #registerPlace(Class, String)
+     */
+    public void registerPlace(Class<? extends Place> placeClass, String name,
+            PlaceTokenizer<? extends SlottedPlace> tokenizer, Class<? extends SlottedPlace>[] placeActivitiesToCache)
+    {
         Place place = placeFactory.newInstance(placeClass);
         if (place == null) {
             throw new IllegalStateException("To register a Place, it must have a default " +
@@ -299,6 +319,9 @@ abstract public class HistoryMapper {
 
         nameToTokenizerMap.put(name, tokenizer);
         placeToNameMap.put(placeClass, name);
+        if (placeActivitiesToCache != null && placeActivitiesToCache.length > 0) {
+            activityCacheMap.put(placeClass, placeActivitiesToCache);
+        }
     }
 
     /**
@@ -452,6 +475,16 @@ abstract public class HistoryMapper {
             return places.get(0).getPlaceParameters();
         }
     }
+
+    public void markActivityCache(SlottedPlace place, ActivityCache activityCache) {
+        Class<? extends SlottedPlace>[] placeActivitiesToCache = activityCacheMap.get(place.getClass());
+        if (placeActivitiesToCache != null) {
+            for (Class<? extends SlottedPlace> placeClass: placeActivitiesToCache) {
+                activityCache.get(placeClass);
+            }
+        }
+    }
+
 
     private String createPlaceToken(SlottedPlace place) {
         Place actualPlace = place;

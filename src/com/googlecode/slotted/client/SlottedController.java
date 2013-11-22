@@ -102,6 +102,7 @@ public class SlottedController {
     private final EventBus eventBus;
     private final HistoryMapper historyMapper;
     private ActivityMapper legacyActivityMapper;
+    private ActivityCache activityCache = new ActivityCache();
 
     private boolean processingGoTo;
     private boolean tokenDone;
@@ -431,6 +432,7 @@ public class SlottedController {
                         referringToken = currentToken;
                         currentToken = historyMapper.createToken();
                         tokenDone = true;
+                        activityCache.clearUnused();
                         eventBus.fireEvent(new NewPlaceEvent(places));
                     }
 
@@ -772,5 +774,9 @@ public class SlottedController {
      */
     public ActivityMapper getLegacyActivityMapper() {
         return legacyActivityMapper;
+    }
+
+    protected ActivityCache getActivityCache() {
+        return activityCache;
     }
 }
