@@ -13,6 +13,9 @@ import com.googlecode.slotted.testharness.client.flow.B1aPlace;
 import com.googlecode.slotted.testharness.client.flow.B1bPlace;
 import com.googlecode.slotted.testharness.client.flow.B2aPlace;
 import com.googlecode.slotted.testharness.client.flow.BPlace;
+import com.googlecode.slotted.testharness.client.flow.CacheAPlace;
+import com.googlecode.slotted.testharness.client.flow.CacheBPlace;
+import com.googlecode.slotted.testharness.client.flow.CachePlace;
 import com.googlecode.slotted.testharness.client.flow.GParam1aPlace;
 import com.googlecode.slotted.testharness.client.flow.GParam1bPlace;
 import com.googlecode.slotted.testharness.client.flow.GoTo1aPlace;
@@ -554,6 +557,39 @@ public class FlowTests extends GWTTestCase {
         assertEquals(1, loading1aActivity.onCancelCount);
         assertEquals(0, loading1aActivity.onStopCount);
         assertEquals(0, loading1aActivity.onRefreshCount);
+    }
+
+    public void testActivityCache() {
+        TestHarness.slottedController.goTo(new CachePlace());
+
+        assertNotNull(TestHarness.slottedController.getCurrentActivityByPlace(CacheAPlace.class));
+        TestActivity cacheAActivity = TestPlace.getActivity(CacheAPlace.class);
+        assertEquals(1, cacheAActivity.startCount);
+        assertEquals(0, cacheAActivity.onRefreshCount);
+        //assertEquals(0, cacheAActivity.onBackgroundCount);
+        cacheAActivity.resetCounts();
+
+        TestHarness.slottedController.goTo(new CacheBPlace());
+
+        assertNotNull(TestHarness.slottedController.getCurrentActivityByPlace(CacheAPlace.class));
+        assertEquals(0, cacheAActivity.startCount);
+        assertEquals(0, cacheAActivity.onRefreshCount);
+        //assertEquals(1, cacheAActivity.onBackgroundCount);
+        cacheAActivity.resetCounts();
+
+        TestHarness.slottedController.goTo(new CacheAPlace(1));
+        assertEquals(0, cacheAActivity.startCount);
+        assertEquals(1, cacheAActivity.onRefreshCount);
+        //assertEquals(0, cacheAActivity.onBackgroundCount);
+        cacheAActivity.resetCounts();
+
+        TestHarness.slottedController.goTo(new CacheBPlace());
+        cacheAActivity.resetCounts();
+        TestHarness.slottedController.goTo(new CacheAPlace(2));
+        assertEquals(1, cacheAActivity.startCount);
+        assertEquals(0, cacheAActivity.onRefreshCount);
+        //assertEquals(0, cacheAActivity.onBackgroundCount);
+        cacheAActivity.resetCounts();
     }
 
 

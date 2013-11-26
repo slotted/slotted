@@ -13,6 +13,15 @@ public class ActivityCache {
         usedCache = new HashMap<Class<? extends SlottedPlace>, Entry>();
     }
 
+    public Activity getByActivity(Class<? extends Activity> activityClass) {
+        for (Entry entry: activityCache.values()) {
+            if (activityClass.equals(entry.activity.getClass())) {
+                return entry.activity;
+            }
+        }
+        return null;
+    }
+
     public Activity get(Class<? extends SlottedPlace> placeClass) {
         Entry entry = activityCache.get(placeClass);
         if (entry != null) {
@@ -23,7 +32,7 @@ public class ActivityCache {
         return null;
     }
 
-    public Activity get(SlottedPlace place) {
+    public Activity getTouch(SlottedPlace place) {
         Class<? extends SlottedPlace> placeClass = place.getClass();
         Entry entry = activityCache.get(placeClass);
         if (entry != null && entry.place.equals(place)) {

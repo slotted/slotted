@@ -22,6 +22,8 @@ public class TestActivity extends SlottedActivity {
     public int onStopCount;
     public int onCancelCount;
     public int onRefreshCount;
+    public int onLoadCompleteCount;
+    public int onBackgroundCount;
     public int mayStopCount;
 
     public void resetCounts() {
@@ -31,6 +33,8 @@ public class TestActivity extends SlottedActivity {
         onCancelCount = 0;
         onRefreshCount = 0;
         mayStopCount = 0;
+        onLoadCompleteCount = 0;
+        onBackgroundCount = 0;
     }
 
     @Override public void start(AcceptsOneWidget panel) {
@@ -90,5 +94,15 @@ public class TestActivity extends SlottedActivity {
     @Override public String mayStop() {
         mayStopCount++;
         return super.mayStop();
+    }
+
+    @Override public void onLoadComplete() {
+        onLoadCompleteCount++;
+        super.onLoadComplete();
+    }
+
+    @Override public void onBackground() {
+        onBackgroundCount++;
+        super.onBackground();
     }
 }

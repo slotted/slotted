@@ -81,6 +81,9 @@ abstract public class SlottedActivity extends AbstractActivity {
     public void onLoadComplete() {
     }
 
+    public void onBackground() {
+    }
+
     public void setLoadingStarted() {
         activeSlot.setLoading(true, this);
     }
@@ -101,7 +104,7 @@ abstract public class SlottedActivity extends AbstractActivity {
         return slottedController.getCurrentActivity(type);
     }
 
-    public Activity getCurrentActivityByPlace(Class<? extends Place> type) {
+    public Activity getCurrentActivityByPlace(Class<? extends SlottedPlace> type) {
         return slottedController.getCurrentActivityByPlace(type);
     }
 

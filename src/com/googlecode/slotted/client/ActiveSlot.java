@@ -197,9 +197,16 @@ public class ActiveSlot {
         createChildren();
 
         if (slottedController.shouldStartActivity()) {
+            ActivityCache activityCache = slottedController.getActivityCache();
             if (activity == null) {
-                getStartActivity(parameters);
+                activity = activityCache.getTouch(place);
+                if (activity == null) {
+                    getStartActivity(parameters);
+                } else {
+                    refreshActivity(parameters);
+                }
             } else {
+                activityCache.getTouch(place);
                 refreshActivity(parameters);
             }
         }
@@ -241,11 +248,7 @@ public class ActiveSlot {
      * @param parameters The global parameters for the hierarchy
      */
     private void getStartActivity(PlaceParameters parameters) {
-        ActivityCache activityCache = slottedController.getActivityCache();
-        activity = activityCache.get(place);
-        if (activity == null) {
-            activity = place.getActivity();
-        }
+        activity = place.getActivity();
         if (activity == null) {
             ActivityMapper mapper = slottedController.getLegacyActivityMapper();
             if (mapper == null) {
@@ -258,6 +261,7 @@ public class ActiveSlot {
                         "and LegacyActivityMapper also return null.");
             }
         }
+        ActivityCache activityCache = slottedController.getActivityCache();
         activityCache.add(place, activity);
         slottedController.getHistoryMapper().markActivityCache(place, activityCache);
 
@@ -294,6 +298,10 @@ public class ActiveSlot {
      */
     private void refreshActivity(PlaceParameters parameters) {
         if (activity instanceof SlottedActivity) {
+            ActivityCache activityCache = slottedController.getActivityCache();
+            activityCache.add(place, activity);
+            slottedController.getHistoryMapper().markActivityCache(place, activityCache);
+
             SlottedActivity slottedActivity = (SlottedActivity) activity;
             slottedActivity.init(slottedController, place, parameters,
                     resettableEventBus, this);
