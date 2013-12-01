@@ -372,14 +372,14 @@ public class ActiveSlot {
         if (currentProtectedDisplay == null || currentProtectedDisplay.loading) {
             throw new IllegalStateException("Attempting to show a view for a loading slot:" + place);
         }
-        if (activity instanceof SlottedActivity) {
-            ((SlottedActivity) activity).onLoadComplete();
-        }
         currentProtectedDisplay.showWidget();
         if (children!= null) {
             for (ActiveSlot child: children) {
                 child.showViews();
             }
+        }
+        if (activity instanceof SlottedActivity) {
+            ((SlottedActivity) activity).onLoadComplete();
         }
     }
 
