@@ -566,29 +566,38 @@ public class FlowTests extends GWTTestCase {
         TestActivity cacheAActivity = TestPlace.getActivity(CacheAPlace.class);
         assertEquals(1, cacheAActivity.startCount);
         assertEquals(0, cacheAActivity.onRefreshCount);
-        //assertEquals(0, cacheAActivity.onBackgroundCount);
+        assertEquals(0, cacheAActivity.onBackgroundCount);
         cacheAActivity.resetCounts();
 
         TestHarness.slottedController.goTo(new CacheBPlace());
 
         assertNotNull(TestHarness.slottedController.getCurrentActivityByPlace(CacheAPlace.class));
+        assertEquals(0, cacheAActivity.mayStopCount);
+        assertEquals(0, cacheAActivity.onStopCount);
         assertEquals(0, cacheAActivity.startCount);
         assertEquals(0, cacheAActivity.onRefreshCount);
-        //assertEquals(1, cacheAActivity.onBackgroundCount);
+        assertEquals(1, cacheAActivity.mayBackgroundCount);
+        assertEquals(1, cacheAActivity.onBackgroundCount);
         cacheAActivity.resetCounts();
 
         TestHarness.slottedController.goTo(new CacheAPlace(1));
+        assertEquals(0, cacheAActivity.mayStopCount);
+        assertEquals(0, cacheAActivity.onStopCount);
         assertEquals(0, cacheAActivity.startCount);
         assertEquals(1, cacheAActivity.onRefreshCount);
-        //assertEquals(0, cacheAActivity.onBackgroundCount);
+        assertEquals(0, cacheAActivity.mayBackgroundCount);
+        assertEquals(0, cacheAActivity.onBackgroundCount);
         cacheAActivity.resetCounts();
 
         TestHarness.slottedController.goTo(new CacheBPlace());
         cacheAActivity.resetCounts();
         TestHarness.slottedController.goTo(new CacheAPlace(2));
+        assertEquals(1, cacheAActivity.mayStopCount);
+        assertEquals(1, cacheAActivity.onStopCount);
         assertEquals(1, cacheAActivity.startCount);
         assertEquals(0, cacheAActivity.onRefreshCount);
-        //assertEquals(0, cacheAActivity.onBackgroundCount);
+        assertEquals(0, cacheAActivity.mayBackgroundCount);
+        assertEquals(0, cacheAActivity.onBackgroundCount);
         cacheAActivity.resetCounts();
     }
 

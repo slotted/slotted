@@ -476,11 +476,11 @@ abstract public class HistoryMapper {
         }
     }
 
-    public void markActivityCache(SlottedPlace place, ActivityCache activityCache) {
+    public void markBackgroundActivities(SlottedPlace place, ActivityCache activityCache) {
         Class<? extends SlottedPlace>[] placeActivitiesToCache = activityCacheMap.get(place.getClass());
         if (placeActivitiesToCache != null) {
             for (Class<? extends SlottedPlace> placeClass: placeActivitiesToCache) {
-                activityCache.get(placeClass);
+                activityCache.markForBackground(placeClass);
             }
         }
     }

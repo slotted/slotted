@@ -23,6 +23,7 @@ public class TestActivity extends SlottedActivity {
     public int onCancelCount;
     public int onRefreshCount;
     public int onLoadCompleteCount;
+    public int mayBackgroundCount;
     public int onBackgroundCount;
     public int mayStopCount;
 
@@ -34,6 +35,7 @@ public class TestActivity extends SlottedActivity {
         onRefreshCount = 0;
         mayStopCount = 0;
         onLoadCompleteCount = 0;
+        mayBackgroundCount = 0;
         onBackgroundCount = 0;
     }
 
@@ -71,10 +73,10 @@ public class TestActivity extends SlottedActivity {
         panel.setWidget(testDisplay);
     }
 
-    @Override public void setChildSlotDisplay(Slot slot) {
+    @Override public AcceptsOneWidget getChildSlotDisplay(Slot slot) {
         setChildSlotDisplayCount++;
 
-        slot.setDisplay(childDisplay.get(slot));
+        return childDisplay.get(slot);
     }
 
 
@@ -99,6 +101,11 @@ public class TestActivity extends SlottedActivity {
     @Override public void onLoadComplete() {
         onLoadCompleteCount++;
         super.onLoadComplete();
+    }
+
+    @Override public String mayBackground() {
+        mayBackgroundCount++;
+        return super.mayBackground();
     }
 
     @Override public void onBackground() {

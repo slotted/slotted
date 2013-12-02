@@ -51,6 +51,7 @@ abstract public class SlottedActivity extends AbstractActivity {
     }
 
     public AcceptsOneWidget getChildSlotDisplay(Slot slot) {
+        //noinspection deprecation
         setChildSlotDisplay(slot);
         return slot.getDisplay();
     }
@@ -79,6 +80,10 @@ abstract public class SlottedActivity extends AbstractActivity {
     }
 
     public void onLoadComplete() {
+    }
+
+    public String mayBackground() {
+        return null;
     }
 
     public void onBackground() {

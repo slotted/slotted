@@ -3,14 +3,17 @@ package com.googlecode.slotted.client;
 import com.google.gwt.activity.shared.Activity;
 
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class ActivityCache {
     private HashMap<Class<? extends SlottedPlace>, Entry> activityCache = new HashMap<Class<? extends SlottedPlace>, Entry>();
     private HashMap<Class<? extends SlottedPlace>, Entry> usedCache = new HashMap<Class<? extends SlottedPlace>, Entry>();
+    private HashSet<Class<? extends SlottedPlace>> backgroundMarks = new HashSet<Class<? extends SlottedPlace>>();
 
     public void clearUnused() {
         activityCache = usedCache;
         usedCache = new HashMap<Class<? extends SlottedPlace>, Entry>();
+        backgroundMarks = new HashSet<Class<? extends SlottedPlace>>();
     }
 
     public Activity getByActivity(Class<? extends Activity> activityClass) {
@@ -32,7 +35,7 @@ public class ActivityCache {
         return null;
     }
 
-    public Activity getTouch(SlottedPlace place) {
+    public Activity get(SlottedPlace place) {
         Class<? extends SlottedPlace> placeClass = place.getClass();
         Entry entry = activityCache.get(placeClass);
         if (entry != null && entry.place.equals(place)) {
@@ -41,6 +44,22 @@ public class ActivityCache {
         }
 
         return null;
+    }
+
+    public Activity markForBackground(Class<? extends SlottedPlace> placeClass) {
+        Entry entry = activityCache.get(placeClass);
+        if (entry != null) {
+            usedCache.put(placeClass, entry);
+            backgroundMarks.add(placeClass);
+            return entry.activity;
+        }
+
+        return null;
+    }
+
+    public boolean isMarkedForBackground(SlottedPlace place) {
+        Class<? extends SlottedPlace> placeClass = place.getClass();
+        return backgroundMarks.contains(placeClass);
     }
 
     public void add(SlottedPlace place, Activity activity) {

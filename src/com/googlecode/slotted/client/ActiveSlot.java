@@ -99,8 +99,10 @@ public class ActiveSlot {
     public void maybeGoTo(Iterable<SlottedPlace> newPlaces, boolean reloadAll,
             ArrayList<String> warnings)
     {
+        ActivityCache activityCache = slottedController.getActivityCache();
         boolean checkMayStop = false;
         newPlace = getPlace(newPlaces);
+        historyMapper.markBackgroundActivities(newPlace, activityCache);
         if (reloadAll || !newPlace.equals(place)) {
             if (activity != null) {
                 checkMayStop = true;
@@ -115,7 +117,14 @@ public class ActiveSlot {
 
         //Children should be checked before parent in case child mayStop() saves data.
         if (checkMayStop) {
-            String warning = activity.mayStop();
+            String warning = null;
+            if (activityCache.isMarkedForBackground(place)) {
+                if (activity instanceof SlottedActivity) {
+                    warning = ((SlottedActivity) activity).mayBackground();
+                }
+            } else {
+                warning = activity.mayStop();
+            }
             if (warning != null) {
                 warnings.add(warning);
             }
@@ -149,9 +158,13 @@ public class ActiveSlot {
      */
     public void stopActivities() {
         try {
-            place = null;
+            ActivityCache activityCache = slottedController.getActivityCache();
             if (activity != null) {
-                if (activityStarting) {
+                if (activityCache.isMarkedForBackground(place)) {
+                    if (activity instanceof SlottedActivity) {
+                        ((SlottedActivity) activity).onBackground();
+                    }
+                } else if (activityStarting) {
                     activity.onCancel();
                 } else {
                     activity.onStop();
@@ -165,6 +178,7 @@ public class ActiveSlot {
                 }
                 children.clear();
             }
+            place = null;
             currentProtectedDisplay = null;
         } finally {
             resettableEventBus.removeHandlers();
@@ -199,14 +213,14 @@ public class ActiveSlot {
         if (slottedController.shouldStartActivity()) {
             ActivityCache activityCache = slottedController.getActivityCache();
             if (activity == null) {
-                activity = activityCache.getTouch(place);
+                activity = activityCache.get(place);
                 if (activity == null) {
                     getStartActivity(parameters);
                 } else {
                     refreshActivity(parameters);
                 }
             } else {
-                activityCache.getTouch(place);
+                activityCache.get(place);
                 refreshActivity(parameters);
             }
         }
@@ -263,7 +277,6 @@ public class ActiveSlot {
         }
         ActivityCache activityCache = slottedController.getActivityCache();
         activityCache.add(place, activity);
-        slottedController.getHistoryMapper().markActivityCache(place, activityCache);
 
         if (activity instanceof SlottedActivity) {
             ((SlottedActivity) activity).init(slottedController, place, parameters,
@@ -300,7 +313,6 @@ public class ActiveSlot {
         if (activity instanceof SlottedActivity) {
             ActivityCache activityCache = slottedController.getActivityCache();
             activityCache.add(place, activity);
-            slottedController.getHistoryMapper().markActivityCache(place, activityCache);
 
             SlottedActivity slottedActivity = (SlottedActivity) activity;
             slottedActivity.init(slottedController, place, parameters,
