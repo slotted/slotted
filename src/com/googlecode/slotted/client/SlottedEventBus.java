@@ -36,7 +36,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-//todo javadoc
+/**
+ * Replacement for the GWT EventBus, which solves these problems:
+ * <p><ul>
+ * <li> Complete the processing of an Event before processing an Event fired during processing
+ * <li> Allow handlers added during processing to handle Events fired during processing.
+ * <ul><p>
+ */
 public class SlottedEventBus extends EventBus {
     private interface Command {
         void execute();
