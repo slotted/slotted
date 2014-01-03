@@ -17,7 +17,9 @@ package com.googlecode.slotted.client;
 
 import java.util.List;
 
-//todo javadoc
+/**
+ * Interface for overriding navigation before the Activities are created.
+ */
 public interface NavigationOverride {
     /**
      * Called for every place request.  If override is desired return new list of places, otherwise
