@@ -492,12 +492,12 @@ public class FlowTests extends GWTTestCase {
         assertTrue(loadingActivity.testDisplay.isDisplayed());
         assertFalse(loading1aActivity.testDisplay.isDisplayed());
         assertEquals(0, loadingHandler.startCount);
-        assertEquals(0, loadingHandler.stopCount);
+        assertEquals(1, loadingHandler.stopCount);
 
         loading1aActivity.showDisplay();
 
         assertTrue(loading1aActivity.testDisplay.isDisplayed());
-        assertEquals(1, loadingHandler.startCount);
+        assertEquals(0, loadingHandler.startCount);
         assertEquals(1, loadingHandler.stopCount);
     }
 
