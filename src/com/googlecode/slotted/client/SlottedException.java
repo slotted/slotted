@@ -4,14 +4,14 @@ package com.googlecode.slotted.client;
  * todo javadoc
  */
 public class SlottedException extends RuntimeException {
-    private SlottedException() {
+    protected SlottedException() {
     }
 
     public SlottedException(String s) {
         super(s);
     }
 
-    private SlottedException(Throwable e) {
+    protected SlottedException(Throwable e) {
         super(e);
     }
 
