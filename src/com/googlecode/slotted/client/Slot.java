@@ -17,33 +17,50 @@ package com.googlecode.slotted.client;
 
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
-//todo javadoc
+/**
+ * Object definition of a Slot in the Place hierarchy.  The definition should be a static instance
+ * in the SlottedPlace class, and is returned by {@link SlottedPlace#getParentSlot()} and
+ * {@link SlottedPlace#getChildSlots()}.
+ */
 public class Slot {
     private SlottedPlace ownerPlace;
     private SlottedPlace defaultPlace;
     private AcceptsOneWidget display;
 
+    /**
+     * Create a Slot definition.
+     *
+     * @param ownerPlace The SlottedPlace that is responsible for Displaying this Slot.  This Place
+     *                   will be used when the parent is not specified in the SlottedController#goTo(),
+     *                   so it should have the correct parameters set.
+     * @param defaultPlace The SlottedPlace that should be displayed, when a SlottedController#goTo()
+     *                     doesn't specify which Place should be displayed for this Slot.  This should
+     *                     have the correct parameters set.
+     */
     public Slot(SlottedPlace ownerPlace, SlottedPlace defaultPlace) {
         this.ownerPlace = ownerPlace;
         this.defaultPlace = defaultPlace;
     }
 
+    /**
+     * Gets the SlottedPlace that is responsible for Displaying this Slot.
+     */
     public SlottedPlace getOwnerPlace() {
         return ownerPlace;
     }
 
-    public void setOwnerPlace(SlottedPlace ownerPlace) {
-        this.ownerPlace = ownerPlace;
-    }
-
+    /**
+     * Gets the SlottedPlace that should be displayed, when a SlottedController#goTo()
+     * doesn't specify which Place should be displayed for this Slot.
+     */
     public SlottedPlace getDefaultPlace() {
         return defaultPlace;
     }
 
-    public void setDefaultPlace(SlottedPlace defaultPlace) {
-        this.defaultPlace = defaultPlace;
-    }
-
+    /**
+     * @deprecated
+     * This is now handled by {@link SlottedActivity#getChildSlotDisplay(Slot)}
+     */
     public void setDisplay(AcceptsOneWidget display) {
         if (display == null) {
             throw new NullPointerException("Display can't be null.");
@@ -51,7 +68,10 @@ public class Slot {
         this.display = display;
     }
 
-    public AcceptsOneWidget getDisplay() {
+    /**
+     * Only used by the SlottedController for backwards compatibility.
+     */
+    protected AcceptsOneWidget getDisplay() {
         return display;
     }
 
