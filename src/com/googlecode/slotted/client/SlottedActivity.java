@@ -118,10 +118,21 @@ abstract public class SlottedActivity extends AbstractActivity {
     public void onLoadComplete() {
     }
 
+    /**
+     * Called when Activity cache wants to background the activity.  It works similar to mayStop(), where
+     * a non null return prevents the navigation from happening.
+     *
+     * @return null if navigation is okay, error message to display.
+     */
     public String mayBackground() {
         return null;
     }
 
+    /**
+     * Called when Activity cache backgrounded the activity.  It works similar to onStop(), except the
+     * Activity may be redisplayed after onRefresh() is called.  It is possible that a backgrounded Activity
+     * will be stopped while backgrounded, at which point, mayStop() and onStop() will be called.
+     */
     public void onBackground() {
     }
 
@@ -166,7 +177,7 @@ abstract public class SlottedActivity extends AbstractActivity {
     /**
      * See {@link SlottedController#getCurrentActivityByPlace(Class)}
      */
-    public Activity getCurrentActivityByPlace(Class<? extends Place> type) {
+    public Activity getCurrentActivityByPlace(Class<? extends SlottedPlace> type) {
         return slottedController.getCurrentActivityByPlace(type);
     }
 
