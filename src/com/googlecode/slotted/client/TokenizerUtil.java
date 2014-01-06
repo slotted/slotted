@@ -1,16 +1,15 @@
 package com.googlecode.slotted.client;
 
+import com.google.gwt.http.client.URL;
+import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
+
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.LinkedList;
 
-import com.google.gwt.http.client.URL;
-import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
-import com.google.gwt.junit.JUnitMessageQueue.ClientStatus;
-
 /**
- * todo javadoc
+ * A utility class used by {@link AutoTokenizer}.
  */
 public class TokenizerUtil {
 

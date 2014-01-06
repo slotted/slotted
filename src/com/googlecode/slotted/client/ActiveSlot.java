@@ -286,7 +286,12 @@ public class ActiveSlot {
                 new com.google.gwt.event.shared.ResettableEventBus(resettableEventBus);
         activityStarting = true;
         currentProtectedDisplay = new ProtectedDisplay(activity);
-        activity.start(currentProtectedDisplay, legacyBus);
+        try {
+            activity.start(currentProtectedDisplay, legacyBus);
+        } catch (Exception e) {
+            String token = historyMapper.createToken(place);
+            throw new SlottedInitException(token, e);
+        }
 
         if (activity instanceof SlottedActivity) {
             for (ActiveSlot child: children) {

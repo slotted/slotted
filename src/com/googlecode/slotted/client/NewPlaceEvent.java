@@ -17,30 +17,53 @@ package com.googlecode.slotted.client;
 
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.event.shared.HandlerManager;
 
 import java.util.LinkedList;
 
-//todo javadoc
+/**
+ * Represents completed navigation event.  The event is sent after all activities are displayed.
+ */
 public class NewPlaceEvent extends GwtEvent<NewPlaceEvent.Handler> {
     public static final Type<Handler> Type = new Type<Handler>();
+
+    /**
+     * The Handler for the NewPlaceEvent.
+     */
     public static interface Handler extends EventHandler {
         /**
-         * @return true if this method completely handled the error, which will prevent the default
-         *         exception handling from running.
+         * Called when the navigation is complete.
+         *
+         * @param newPlaces List of all the Places that are being shown.  All GWT Places will be
+         *                  wrapped inside {@link WrappedPlace}.
          */
         void newPlaces(LinkedList<SlottedPlace> newPlaces);
     }
 
     private LinkedList<SlottedPlace> newPlaces;
 
-    public NewPlaceEvent(LinkedList<SlottedPlace> newPlaces) {
+    /**
+     * Creates a new event.
+     *
+     * @param newPlaces List of all the places that are being displayed.
+     */
+    protected NewPlaceEvent(LinkedList<SlottedPlace> newPlaces) {
         this.newPlaces = newPlaces;
     }
 
+    /**
+     * @return The type used to register handlers.
+     */
     public Type<Handler> getAssociatedType() {
         return Type;
     }
 
+    /**
+     * Should only be called by {@link HandlerManager}. In other words, do not use
+     * or call.
+     *
+     * @param handler handler
+     */
     protected void dispatch(Handler handler) {
         handler.newPlaces(newPlaces);
     }

@@ -17,25 +17,54 @@ package com.googlecode.slotted.client;
 
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.event.shared.HandlerManager;
 
-//todo javadoc
+/**
+ * Represents Delayed Loading event; either startLoading or stopLoading.
+ */
 public class LoadingEvent extends GwtEvent<LoadingEvent.Handler> {
     public static final Type<Handler> Type = new Type<Handler>();
+    /**
+     * Handler for the Loading Events.
+     */
     public static interface Handler extends EventHandler {
+        /**
+         * Called when a {@link SlottedActivity#setLoadingStarted()} is called or SlottedController attempts
+         * and fails to load.  This can be called many times during one Activity loading.
+         */
         void startLoading();
+
+        /**
+         * Called when loading is complete and the Activities are displayed.
+         */
         void stopLoading();
     }
 
     private boolean loading;
 
-    public LoadingEvent(boolean loading) {
+    /**
+     * Creates an event with the loading state.
+     *
+     * @param loading true if loading started and false if loading complete.
+     */
+    protected LoadingEvent(boolean loading) {
         this.loading = loading;
     }
 
+
+    /**
+     * @return The type used to register handlers.
+     */
     public Type<Handler> getAssociatedType() {
         return Type;
     }
 
+    /**
+     * Should only be called by {@link HandlerManager}. In other words, do not use
+     * or call.
+     *
+     * @param handler handler
+     */
     protected void dispatch(Handler handler) {
         if (loading) {
             handler.startLoading();

@@ -15,14 +15,23 @@
  */
 package com.googlecode.slotted.client;
 
-//todo javadoc
+/**
+ * A special SlottedPlace for handling Slotted exceptions.
+ */
 abstract public class SlottedErrorPlace extends SlottedPlace {
     private Throwable throwable;
 
+    /**
+     * Gets the Slotted exception that caused the error page to be displayed
+     */
     public Throwable getException() {
         return throwable;
     }
 
+    /**
+     * Called by the SlottedController to set the exception that is causing the
+     * error page to be displayed.
+     */
     public void setException(Throwable throwable) {
         this.throwable = throwable;
     }

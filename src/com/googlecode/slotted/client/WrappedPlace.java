@@ -19,7 +19,10 @@ import com.google.gwt.activity.shared.Activity;
 import com.google.gwt.activity.shared.ActivityMapper;
 import com.google.gwt.place.shared.Place;
 
-//todo javadoc
+/**
+ * A SlottedPlace used to wrap a GWT Place, so that it works in the Slotted framework.  This should only be
+ * created by the SlottedController.
+ */
 public class WrappedPlace extends SlottedPlace {
     private Place place;
     private ActivityMapper activityMapper;

@@ -20,43 +20,99 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
-//todo javadoc
+/**
+ * Holds global parameters that aren't associated with a specific Place.  When a place is constructed,
+ * it has its own instance of PlaceParameters, but during navigation, all Places will receive the same
+ * instance that has all the global parameters for all Places. Two Places setting the same global parameter,
+ * one will overwrite the others value.  It is the responsibility of the developer to avoid this conflict, or
+ * use {@link TokenizerParameter} which associates values to a specific place.
+ */
 public class PlaceParameters {
     private static final Logger log = Logger.getLogger(SlottedController.class.getName());
     private HashMap<String, String> paramMap = new HashMap<String, String>();
 
+    /**
+     * Same as {@link #set(String, String)}
+     */
     public void setParameter(String name, String value) {
-        paramMap.put(name, value);
+        set(name, value);
     }
 
+    /**
+     * Sets the parameter by key/value pair.
+     *
+     * @param name The name or key of the parameter
+     * @param value The value, which will be converted to a String. 'null' will become an empty String ("").
+     */
     public void set(String name, String value) {
+        if (value == null ) {
+            value = "";
+        }
         paramMap.put(name, value);
     }
 
+    /**
+     * Sets the parameter by key/value pair.
+     *
+     * @param name The name or key of the parameter
+     * @param value The value, which will be converted to a String.
+     */
     public void set(String name, int value) {
         paramMap.put(name, "" + value);
     }
 
+    /**
+     * Sets the parameter by key/value pair.
+     *
+     * @param name The name or key of the parameter
+     * @param value The value, which will be converted to a String.
+     */
     public void set(String name, long value) {
         paramMap.put(name, "" + value);
     }
 
+    /**
+     * Sets the parameter by key/value pair.
+     *
+     * @param name The name or key of the parameter
+     * @param value The value, which will be converted to a String.
+     */
     public void set(String name, float value) {
         paramMap.put(name, "" + value);
     }
 
+    /**
+     * Sets the parameter by key/value pair.
+     *
+     * @param name The name or key of the parameter
+     * @param value The value, which will be converted to a String.
+     */
     public void set(String name, double value) {
         paramMap.put(name, "" + value);
     }
 
+    /**
+     * Same as {@link #get(String)}
+     */
     public String getParameter(String name) {
         return paramMap.get(name);
     }
 
+    /**
+     * Gets the value based on the name key.
+     * @param name The name or key to be retrieved.
+     * @return String value or null if the value was never set.
+     */
     public String get(String name) {
         return paramMap.get(name);
     }
 
+    /**
+     * Gets the value based on the name key.
+     * @param name The name or key to be retrieved.
+     * @return the value or 0 if the value was never set.
+     * @throws NumberFormatException if the value isn't a valid number
+     */
     public int getInt(String name) {
         String value = paramMap.get(name);
         if (value != null) {
@@ -65,6 +121,12 @@ public class PlaceParameters {
         return 0;
     }
 
+    /**
+     * Gets the value based on the name key.
+     * @param name The name or key to be retrieved.
+     * @return the value or 0 if the value was never set.
+     * @throws NumberFormatException if the value isn't a valid number
+     */
     public long getLong(String name) {
         String value = paramMap.get(name);
         if (value != null) {
@@ -73,6 +135,12 @@ public class PlaceParameters {
         return 0;
     }
 
+    /**
+     * Gets the value based on the name key.
+     * @param name The name or key to be retrieved.
+     * @return the value or 0 if the value was never set.
+     * @throws NumberFormatException if the value isn't a valid number
+     */
     public float getFloat(String name) {
         String value = paramMap.get(name);
         if (value != null) {
@@ -81,6 +149,12 @@ public class PlaceParameters {
         return 0;
     }
 
+    /**
+     * Gets the value based on the name key.
+     * @param name The name or key to be retrieved.
+     * @return the value or 0 if the value was never set.
+     * @throws NumberFormatException if the value isn't a valid number
+     */
     public double getDouble(String name) {
         String value = paramMap.get(name);
         if (value != null) {
@@ -89,6 +163,12 @@ public class PlaceParameters {
         return 0;
     }
 
+    /**
+     * Gets the value based on the name key or throws an exception if the value wasn't set.
+     * @param name The name or key to be retrieved.
+     * @return the string value.
+     * @throws IllegalStateException if the value wasn't set
+     */
     public String getRequiredParameter(String name) {
         String param = getParameter(name);
         if (param == null) {
@@ -97,6 +177,12 @@ public class PlaceParameters {
         return param;
     }
 
+    /**
+     * Adds the parameters for the specified keys.
+     *
+     * @param fromPlaceParameters The parameters object to extract from.
+     * @param setKeys The list of keys that should be retrieved.
+     */
     public void addPlaceParameters(PlaceParameters fromPlaceParameters, List<String> setKeys) {
         if (setKeys != null) {
             for (String key: setKeys) {
@@ -111,6 +197,12 @@ public class PlaceParameters {
         }
     }
 
+    /**
+     * Creates an encoded url string with each key/value pair with an '=' and starting with and '&' and '?'
+     * between each key/value.
+     *
+     * @return Example: "&key1=foo&key2=Some+sentence+that+was+encoded."
+     */
     public String toString() {
         String string = "";
         if (!paramMap.isEmpty()) {
