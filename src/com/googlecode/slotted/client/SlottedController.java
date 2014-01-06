@@ -381,13 +381,12 @@ public class SlottedController {
      * @param reloadAll true if existing activities should be refreshed.
      */
     public void goTo(SlottedPlace newPlace, SlottedPlace[] nonDefaultPlaces, boolean reloadAll) {
+        String goToLog = "GoTo: " + newPlace;
+        for (SlottedPlace place: nonDefaultPlaces) {
+            goToLog += "/" + place;
+        }
+        log.info(goToLog);
         try {
-            String goToLog = "GoTo: " + newPlace;
-            for (SlottedPlace place: nonDefaultPlaces) {
-                goToLog += "/" + place;
-            }
-            log.info(goToLog);
-
             if (openNewTab) {
                 Window.open(createUrl(newPlace), "_blank", "");
 
@@ -452,6 +451,9 @@ public class SlottedController {
             if (errorPlace != null && !(newPlace instanceof SlottedErrorPlace)) {
                 errorPlace.setException(e);
                 goTo(errorPlace);
+            } else if (e instanceof SlottedInitException) {
+                ((SlottedInitException) e).setGoToList(goToLog);
+                throw ((SlottedInitException) e);
             } else {
                 throw SlottedException.wrap(e);
             }
@@ -547,7 +549,7 @@ public class SlottedController {
             ActiveSlot activeSlot = root.findSlot(slot);
             if (activeSlot != null) {
                 SlottedPlace existingPlace = activeSlot.getPlace();
-                if (defaultPlace == null || (existingPlace != null && existingPlace.getClass().equals(defaultPlace.getClass()))) {
+                if (existingPlace != null && (defaultPlace == null || existingPlace.getClass().equals(defaultPlace.getClass()))) {
                     return existingPlace;
                 }
             }

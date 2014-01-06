@@ -15,8 +15,22 @@
  */
 package com.googlecode.slotted.client;
 
-//todo javadoc
+/**
+ * Indicates this object handles Global Parameters.  SlottedPlace handles global parameters, but this interface can
+ * be added to a standard Place to allow it to handle global parameters.
+ */
 public interface HasParameters {
+    /**
+     * Called by Slotted framework have the Place add all the global parameters is has to the PlaceParameters.
+     *
+     * @param placeParameters Where the global parameters should be stored.
+     */
     public void extractParameters(PlaceParameters placeParameters);
+
+    /**
+     * Called by Slotted framework to set the Global parameters used in this request.
+     *
+     * @param placeParameters The global parameters for the request.
+     */
     public void setPlaceParameters(PlaceParameters placeParameters);
 }
