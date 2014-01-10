@@ -26,7 +26,7 @@ import com.google.web.bindery.event.shared.EventBus;
  * by the {@link SlottedController}.  Extends {@link Activity}, by adding methods to handle the
  * Slotted Place hierarchy, and some convenience methods.
  */
-abstract public class SlottedActivity extends AbstractActivity {
+abstract public class SlottedActivity extends AbstractActivity{
 
     private SlottedController slottedController;
     private SlottedPlace currentPlace;
