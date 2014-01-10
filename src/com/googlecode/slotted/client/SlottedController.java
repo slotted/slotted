@@ -684,7 +684,7 @@ public class SlottedController {
     }
 
     /**
-     * Gets a the Place of the specified type in the hierarchy.  This can be used to get a parent Place, child Place, or
+     * Gets a Place of the specified type in the hierarchy.  This can be used to get a parent Place, child Place, or
      * any Place that might be displayed.
      *
      * @param placeType The Class object of the Place you want to get.
