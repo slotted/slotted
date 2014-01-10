@@ -691,12 +691,31 @@ public class SlottedController {
      * @param <T> Used to prevent casting.
      * @return The Place requested, or null if that type is not in the hierarchy.
      */
-    @SuppressWarnings("unchecked")
     public <T extends Place> T getCurrentPlace(Class<T> placeType) {
+    	T match = null;
         for (SlottedPlace place: currentHierarchyList) {
-            if (place.getClass().equals(placeType)) {
-                return (T) place;
+        	match = getCurrentPlace(place, place.getClass(), placeType);
+            if (match != null) {
+                break;
             }
+        }
+        return match;
+    }
+    
+    /**
+     * Gets a the Place of the specified type in the hierarchy traversing up the class hierarchy of each Place so that
+     * super classes can be matched.
+     * @param place The current Place to check against in the currentHierarchyList.
+     * @param placeClass The current class type in the place's hierarchy to check against.
+     * @param placeType The Class object of the Place you want to get.
+     * @return
+     */
+	@SuppressWarnings("unchecked")
+	public <T extends Place> T getCurrentPlace(SlottedPlace place, Class<?> placeClass, Class<T> placeType) {
+        if (placeClass.equals(placeType)) {
+            return (T) place;
+        } else if(placeClass.getSuperclass() != null) {
+        	return (T) getCurrentPlace(place, placeClass.getSuperclass(), placeType);
         }
         return null;
     }
