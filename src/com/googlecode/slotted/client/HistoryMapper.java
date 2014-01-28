@@ -15,17 +15,17 @@
  */
 package com.googlecode.slotted.client;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.google.gwt.activity.shared.ActivityMapper;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.place.shared.PlaceHistoryMapper;
 import com.google.gwt.place.shared.PlaceTokenizer;
 import com.google.gwt.user.client.History;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * HistoryMapper is an abstract base class that manages generation and parsing of History Tokens.
@@ -478,6 +478,15 @@ abstract public class HistoryMapper {
         }
 
         return token;
+    }
+
+    /**
+     * Returns the name/prefix of the Place as it appears in the URL without the tokenized parameters.
+     *
+     * @param placeClass The Place to get the name for.
+     */
+    public String getPlaceName(Class<? extends SlottedPlace> placeClass) {
+        return placeToNameMap.get(placeClass);
     }
 
     /**
