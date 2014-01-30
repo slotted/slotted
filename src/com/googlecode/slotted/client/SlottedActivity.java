@@ -130,8 +130,10 @@ abstract public class SlottedActivity extends AbstractActivity {
 
     /**
      * Called when Activity cache backgrounded the activity.  It works similar to onStop(), except the
-     * Activity may be redisplayed after onRefresh() is called.  It is possible that a backgrounded Activity
-     * will be stopped while backgrounded, at which point, mayStop() and onStop() will be called.
+     * Activity stay within memory. When navigating back to the Activity, rather than create a new
+     * Activity, the cached one is used, and onRefresh() is called instead of start().  If the parent
+     * Activity that is responsible for caching is navigated away from, all background Activities get
+     * mayStop() and onStop() called, and may prevent navigation even though they aren't visible.
      */
     public void onBackground() {
     }

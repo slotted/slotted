@@ -15,7 +15,6 @@ import com.googlecode.slotted.testharness.client.flow.B2aPlace;
 import com.googlecode.slotted.testharness.client.flow.BPlace;
 import com.googlecode.slotted.testharness.client.flow.CacheAPlace;
 import com.googlecode.slotted.testharness.client.flow.CacheBPlace;
-import com.googlecode.slotted.testharness.client.flow.CachePlace;
 import com.googlecode.slotted.testharness.client.flow.GParam1aPlace;
 import com.googlecode.slotted.testharness.client.flow.GParam1bPlace;
 import com.googlecode.slotted.testharness.client.flow.GoTo1aPlace;
@@ -559,7 +558,7 @@ public class FlowTests extends GWTTestCase {
     }
 
     public void testActivityCache() {
-        TestHarness.slottedController.goTo(new CachePlace());
+        TestHarness.slottedController.goTo(new CacheAPlace(1));
 
         assertNotNull(TestHarness.slottedController.getCurrentActivityByPlace(CacheAPlace.class));
         TestActivity cacheAActivity = TestPlace.getActivity(CacheAPlace.class);
@@ -568,8 +567,8 @@ public class FlowTests extends GWTTestCase {
         assertEquals(0, cacheAActivity.onBackgroundCount);
         cacheAActivity.resetCounts();
 
+        //navigate to another child so CacheAPlace is backgrounded
         TestHarness.slottedController.goTo(new CacheBPlace());
-
         assertNotNull(TestHarness.slottedController.getCurrentActivityByPlace(CacheAPlace.class));
         assertEquals(0, cacheAActivity.mayStopCount);
         assertEquals(0, cacheAActivity.onStopCount);
@@ -579,6 +578,7 @@ public class FlowTests extends GWTTestCase {
         assertEquals(1, cacheAActivity.onBackgroundCount);
         cacheAActivity.resetCounts();
 
+        //navigate to cached place
         TestHarness.slottedController.goTo(new CacheAPlace(1));
         assertEquals(0, cacheAActivity.mayStopCount);
         assertEquals(0, cacheAActivity.onStopCount);
@@ -588,6 +588,27 @@ public class FlowTests extends GWTTestCase {
         assertEquals(0, cacheAActivity.onBackgroundCount);
         cacheAActivity.resetCounts();
 
+        //navigate away to cleanup
+        TestHarness.slottedController.goTo(new HomePlace());
+        assertEquals(1, cacheAActivity.mayStopCount);
+        assertEquals(1, cacheAActivity.onStopCount);
+        assertEquals(0, cacheAActivity.startCount);
+        assertEquals(0, cacheAActivity.onRefreshCount);
+        assertEquals(0, cacheAActivity.mayBackgroundCount);
+        assertEquals(0, cacheAActivity.onBackgroundCount);
+        cacheAActivity.resetCounts();
+
+        //navigate back to make sure cleanup was successful
+        TestHarness.slottedController.goTo(new CacheAPlace(1));
+        assertEquals(0, cacheAActivity.mayStopCount);
+        assertEquals(0, cacheAActivity.onStopCount);
+        assertEquals(1, cacheAActivity.startCount);
+        assertEquals(0, cacheAActivity.onRefreshCount);
+        assertEquals(0, cacheAActivity.mayBackgroundCount);
+        assertEquals(0, cacheAActivity.onBackgroundCount);
+        cacheAActivity.resetCounts();
+
+        //navigate to background CacheAPlace and Navigate to a different CacheAPlace()
         TestHarness.slottedController.goTo(new CacheBPlace());
         cacheAActivity.resetCounts();
         TestHarness.slottedController.goTo(new CacheAPlace(2));
@@ -598,6 +619,29 @@ public class FlowTests extends GWTTestCase {
         assertEquals(0, cacheAActivity.mayBackgroundCount);
         assertEquals(0, cacheAActivity.onBackgroundCount);
         cacheAActivity.resetCounts();
+
+        //navigate to background CacheAPlace and navigate away to clean up backgrounded
+        TestHarness.slottedController.goTo(new CacheBPlace());
+        cacheAActivity.resetCounts();
+        TestHarness.slottedController.goTo(new HomePlace());
+        assertEquals(1, cacheAActivity.mayStopCount);
+        assertEquals(1, cacheAActivity.onStopCount);
+        assertEquals(0, cacheAActivity.startCount);
+        assertEquals(0, cacheAActivity.onRefreshCount);
+        assertEquals(0, cacheAActivity.mayBackgroundCount);
+        assertEquals(0, cacheAActivity.onBackgroundCount);
+        cacheAActivity.resetCounts();
+
+        //navigate back to make sure cleanup was successful
+        TestHarness.slottedController.goTo(new CacheAPlace(1));
+        assertEquals(0, cacheAActivity.mayStopCount);
+        assertEquals(0, cacheAActivity.onStopCount);
+        assertEquals(1, cacheAActivity.startCount);
+        assertEquals(0, cacheAActivity.onRefreshCount);
+        assertEquals(0, cacheAActivity.mayBackgroundCount);
+        assertEquals(0, cacheAActivity.onBackgroundCount);
+        cacheAActivity.resetCounts();
+
     }
 
 
