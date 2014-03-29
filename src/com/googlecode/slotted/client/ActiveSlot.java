@@ -105,6 +105,11 @@ public class ActiveSlot {
 
         List<Class<? extends SlottedPlace>> placesOfActivitiesToCache = historyMapper.getPlacesOfActivitiesToCache(newPlace);
         activityCache.markForBackground(placesOfActivitiesToCache);
+        if (place != null && activityCache.isMarkedForBackground(place)) {
+            placesOfActivitiesToCache = historyMapper.getPlacesOfActivitiesToCache(place);
+            activityCache.markForBackground(placesOfActivitiesToCache);
+        }
+
         if (reloadAll || !newPlace.equals(place)) {
             checkMayStop = true;
             reloadAll = true;
