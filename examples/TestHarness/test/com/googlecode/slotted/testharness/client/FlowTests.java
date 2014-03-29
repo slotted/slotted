@@ -13,6 +13,7 @@ import com.googlecode.slotted.testharness.client.flow.B1aPlace;
 import com.googlecode.slotted.testharness.client.flow.B1bPlace;
 import com.googlecode.slotted.testharness.client.flow.B2aPlace;
 import com.googlecode.slotted.testharness.client.flow.BPlace;
+import com.googlecode.slotted.testharness.client.flow.CacheA1aPlace;
 import com.googlecode.slotted.testharness.client.flow.CacheAPlace;
 import com.googlecode.slotted.testharness.client.flow.CacheBPlace;
 import com.googlecode.slotted.testharness.client.flow.GParam1aPlace;
@@ -203,12 +204,7 @@ public class FlowTests extends GWTTestCase {
         assertEquals(0, b1bActivity.onRefreshCount);
 
         TestActivity b1aActivity = TestPlace.getActivity(B1aPlace.class);
-        assertEquals(0, b1aActivity.setChildSlotDisplayCount);
-        assertEquals(0, b1aActivity.startCount);
-        assertEquals(0, b1aActivity.mayStopCount);
-        assertEquals(0, b1aActivity.onCancelCount);
-        assertEquals(0, b1aActivity.onStopCount);
-        assertEquals(0, b1aActivity.onRefreshCount);
+        assertNull(b1aActivity); //hasn't been retreived
     }
 
     public void testGoToToken() {
@@ -226,7 +222,7 @@ public class FlowTests extends GWTTestCase {
     }
 
     public void test2SlotConstruction() {
-        TestHarness.slottedController.goTo(new BPlace(2));
+        TestHarness.slottedController.goTo(new BPlace());
 
         TestActivity bActivity = TestPlace.getActivity(BPlace.class);
         assertEquals(2, bActivity.setChildSlotDisplayCount);
@@ -374,20 +370,10 @@ public class FlowTests extends GWTTestCase {
         assertEquals(0, goTo1aActivity.onRefreshCount);
 
         TestActivity goTo1bActivity = TestPlace.getActivity(GoTo1bPlace.class);
-        assertEquals(0, goTo1bActivity.setChildSlotDisplayCount);
-        assertEquals(0, goTo1bActivity.startCount);
-        assertEquals(0, goTo1bActivity.mayStopCount);
-        assertEquals(0, goTo1bActivity.onCancelCount);
-        assertEquals(0, goTo1bActivity.onStopCount);
-        assertEquals(0, goTo1bActivity.onRefreshCount);
+        assertNull(goTo1bActivity); //hasn't been accessed
 
         TestActivity goTo2aActivity = TestPlace.getActivity(GoTo2aPlace.class);
-        assertEquals(0, goTo2aActivity.setChildSlotDisplayCount);
-        assertEquals(0, goTo2aActivity.startCount);
-        assertEquals(0, goTo2aActivity.mayStopCount);
-        assertEquals(0, goTo2aActivity.onCancelCount);
-        assertEquals(0, goTo2aActivity.onStopCount);
-        assertEquals(0, goTo2aActivity.onRefreshCount);
+        assertNull(goTo2aActivity);  //hasn't been accessed
 
         TestActivity goTo2bActivity = TestPlace.getActivity(GoTo2bPlace.class);
         assertEquals(0, goTo2bActivity.setChildSlotDisplayCount);
@@ -422,20 +408,10 @@ public class FlowTests extends GWTTestCase {
         assertEquals(0, goTo1aActivity.onRefreshCount);
 
         goTo1bActivity = TestPlace.getActivity(GoTo1bPlace.class);
-        assertEquals(0, goTo1bActivity.setChildSlotDisplayCount);
-        assertEquals(0, goTo1bActivity.startCount);
-        assertEquals(0, goTo1bActivity.mayStopCount);
-        assertEquals(0, goTo1bActivity.onCancelCount);
-        assertEquals(0, goTo1bActivity.onStopCount);
-        assertEquals(0, goTo1bActivity.onRefreshCount);
+        assertNull(goTo1bActivity); //hasn't been accessed
 
         goTo2aActivity = TestPlace.getActivity(GoTo2aPlace.class);
-        assertEquals(0, goTo2aActivity.setChildSlotDisplayCount);
-        assertEquals(0, goTo2aActivity.startCount);
-        assertEquals(0, goTo2aActivity.mayStopCount);
-        assertEquals(0, goTo2aActivity.onCancelCount);
-        assertEquals(0, goTo2aActivity.onStopCount);
-        assertEquals(0, goTo2aActivity.onRefreshCount);
+        assertNull(goTo2aActivity); //hasn't been accessed
 
         goTo2bActivity = TestPlace.getActivity(GoTo2bPlace.class);
         assertEquals(0, goTo2bActivity.setChildSlotDisplayCount);
@@ -484,8 +460,8 @@ public class FlowTests extends GWTTestCase {
         LoadingHandler loadingHandler = new LoadingHandler();
         TestHarness.slottedController.getEventBus().addHandler(LoadingEvent.Type, loadingHandler);
 
-        TestActivity loadingActivity = TestPlace.getActivity(LoadingPlace.class);
-        TestActivity loading1aActivity = TestPlace.getActivity(Loading1aPlace.class);
+        TestActivity loadingActivity = TestPlace.getActivity(new LoadingPlace());
+        TestActivity loading1aActivity = TestPlace.getActivity(new Loading1aPlace());
         loading1aActivity.isStartLoading = false;
         loading1aActivity.isShowDisplay = false;
 
@@ -507,8 +483,8 @@ public class FlowTests extends GWTTestCase {
         LoadingHandler loadingHandler = new LoadingHandler();
         TestHarness.slottedController.getEventBus().addHandler(LoadingEvent.Type, loadingHandler);
 
-        TestActivity loadingActivity = TestPlace.getActivity(LoadingPlace.class);
-        TestActivity loading1aActivity = TestPlace.getActivity(Loading1aPlace.class);
+        TestActivity loadingActivity = TestPlace.getActivity(new LoadingPlace());
+        TestActivity loading1aActivity = TestPlace.getActivity(new Loading1aPlace());
         loading1aActivity.isStartLoading = true;
         loading1aActivity.isShowDisplay = true;
 
@@ -531,8 +507,8 @@ public class FlowTests extends GWTTestCase {
         LoadingHandler loadingHandler = new LoadingHandler();
         TestHarness.slottedController.getEventBus().addHandler(LoadingEvent.Type, loadingHandler);
 
-        TestActivity loadingActivity = TestPlace.getActivity(LoadingPlace.class);
-        TestActivity loading1aActivity = TestPlace.getActivity(Loading1aPlace.class);
+        TestActivity loadingActivity = TestPlace.getActivity(new LoadingPlace());
+        TestActivity loading1aActivity = TestPlace.getActivity(new Loading1aPlace());
         loading1aActivity.isStartLoading = true;
         loading1aActivity.isShowDisplay = true;
 
@@ -561,7 +537,7 @@ public class FlowTests extends GWTTestCase {
         TestHarness.slottedController.goTo(new CacheAPlace(1));
 
         assertNotNull(TestHarness.slottedController.getCurrentActivityByPlace(CacheAPlace.class));
-        TestActivity cacheAActivity = TestPlace.getActivity(CacheAPlace.class);
+        TestActivity cacheAActivity = TestPlace.getActivity(new CacheAPlace(1));
         assertEquals(1, cacheAActivity.startCount);
         assertEquals(0, cacheAActivity.onRefreshCount);
         assertEquals(0, cacheAActivity.onBackgroundCount);
@@ -608,17 +584,6 @@ public class FlowTests extends GWTTestCase {
         assertEquals(0, cacheAActivity.onBackgroundCount);
         cacheAActivity.resetCounts();
 
-        //navigate to background CacheAPlace and Navigate to a different CacheAPlace()
-        TestHarness.slottedController.goTo(new CacheBPlace());
-        cacheAActivity.resetCounts();
-        TestHarness.slottedController.goTo(new CacheAPlace(2));
-        assertEquals(1, cacheAActivity.mayStopCount);
-        assertEquals(1, cacheAActivity.onStopCount);
-        assertEquals(1, cacheAActivity.startCount);
-        assertEquals(0, cacheAActivity.onRefreshCount);
-        assertEquals(0, cacheAActivity.mayBackgroundCount);
-        assertEquals(0, cacheAActivity.onBackgroundCount);
-        cacheAActivity.resetCounts();
 
         //navigate to background CacheAPlace and navigate away to clean up backgrounded
         TestHarness.slottedController.goTo(new CacheBPlace());
@@ -643,6 +608,112 @@ public class FlowTests extends GWTTestCase {
         cacheAActivity.resetCounts();
 
     }
+
+    public void testActivityBackgroundSamePlaceTypeCache() {
+        TestHarness.slottedController.goTo(new CacheAPlace(1));
+
+        TestActivity cacheA1Activity = TestPlace.getActivity(new CacheAPlace(1));
+        TestActivity cacheA2Activity = TestPlace.getActivity(new CacheAPlace(2));
+        cacheA1Activity.resetCounts();
+
+        //navigate to background CacheAPlace and Navigate to a different CacheAPlace()
+        TestHarness.slottedController.goTo(new CacheBPlace());
+        cacheA1Activity.resetCounts();
+        TestHarness.slottedController.goTo(new CacheAPlace(2));
+        assertEquals(0, cacheA1Activity.mayStopCount);
+        assertEquals(0, cacheA1Activity.onStopCount);
+        assertEquals(0, cacheA1Activity.startCount);
+        assertEquals(0, cacheA1Activity.onRefreshCount);
+        assertEquals(0, cacheA1Activity.mayBackgroundCount);
+        assertEquals(0, cacheA1Activity.onBackgroundCount);
+        cacheA1Activity.resetCounts();
+        assertEquals(0, cacheA2Activity.mayStopCount);
+        assertEquals(0, cacheA2Activity.onStopCount);
+        assertEquals(1, cacheA2Activity.startCount);
+        assertEquals(0, cacheA2Activity.onRefreshCount);
+        assertEquals(0, cacheA2Activity.mayBackgroundCount);
+        assertEquals(0, cacheA2Activity.onBackgroundCount);
+        cacheA2Activity.resetCounts();
+
+        //navigate to original CacheAPlace()  The activity will count from both places
+        TestHarness.slottedController.goTo(new CacheAPlace(1));
+        assertEquals(0, cacheA1Activity.mayStopCount);
+        assertEquals(0, cacheA1Activity.onStopCount);
+        assertEquals(0, cacheA1Activity.startCount);
+        assertEquals(1, cacheA1Activity.onRefreshCount);
+        assertEquals(0, cacheA1Activity.mayBackgroundCount);
+        assertEquals(0, cacheA1Activity.onBackgroundCount);
+        cacheA1Activity.resetCounts();
+        assertEquals(0, cacheA2Activity.mayStopCount);
+        assertEquals(0, cacheA2Activity.onStopCount);
+        assertEquals(0, cacheA2Activity.startCount);
+        assertEquals(0, cacheA2Activity.onRefreshCount);
+        assertEquals(1, cacheA2Activity.mayBackgroundCount);
+        assertEquals(1, cacheA2Activity.onBackgroundCount);
+        cacheA2Activity.resetCounts();
+
+        //navigate to away from cache  The activity will count from both places
+        TestHarness.slottedController.goTo(new HomePlace());
+        assertEquals(1, cacheA1Activity.mayStopCount);
+        assertEquals(1, cacheA1Activity.onStopCount);
+        assertEquals(0, cacheA1Activity.startCount);
+        assertEquals(0, cacheA1Activity.onRefreshCount);
+        assertEquals(0, cacheA1Activity.mayBackgroundCount);
+        assertEquals(0, cacheA1Activity.onBackgroundCount);
+        cacheA1Activity.resetCounts();
+        assertEquals(1, cacheA2Activity.mayStopCount);
+        assertEquals(1, cacheA2Activity.onStopCount);
+        assertEquals(0, cacheA2Activity.startCount);
+        assertEquals(0, cacheA2Activity.onRefreshCount);
+        assertEquals(0, cacheA2Activity.mayBackgroundCount);
+        assertEquals(0, cacheA2Activity.onBackgroundCount);
+        cacheA2Activity.resetCounts();
+    }
+
+
+    public void testActivityBackgroundChildren() {
+        TestHarness.slottedController.goTo(new CacheAPlace(1));
+
+        TestActivity cacheA1aActivity = TestPlace.getActivity(CacheA1aPlace.class);
+        assertEquals(1, cacheA1aActivity.startCount);
+        assertEquals(0, cacheA1aActivity.onRefreshCount);
+        assertEquals(0, cacheA1aActivity.onBackgroundCount);
+        cacheA1aActivity.resetCounts();
+
+        //navigate to background CacheAPlace child CacheA1aPlace
+        TestHarness.slottedController.goTo(new CacheBPlace());
+        assertNotNull(TestHarness.slottedController.getCurrentActivityByPlace(CacheA1aPlace.class));
+        assertEquals(0, cacheA1aActivity.mayStopCount);
+        assertEquals(0, cacheA1aActivity.onStopCount);
+        assertEquals(0, cacheA1aActivity.startCount);
+        assertEquals(0, cacheA1aActivity.onRefreshCount);
+        assertEquals(1, cacheA1aActivity.mayBackgroundCount);
+        assertEquals(1, cacheA1aActivity.onBackgroundCount);
+        cacheA1aActivity.resetCounts();
+
+        //navigate to original CacheAPlace() to foreground
+        TestHarness.slottedController.goTo(new CacheAPlace(1));
+        assertEquals(0, cacheA1aActivity.mayStopCount);
+        assertEquals(0, cacheA1aActivity.onStopCount);
+        assertEquals(0, cacheA1aActivity.startCount);
+        assertEquals(1, cacheA1aActivity.onRefreshCount);
+        assertEquals(0, cacheA1aActivity.mayBackgroundCount);
+        assertEquals(0, cacheA1aActivity.onBackgroundCount);
+        cacheA1aActivity.resetCounts();
+
+        //navigate to background and then away from cache to stop
+        TestHarness.slottedController.goTo(new CacheBPlace());
+        cacheA1aActivity.resetCounts();
+        TestHarness.slottedController.goTo(new HomePlace());
+        assertEquals(1, cacheA1aActivity.mayStopCount);
+        assertEquals(1, cacheA1aActivity.onStopCount);
+        assertEquals(0, cacheA1aActivity.startCount);
+        assertEquals(0, cacheA1aActivity.onRefreshCount);
+        assertEquals(0, cacheA1aActivity.mayBackgroundCount);
+        assertEquals(0, cacheA1aActivity.onBackgroundCount);
+        cacheA1aActivity.resetCounts();
+    }
+
 
 
 }

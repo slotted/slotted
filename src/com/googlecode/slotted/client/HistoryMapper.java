@@ -22,6 +22,8 @@ import com.google.gwt.place.shared.PlaceHistoryMapper;
 import com.google.gwt.place.shared.PlaceTokenizer;
 import com.google.gwt.user.client.History;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
@@ -476,15 +478,15 @@ abstract public class HistoryMapper {
         }
     }
 
-    public void markBackgroundActivities(SlottedPlace place, ActivityCache activityCache) {
-        Class<? extends SlottedPlace>[] placeActivitiesToCache = activityCacheMap.get(place.getClass());
-        if (placeActivitiesToCache != null) {
-            for (Class<? extends SlottedPlace> placeClass: placeActivitiesToCache) {
-                activityCache.markForBackground(placeClass);
-            }
+    @SuppressWarnings("unchecked")
+    public List<Class<? extends SlottedPlace>> getPlacesOfActivitiesToCache(SlottedPlace place) {
+        Class<? extends SlottedPlace>[] places = activityCacheMap.get(place.getClass());
+        if (places == null) {
+            return Collections.emptyList();
+        } else {
+            return Arrays.asList(places);
         }
     }
-
 
     private String createPlaceToken(SlottedPlace place) {
         Place actualPlace = place;

@@ -1,9 +1,11 @@
 package com.googlecode.slotted.testharness.client.flow;
 
+import com.googlecode.slotted.client.CacheActivities;
 import com.googlecode.slotted.client.Slot;
 import com.googlecode.slotted.client.TokenizerParameter;
 import com.googlecode.slotted.testharness.client.TestPlace;
 
+@CacheActivities(CacheA1aPlace.class)
 public class CacheAPlace extends TestPlace {
     public static final Slot SLOT = new Slot(new CacheAPlace(), new CacheA1aPlace());
 

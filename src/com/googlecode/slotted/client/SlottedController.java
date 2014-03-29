@@ -254,6 +254,7 @@ public class SlottedController {
      */
     public void setDisplay(AcceptsOneWidget display) {
         Slot rootSlot = new RootSlotImpl(null);
+        //noinspection deprecation
         rootSlot.setDisplay(display);
         root = new ActiveSlot(null, rootSlot, eventBus, this);
 
@@ -727,7 +728,12 @@ public class SlottedController {
      */
     @SuppressWarnings("unchecked")
     public Activity getCurrentActivityByPlace(Class<? extends SlottedPlace> placeType) {
-        return activityCache.get(placeType);
+        List<Activity> activities = activityCache.get(placeType);
+        if (activities.isEmpty()) {
+            return null;
+        } else {
+            return activities.get(0);
+        }
     }
 
     /**
