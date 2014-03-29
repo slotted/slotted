@@ -323,6 +323,15 @@ abstract public class HistoryMapper {
         placeToNameMap.put(placeClass, name);
         if (placeActivitiesToCache != null && placeActivitiesToCache.length > 0) {
             activityCacheMap.put(placeClass, placeActivitiesToCache);
+            try {
+                for (Class cacheClass: placeActivitiesToCache) {
+                    SlottedPlace cachePlace = (SlottedPlace) placeFactory.newInstance(cacheClass);
+                    cachePlace.getParentSlot().enableBackgroundDisplay();
+                }
+            } catch (Exception e) {
+                throw new IllegalStateException("Cache Activity/Places must be a SlottedPlace with a default " +
+                        "constructor which can be private.");
+            }
         }
     }
 

@@ -39,12 +39,14 @@ public class ActiveSlot {
      */
     private class ProtectedDisplay implements AcceptsOneWidget {
         private final Activity activity;
+        private boolean backgroundable;
         private boolean loading = false;
         private IsWidget view;
         private boolean widgetShown = false;
 
-        ProtectedDisplay(Activity activity) {
+        ProtectedDisplay(Activity activity, boolean backgroundable) {
             this.activity = activity;
+            this.backgroundable = backgroundable;
         }
 
         public void setWidget(IsWidget view) {
@@ -60,7 +62,7 @@ public class ActiveSlot {
         private void showWidget() {
             widgetShown = true;
             if (view != null) {
-                slot.getDisplay().setWidget(view);
+                slot.showView(view, activity, backgroundable);
                 activityStarting = false;
             }
         }
@@ -260,8 +262,7 @@ public class ActiveSlot {
                 if (activity == null) {
                     getStartActivity(parameters);
                 } else {
-                    //todo foreground
-                    refreshActivity(parameters);
+                    foregroundActivity(parameters);
                 }
             } else {
                 activityCache.get(place);
@@ -329,7 +330,7 @@ public class ActiveSlot {
         com.google.gwt.event.shared.ResettableEventBus legacyBus =
                 new com.google.gwt.event.shared.ResettableEventBus(resettableEventBus);
         activityStarting = true;
-        currentProtectedDisplay = new ProtectedDisplay(activity);
+        currentProtectedDisplay = new ProtectedDisplay(activity, activityCache.isMarkedForBackground(place));
         try {
             activity.start(currentProtectedDisplay, legacyBus);
         } catch (Exception e) {
@@ -355,12 +356,35 @@ public class ActiveSlot {
     }
 
     /**
+     * Handles showing the background view and calling onRefresh()
+     *
+     * @param parameters The global parameters for the hierarchy.
+     */
+    private void foregroundActivity(PlaceParameters parameters) {
+        if (activity instanceof SlottedActivity) {
+            //todo is this needed
+            ActivityCache activityCache = slottedController.getActivityCache();
+            activityCache.add(place, activity);
+
+            SlottedActivity slottedActivity = (SlottedActivity) activity;
+            slottedActivity.init(slottedController, place, parameters, resettableEventBus, this);
+            boolean success = slot.foreground(activity);
+            if (success) {
+                slottedActivity.onRefresh();
+            } else {
+                getStartActivity(parameters);
+            }
+        }
+    }
+
+    /**
      * Calls onRefresh() if the current Activity is a SlottedActivity.
      *
      * @param parameters The global parameters for the hierarchy.
      */
     private void refreshActivity(PlaceParameters parameters) {
         if (activity instanceof SlottedActivity) {
+            //todo is this needed
             ActivityCache activityCache = slottedController.getActivityCache();
             activityCache.add(place, activity);
 

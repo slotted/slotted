@@ -76,10 +76,10 @@ public class ActivityCache {
     }
 
     public void markForBackground(Class<? extends SlottedPlace> placeClass) {
+        backgroundMarks.add(placeClass);
         for (Entry entry: activityCache.values()) {
             if (entry.place.getClass().equals(placeClass)) {
                 usedCache.put(entry.place, entry);
-                backgroundMarks.add(placeClass);
             }
         }
     }

@@ -81,7 +81,7 @@ abstract public class SlottedActivity extends AbstractActivity {
     }
 
     /**
-     * Called by SlottedController pass all the values needed for the convience methods.
+     * Called by SlottedController pass all the values needed for the convenience methods.
      */
     protected void init(SlottedController slottedController, SlottedPlace currentPlace,
             PlaceParameters placeParameters, EventBus eventBus, ActiveSlot activeSlot)
