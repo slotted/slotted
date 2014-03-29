@@ -322,6 +322,8 @@ public class ActiveSlot {
         }
         ActivityCache activityCache = slottedController.getActivityCache();
         activityCache.add(place, activity);
+        List<Class<? extends SlottedPlace>> placesOfActivitiesToCache = historyMapper.getPlacesOfActivitiesToCache(place);
+        activityCache.markForBackground(placesOfActivitiesToCache);
 
         if (activity instanceof SlottedActivity) {
             ((SlottedActivity) activity).init(slottedController, place, parameters,
