@@ -4,6 +4,7 @@ import com.google.gwt.activity.shared.Activity;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 
 public class ActivityCache {
     private HashMap<Class<? extends SlottedPlace>, Entry> activityCache = new HashMap<Class<? extends SlottedPlace>, Entry>();
@@ -14,6 +15,16 @@ public class ActivityCache {
         activityCache = usedCache;
         usedCache = new HashMap<Class<? extends SlottedPlace>, Entry>();
         backgroundMarks = new HashSet<Class<? extends SlottedPlace>>();
+    }
+
+    public void removeStopped(Activity activity) {
+        Iterator<Entry> valuesIt = activityCache.values().iterator();
+        while (valuesIt.hasNext()) {
+            Entry entry = valuesIt.next();
+            if (activity == entry.activity) {
+                valuesIt.remove();
+            }
+        }
     }
 
     public Activity getByActivity(Class<? extends Activity> activityClass) {

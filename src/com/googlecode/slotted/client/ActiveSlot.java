@@ -166,8 +166,10 @@ public class ActiveSlot {
                     }
                 } else if (activityStarting) {
                     activity.onCancel();
+                    activityCache.removeStopped(activity);
                 } else {
                     activity.onStop();
+                    activityCache.removeStopped(activity);
                 }
                 activity = null;
                 activityStarting = false;
