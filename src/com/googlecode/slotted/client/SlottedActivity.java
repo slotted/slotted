@@ -81,7 +81,7 @@ abstract public class SlottedActivity extends AbstractActivity{
     }
 
     /**
-     * Called by SlottedController pass all the values needed for the convience methods.
+     * Called by SlottedController pass all the values needed for the convenience methods.
      */
     protected void init(SlottedController slottedController, SlottedPlace currentPlace,
             PlaceParameters placeParameters, EventBus eventBus, ActiveSlot activeSlot)
@@ -116,6 +116,26 @@ abstract public class SlottedActivity extends AbstractActivity{
      * complete, so this method allows code to be run after the activity's widgets are added to the DOM.
      */
     public void onLoadComplete() {
+    }
+
+    /**
+     * Called when Activity cache wants to background the activity.  It works similar to mayStop(), where
+     * a non null return prevents the navigation from happening.
+     *
+     * @return null if navigation is okay, error message to display.
+     */
+    public String mayBackground() {
+        return null;
+    }
+
+    /**
+     * Called when Activity cache backgrounded the activity.  It works similar to onStop(), except the
+     * Activity stay within memory. When navigating back to the Activity, rather than create a new
+     * Activity, the cached one is used, and onRefresh() is called instead of start().  If the parent
+     * Activity that is responsible for caching is navigated away from, all background Activities get
+     * mayStop() and onStop() called, and may prevent navigation even though they aren't visible.
+     */
+    public void onBackground() {
     }
 
     /**
@@ -159,7 +179,7 @@ abstract public class SlottedActivity extends AbstractActivity{
     /**
      * See {@link SlottedController#getCurrentActivityByPlace(Class)}
      */
-    public Activity getCurrentActivityByPlace(Class<? extends Place> type) {
+    public Activity getCurrentActivityByPlace(Class<? extends SlottedPlace> type) {
         return slottedController.getCurrentActivityByPlace(type);
     }
 

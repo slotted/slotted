@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/examples/ActivityCache/ActivityCache.iml" filepath="$PROJECT_DIR$/examples/ActivityCache/ActivityCache.iml" />
       <module fileurl="file://$PROJECT_DIR$/examples/Gin/Gin.iml" filepath="$PROJECT_DIR$/examples/Gin/Gin.iml" />
       <module fileurl="file://$PROJECT_DIR$/examples/GwtActivitiesPlaces/GwtActivitiesPlaces.iml" filepath="$PROJECT_DIR$/examples/GwtActivitiesPlaces/GwtActivitiesPlaces.iml" />
       <module fileurl="file://$PROJECT_DIR$/examples/GwtActivitiesPlaces2/GwtActivitiesPlaces2.iml" filepath="$PROJECT_DIR$/examples/GwtActivitiesPlaces2/GwtActivitiesPlaces2.iml" />
