@@ -22,6 +22,8 @@ import com.google.gwt.place.shared.PlaceHistoryMapper;
 import com.google.gwt.place.shared.PlaceTokenizer;
 import com.google.gwt.user.client.History;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
@@ -40,6 +42,7 @@ import java.util.logging.Logger;
  * {@link #registerPlace(Class, String, PlaceTokenizer)} for each place to be handled by Slotted.
  */
 abstract public class HistoryMapper {
+
 
     /**
      * Used as a Tokenizer when no tokenizer is registered with a Place
@@ -71,6 +74,7 @@ abstract public class HistoryMapper {
     private PlaceFactory placeFactory = GWT.create(PlaceFactory.class);
     private HashMap<String, PlaceTokenizer<? extends SlottedPlace>> nameToTokenizerMap = new HashMap<String, PlaceTokenizer<? extends SlottedPlace>>();
     private HashMap<Class, String> placeToNameMap = new HashMap<Class, String>();
+    private HashMap<Class, Class<? extends SlottedPlace>[]> activityCacheMap = new HashMap<Class, Class<? extends SlottedPlace>[]>();
     private SlottedPlace defaultPlace;
     private SlottedPlace errorPlace;
     private SlottedController controller;
@@ -255,6 +259,24 @@ abstract public class HistoryMapper {
     public void registerPlace(Class<? extends Place> placeClass, String name,
             PlaceTokenizer<? extends SlottedPlace> tokenizer)
     {
+        registerPlace(placeClass, name, tokenizer, null);
+    }
+
+    /**
+     * Same as {@link #registerPlace(SlottedPlace)}, but allows for overridden name, and
+     * parameter tokens.
+     *
+     * @param placeClass The Class of the place to be managed.  The Place must have a default
+     *                   constructor, but it may be private.
+     * @param name The new URL token to display in the History token, must be URL safe.
+     * @param tokenizer That handles the creation of the token and parsing the token into a Place.
+     *
+     * @see #registerPlace(Class, PlaceTokenizer)
+     * @see #registerPlace(Class, String)
+     */
+    public void registerPlace(Class<? extends Place> placeClass, String name,
+            PlaceTokenizer<? extends SlottedPlace> tokenizer, Class<? extends SlottedPlace>[] placeActivitiesToCache)
+    {
         Place place = placeFactory.newInstance(placeClass);
         if (place == null) {
             throw new IllegalStateException("To register a Place, it must have a default " +
@@ -299,6 +321,18 @@ abstract public class HistoryMapper {
 
         nameToTokenizerMap.put(name, tokenizer);
         placeToNameMap.put(placeClass, name);
+        if (placeActivitiesToCache != null && placeActivitiesToCache.length > 0) {
+            activityCacheMap.put(placeClass, placeActivitiesToCache);
+            try {
+                for (Class cacheClass: placeActivitiesToCache) {
+                    SlottedPlace cachePlace = (SlottedPlace) placeFactory.newInstance(cacheClass);
+                    cachePlace.getParentSlot().enableBackgroundDisplay();
+                }
+            } catch (Exception e) {
+                throw new IllegalStateException("Cache Activity/Places must be a SlottedPlace with a default " +
+                        "constructor which can be private.");
+            }
+        }
     }
 
     /**
@@ -453,6 +487,16 @@ abstract public class HistoryMapper {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    public List<Class<? extends SlottedPlace>> getPlacesOfActivitiesToCache(SlottedPlace place) {
+        Class<? extends SlottedPlace>[] places = activityCacheMap.get(place.getClass());
+        if (places == null) {
+            return Collections.emptyList();
+        } else {
+            return Arrays.asList(places);
+        }
+    }
+
     private String createPlaceToken(SlottedPlace place) {
         Place actualPlace = place;
         if (place instanceof WrappedPlace) {
@@ -478,6 +522,15 @@ abstract public class HistoryMapper {
         }
 
         return token;
+    }
+
+    /**
+     * Returns the name/prefix of the Place as it appears in the URL without the tokenized parameters.
+     *
+     * @param placeClass The Place to get the name for.
+     */
+    public String getPlaceName(Class<? extends SlottedPlace> placeClass) {
+        return placeToNameMap.get(placeClass);
     }
 
     /**

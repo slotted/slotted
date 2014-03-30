@@ -15,7 +15,13 @@
  */
 package com.googlecode.slotted.client;
 
+import com.google.gwt.activity.shared.Activity;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
+import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.LayoutPanel;
+import com.google.gwt.user.client.ui.Widget;
+
+import java.util.HashMap;
 
 /**
  * Object definition of a Slot in the Place hierarchy.  The definition should be a static instance
@@ -26,6 +32,11 @@ public class Slot {
     private SlottedPlace ownerPlace;
     private SlottedPlace defaultPlace;
     private AcceptsOneWidget display;
+    private boolean backgroundEnabled;
+    private LayoutPanel backgroundPanel;
+    private HashMap<Activity, Widget> backgroundWidgets;
+    private Widget currentView;
+    private boolean currentBackgroundable;
 
     /**
      * Create a Slot definition.
@@ -66,6 +77,11 @@ public class Slot {
             throw new NullPointerException("Display can't be null.");
         }
         this.display = display;
+        if (backgroundEnabled) {
+            backgroundPanel = new LayoutPanel();
+            backgroundWidgets = new HashMap<Activity, Widget>();
+            display.setWidget(backgroundPanel);
+        }
     }
 
     /**
@@ -74,6 +90,46 @@ public class Slot {
     protected AcceptsOneWidget getDisplay() {
         return display;
     }
+
+    public void enableBackgroundDisplay() {
+        backgroundEnabled = true;
+    }
+
+    public void showView(IsWidget view, Activity activity, boolean backgroundable) {
+        if (!backgroundEnabled) {
+            display.setWidget(view);
+        } else {
+            cleanupCurrent();
+            currentView = view.asWidget();
+            currentBackgroundable = backgroundable;
+            backgroundPanel.add(currentView);
+            if (backgroundable) {
+                backgroundWidgets.put(activity, currentView);
+            }
+        }
+    }
+
+    private void cleanupCurrent() {
+        if (currentView != null) {
+            if (currentBackgroundable) {
+                currentView.setVisible(false);
+            } else {
+                backgroundPanel.remove(currentView);
+            }
+        }
+    }
+
+    public boolean foreground(Activity activity) {
+        cleanupCurrent();
+        currentView = backgroundWidgets.get(activity);
+        if (currentView != null) {
+            currentView.setVisible(true);
+            currentBackgroundable = true;
+            return true;
+        }
+        return false;
+    }
+
 
     @Override
     public boolean equals(Object o) {

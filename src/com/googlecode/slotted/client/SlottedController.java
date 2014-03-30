@@ -102,6 +102,7 @@ public class SlottedController {
     private final EventBus eventBus;
     private final HistoryMapper historyMapper;
     private ActivityMapper legacyActivityMapper;
+    private ActivityCache activityCache = new ActivityCache();
 
     private boolean processingGoTo;
     private boolean tokenDone;
@@ -253,6 +254,7 @@ public class SlottedController {
      */
     public void setDisplay(AcceptsOneWidget display) {
         Slot rootSlot = new RootSlotImpl(null);
+        //noinspection deprecation
         rootSlot.setDisplay(display);
         root = new ActiveSlot(null, rootSlot, eventBus, this);
 
@@ -430,6 +432,7 @@ public class SlottedController {
                         referringToken = currentToken;
                         currentToken = historyMapper.createToken();
                         tokenDone = true;
+                        activityCache.clearUnused();
                         eventBus.fireEvent(new NewPlaceEvent(places));
                     }
 
@@ -684,19 +687,38 @@ public class SlottedController {
     }
 
     /**
-     * Gets a the Place of the specified type in the hierarchy.  This can be used to get a parent Place, child Place, or
+     * Gets a Place of the specified type in the hierarchy.  This can be used to get a parent Place, child Place, or
      * any Place that might be displayed.
      *
      * @param placeType The Class object of the Place you want to get.
      * @param <T> Used to prevent casting.
      * @return The Place requested, or null if that type is not in the hierarchy.
      */
-    @SuppressWarnings("unchecked")
     public <T extends Place> T getCurrentPlace(Class<T> placeType) {
+    	T match = null;
         for (SlottedPlace place: currentHierarchyList) {
-            if (place.getClass().equals(placeType)) {
-                return (T) place;
+        	match = getCurrentPlace(place, place.getClass(), placeType);
+            if (match != null) {
+                break;
             }
+        }
+        return match;
+    }
+    
+    /**
+     * Gets a the Place of the specified type in the hierarchy traversing up the class hierarchy of each Place so that
+     * super classes can be matched.
+     * @param place The current Place to check against in the currentHierarchyList.
+     * @param placeClass The current class type in the place's hierarchy to check against.
+     * @param placeType The Class object of the Place you want to get.
+     * @return
+     */
+	@SuppressWarnings("unchecked")
+	public <T extends Place> T getCurrentPlace(SlottedPlace place, Class<?> placeClass, Class<T> placeType) {
+        if (placeClass.equals(placeType)) {
+            return (T) place;
+        } else if(placeClass.getSuperclass() != null) {
+        	return (T) getCurrentPlace(place, placeClass.getSuperclass(), placeType);
         }
         return null;
     }
@@ -712,7 +734,7 @@ public class SlottedController {
      */
     @SuppressWarnings("unchecked")
     public <T extends Activity> T getCurrentActivity(Class<T> type) {
-        return (T) getActivity(root, type);
+        return (T) activityCache.getByActivity(type);
     }
 
     /**
@@ -721,29 +743,16 @@ public class SlottedController {
      * activity hasn't been created yet.
      *
      * @param placeType The Class object of the Activity you want to get.
-     * @param <T> Used to prevent casting.
      * @return The Activity requested, or null if that type is not in the hierarchy.
      */
     @SuppressWarnings("unchecked")
-    public <T extends Place> Activity getCurrentActivityByPlace(Class<T> placeType) {
-        return getActivity(root, placeType);
-    }
-
-    @SuppressWarnings("unchecked")
-    private Activity getActivity(ActiveSlot slot, Class type) {
-        Place place = slot.getPlace();
-        Activity activity = slot.getActivity();
-        if (place.getClass().equals(type) || activity.getClass().equals(type)) {
-            return activity;
+    public Activity getCurrentActivityByPlace(Class<? extends SlottedPlace> placeType) {
+        List<Activity> activities = activityCache.get(placeType);
+        if (activities.isEmpty()) {
+            return null;
+        } else {
+            return activities.get(0);
         }
-
-        for (ActiveSlot child: slot.getChildren()) {
-            activity = getActivity(child, type);
-            if (activity != null) {
-                return activity;
-            }
-        }
-        return null;
     }
 
     /**
@@ -774,5 +783,9 @@ public class SlottedController {
      */
     public ActivityMapper getLegacyActivityMapper() {
         return legacyActivityMapper;
+    }
+
+    protected ActivityCache getActivityCache() {
+        return activityCache;
     }
 }
