@@ -714,6 +714,12 @@ public class FlowTests extends GWTTestCase {
         cacheA1aActivity.resetCounts();
     }
 
+    public void testCreateTokenWithNonDefaults() {
+        TestHarness.slottedController.goTo(new A1bPlace());
+
+        String token = TestHarness.slottedController.createToken(new APlace());
+        assertTrue(token.contains("A1b"));
+    }
 
 
 }

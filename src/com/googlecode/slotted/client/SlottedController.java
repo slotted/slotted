@@ -472,7 +472,7 @@ public class SlottedController {
      * @return List all/only the Places that will be displayed.
      */
     private List<SlottedPlace> createHierarchyList(SlottedPlace newPlace, List<SlottedPlace> nonDefaults, boolean useExisting) {
-        ArrayList<SlottedPlace> hierarchyList = new ArrayList<SlottedPlace>();
+        LinkedList<SlottedPlace> hierarchyList = new LinkedList<SlottedPlace>();
 
         hierarchyList.add(newPlace);
         addChildPlaces(newPlace, nonDefaults, useExisting, null, hierarchyList);
@@ -628,8 +628,7 @@ public class SlottedController {
     }
 
     /**
-     * Updates the History with just the passed Places.  This might cause current non default places to get replaced on refresh,
-     * or forward/back navigation.
+     * Updates the History with a token as if a goTo() was called, but without processing the goTo().
      *
      * @param newPlace a {@link SlottedPlace} instance to navigate.
      * @param nonDefaultPlaces array of {@link SlottedPlace}s that should be used instead of the
@@ -645,9 +644,6 @@ public class SlottedController {
     /**
      * Creates a full URL which can be used to navigate from anywhere.
      *
-     * Using this token to navigate might cause current non default places
-     * to get replaced on refresh, or forward/back navigation.
-     *
      * @param newPlace a {@link SlottedPlace} instance to navigate.
      * @param nonDefaultPlaces array of {@link SlottedPlace}s that should be used instead of the
      * default places defined for the slots.
@@ -656,6 +652,25 @@ public class SlottedController {
         String url = Document.get().getURL();
         String[] splitUrl = url.split("#");
         String token = createToken(newPlace, nonDefaultPlaces);
+
+        return splitUrl[0] + "#" + token;
+    }
+
+    /**
+     * Creates a full URL which can be used to navigate from anywhere, but only contains the passed
+     * places.
+     *
+     * Using this token to navigate might cause current non default places
+     * to get replaced on refresh, or forward/back navigation.
+     *
+     * @param newPlace a {@link SlottedPlace} instance to navigate.
+     * @param nonDefaultPlaces array of {@link SlottedPlace}s that should be used instead of the
+     * default places defined for the slots.
+     */
+    public String createSimpleUrl(SlottedPlace newPlace, SlottedPlace... nonDefaultPlaces) {
+        String url = Document.get().getURL();
+        String[] splitUrl = url.split("#");
+        String token = createSimpleToken(newPlace, nonDefaultPlaces);
 
         return splitUrl[0] + "#" + token;
     }
@@ -670,10 +685,25 @@ public class SlottedController {
      * @param nonDefaultPlaces array of {@link SlottedPlace}s that should be used instead of the
      * default places defined for the slots.
      */
-    public String createToken(SlottedPlace newPlace, SlottedPlace... nonDefaultPlaces) {
+    public String createSimpleToken(SlottedPlace newPlace, SlottedPlace... nonDefaultPlaces) {
         PlaceParameters placeParameters = new PlaceParameters();
         newPlace.extractParameters(placeParameters);
         String token = historyMapper.createToken(newPlace, nonDefaultPlaces);
+        return token;
+    }
+
+    /**
+     * Creates a token that would result from a goTo() call, but without doing the navigation.
+     *
+     * @param newPlace a {@link SlottedPlace} instance to navigate.
+     * @param nonDefaultPlaces array of {@link SlottedPlace}s that should be used instead of the
+     * default places defined for the slots.
+     */
+    public String createToken(SlottedPlace newPlace, SlottedPlace... nonDefaultPlaces) {
+        List<SlottedPlace> hierarchyList = createHierarchyList(newPlace, Arrays.asList(nonDefaultPlaces), true);
+        hierarchyList.remove(0);
+
+        String token = historyMapper.createToken(newPlace, hierarchyList.toArray(new SlottedPlace[hierarchyList.size()]));
         return token;
     }
 
