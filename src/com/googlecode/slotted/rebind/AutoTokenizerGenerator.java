@@ -196,10 +196,17 @@ public class AutoTokenizerGenerator extends Generator {
         sourceWriter.println("public boolean equals(" + placeType.getQualifiedSourceName() +" p1, " +
                 placeType.getQualifiedSourceName() +" p2) {");
         sourceWriter.indent();
+        sourceWriter.println("String s1;");
+        sourceWriter.println("String s2;");
+
         for (JField field: fields) {
             String fieldName = field.getName();
             if (field.getType().isPrimitive() != null) {
                 sourceWriter.println("if (get" + fieldName + "(p1) != get" + fieldName + "(p2)) {");
+            } else if ("java.lang.String".equals(field.getType().getQualifiedBinaryName())) {
+                sourceWriter.println("s1 = get" + fieldName + "(p1) != null ? get" + fieldName + "(p1) : \"\";");
+                sourceWriter.println("s2 = get" + fieldName + "(p2) != null ? get" + fieldName + "(p2) : \"\";");
+                sourceWriter.println("if (!s1.equals(s2)) {");
             } else {
                 sourceWriter.println("if (get" + fieldName + "(p1) != null ? !get" + fieldName +
                         "(p1).equals(get" + fieldName + "(p2)) : get" + fieldName + "(p2) != null) {");

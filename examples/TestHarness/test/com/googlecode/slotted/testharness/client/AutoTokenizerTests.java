@@ -1,13 +1,11 @@
 package com.googlecode.slotted.testharness.client;
 
-import java.sql.Timestamp;
-import java.util.Date;
-
 import com.google.gwt.junit.client.GWTTestCase;
-import com.googlecode.slotted.testharness.client.TestHarness;
-import com.googlecode.slotted.testharness.client.TestPlace;
 import com.googlecode.slotted.testharness.client.flow.HomePlace;
 import com.googlecode.slotted.testharness.client.tokenizer.BasePlace;
+
+import java.sql.Timestamp;
+import java.util.Date;
 
 public class AutoTokenizerTests extends GWTTestCase {
     @Override public String getModuleName() {
@@ -22,6 +20,7 @@ public class AutoTokenizerTests extends GWTTestCase {
         TestPlace.resetCounts();
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public void testTokens() {
         BasePlace place = new BasePlace(2, new Date(), new Timestamp(System.currentTimeMillis()));
         String token = TestHarness.slottedController.createToken(place);
@@ -38,6 +37,4 @@ public class AutoTokenizerTests extends GWTTestCase {
         assertNotNull(clone.baseDate);
         assertNotNull(clone.baseTimestamp);
     }
-
-
 }
