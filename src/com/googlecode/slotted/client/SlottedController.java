@@ -389,6 +389,7 @@ public class SlottedController {
         }
         log.info(goToLog);
         try {
+            Exception maybeGoToException = null;
             if (openNewTab) {
                 Window.open(createUrl(newPlace), "_blank", "");
 
@@ -420,7 +421,11 @@ public class SlottedController {
                     }
 
                     ArrayList<String> warnings = new ArrayList<String>();
-                    root.maybeGoTo(hierarchyList, reloadAll, warnings);
+                    try {
+                        root.maybeGoTo(hierarchyList, reloadAll, warnings);
+                    } catch (Exception e) {
+                        maybeGoToException = e;
+                    }
 
                     if (warnings.isEmpty() || delegate.confirm(warnings.toArray(new String[warnings.size()]))) {
                         currentHierarchyList = hierarchyList;
@@ -446,6 +451,9 @@ public class SlottedController {
                         goTo(nextGoToPlace, nextGoToNonDefaultPlaces, nextGoToReloadAll);
                     }
                 }
+            }
+            if (maybeGoToException != null) {
+                throw maybeGoToException;
             }
         } catch (Exception e) {
             processingGoTo = false;
