@@ -112,6 +112,7 @@ public class SlottedController {
     @SuppressWarnings("FieldCanBeLocal")
     private boolean nextGoToReloadAll;
     private List<SlottedPlace> currentHierarchyList;
+    private List<SlottedPlace> possibleParentPlaces;
     private final Delegate delegate;
     private boolean reloadAll = false;
     private ActiveSlot root;
@@ -409,7 +410,9 @@ public class SlottedController {
                     nextGoToNonDefaultPlaces = null;
                     nextGoToReloadAll = false;
 
-                    List<SlottedPlace> hierarchyList = createHierarchyList(newPlace, Arrays.asList(nonDefaultPlaces), true);
+                    List<SlottedPlace> nonDefaultPlacesList = Arrays.asList(nonDefaultPlaces);
+                    indexMultiParentPlaces(newPlace, nonDefaultPlacesList);
+                    List<SlottedPlace> hierarchyList = createHierarchyList(newPlace, nonDefaultPlacesList, true);
                     currentParameters = historyMapper.extractParameters(hierarchyList);
 
                     if (navigationOverride != null) {
@@ -471,6 +474,29 @@ public class SlottedController {
         }
     }
 
+    private void indexMultiParentPlaces(SlottedPlace newPlace, List<SlottedPlace> nonDefaults) {
+        possibleParentPlaces = new LinkedList<SlottedPlace>();
+        possibleParentPlaces.add(newPlace);
+        possibleParentPlaces.addAll(nonDefaults);
+        if (currentHierarchyList != null) {
+            possibleParentPlaces.addAll(currentHierarchyList);
+        }
+
+        if (newPlace instanceof MultiParentPlace) {
+            ((MultiParentPlace) newPlace).indexParentPlace(possibleParentPlaces, false);
+        }
+        for (SlottedPlace place: nonDefaults) {
+            if (place instanceof MultiParentPlace) {
+                ((MultiParentPlace) place).indexParentPlace(possibleParentPlaces, false);
+            }
+        }
+    }
+
+    private List<MultiParentPlace> getMultiParentPlaces(SlottedPlace newPlace, List<SlottedPlace> nonDefaults) {
+        List<MultiParentPlace> multiParentPlaces = new LinkedList<MultiParentPlace>();
+        return multiParentPlaces;
+    }
+
     /**
      * Creates a list of all the Places that will be displayed.
      *
@@ -504,8 +530,12 @@ public class SlottedController {
     }
 
     private Slot getActualParentSlot(Slot slot) {
-        if (slot.getOwnerPlace() != null) {
-            return slot.getOwnerPlace().getParentSlot();
+        SlottedPlace actualParentPlace = slot.getOwnerPlace();
+        if (actualParentPlace != null) {
+            if (actualParentPlace instanceof MultiParentPlace) {
+                ((MultiParentPlace) actualParentPlace).indexParentPlace(possibleParentPlaces, true);
+            }
+            return actualParentPlace.getParentSlot();
         }
         return null;
     }
@@ -526,6 +556,9 @@ public class SlottedController {
             for (Slot childSlot: slots) {
                 if (excludeSlot == null || !excludeSlot.equals(childSlot)) {
                     SlottedPlace place = getPlaceForSlot(childSlot, nonDefaults, null, useExisting);
+                    if (place instanceof MultiParentPlace) {
+                        ((MultiParentPlace) place).setParentSlotIndex(childSlot);
+                    }
                     hierarchyList.add(place);
                     addChildPlaces(place, nonDefaults, useExisting, null, hierarchyList);
                 }

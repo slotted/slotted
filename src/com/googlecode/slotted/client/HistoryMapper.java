@@ -293,7 +293,7 @@ abstract public class HistoryMapper {
                             "Slots must define a ParentPlace and DefaultPlace.");
                 }
                 SlottedPlace defaultPlace = child.getDefaultPlace();
-                if (!defaultPlace.getParentSlot().equals(child)) {
+                if (!(defaultPlace instanceof MultiParentPlace) && !defaultPlace.getParentSlot().equals(child)) {
                     throw new IllegalStateException(place + " has a Slot with a default place " +
                             "for different slot: " + defaultPlace);
                 }

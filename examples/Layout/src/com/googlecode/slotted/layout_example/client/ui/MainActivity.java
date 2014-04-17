@@ -24,6 +24,9 @@ public class MainActivity extends SlottedActivity {
 
     private void createMenu() {
         menuPNL.add(new SlottedHyperlink("TabPanel", new TabPanelPlace()));
+        menuPNL.add(new SlottedHyperlink("MultiParent1", new MpBasePlace()));
+        menuPNL.add(new SlottedHyperlink("MultiParentDefault", new MpContainerPlace()));
+        menuPNL.add(new SlottedHyperlink("MultiParent2", new MpParent2Place()));
     }
 
     @Override public AcceptsOneWidget getChildSlotDisplay(Slot slot) {
