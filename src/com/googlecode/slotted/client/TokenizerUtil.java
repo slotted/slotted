@@ -31,8 +31,13 @@ public class TokenizerUtil {
         String[] params = token.split("&");
         parameters = new LinkedList<String>();
         for (String param: params) {
-            param = URL.decodePathSegment(param);
-            parameters.add(param);
+            if ("#".equals(param)) {
+                parameters.add(null);
+
+            } else {
+                param = URL.decodePathSegment(param);
+                parameters.add(param);
+            }
         }
     }
 
@@ -45,7 +50,9 @@ public class TokenizerUtil {
             } else {
                 first = false;
             }
-            if (param != null) {
+            if (param == null) {
+                sb.append("#");
+            } else {
                 sb.append(URL.encodePathSegment(param));
             }
         }
@@ -58,45 +65,160 @@ public class TokenizerUtil {
     }
 
     public String get() {
-        return parameters.removeFirst();
+        if (!parameters.isEmpty()) {
+            return parameters.removeFirst();
+        }
+        return "";
     }
 
-    public int getInt() {
-        return Integer.parseInt(parameters.removeFirst());
+    public byte getbyte() {
+        if (!parameters.isEmpty()) {
+            return Byte.parseByte(parameters.removeFirst());
+        }
+        return 0;
     }
 
-    public long getLong() {
-        return Long.parseLong(parameters.removeFirst());
+    public short getshort() {
+        if (!parameters.isEmpty()) {
+            return Short.parseShort(parameters.removeFirst());
+        }
+        return 0;
     }
 
-    public float getFloat() {
-        return Float.parseFloat(parameters.removeFirst());
+    public int getint() {
+        if (!parameters.isEmpty()) {
+            return Integer.parseInt(parameters.removeFirst());
+        }
+        return 0;
     }
 
-    public double getDouble() {
-        return Double.parseDouble(parameters.removeFirst());
+    public float getfloat() {
+        if (!parameters.isEmpty()) {
+            return Float.parseFloat(parameters.removeFirst());
+        }
+        return 0f;
     }
 
-    public boolean getBoolean() {
-        return Boolean.parseBoolean(parameters.removeFirst());
+    public double getdouble() {
+        if (!parameters.isEmpty()) {
+            return Double.parseDouble(parameters.removeFirst());
+        }
+        return 0d;
     }
-    
+
+    @SuppressWarnings("SimplifiableIfStatement")
+    public boolean getboolean() {
+        if (!parameters.isEmpty()) {
+            return Boolean.parseBoolean(parameters.removeFirst());
+        }
+        return false;
+    }
+
+    public char getchar() {
+        if (!parameters.isEmpty()) {
+            return parameters.removeFirst().charAt(0);
+        }
+        return '\u0000';
+    }
+
+    public Byte getByte() {
+        if (!parameters.isEmpty()) {
+            String param = parameters.removeFirst();
+            if (param != null && !param.isEmpty()) {
+                return new Byte(param);
+            }
+        }
+        return null;
+    }
+
+    public Short getShort() {
+        if (!parameters.isEmpty()) {
+            String param = parameters.removeFirst();
+            if (param != null && !param.isEmpty()) {
+                return new Short(param);
+            }
+        }
+        return null;
+    }
+
+    public Integer getInteger() {
+        if (!parameters.isEmpty()) {
+            String param = parameters.removeFirst();
+            if (param != null && !param.isEmpty()) {
+                return new Integer(param);
+            }
+        }
+        return null;
+    }
+
+    public Long getLong() {
+        if (!parameters.isEmpty()) {
+            String param = parameters.removeFirst();
+            if (param != null && !param.isEmpty()) {
+                return new Long(param);
+            }
+        }
+        return null;
+    }
+
+    public Float getFloat() {
+        if (!parameters.isEmpty()) {
+            String param = parameters.removeFirst();
+            if (param != null && !param.isEmpty()) {
+                return new Float(param);
+            }
+        }
+        return null;
+    }
+
+    public Double getDouble() {
+        if (!parameters.isEmpty()) {
+            String param = parameters.removeFirst();
+            if (param != null && !param.isEmpty()) {
+                return new Double(param);
+            }
+        }
+        return null;
+    }
+
+    public Boolean getBoolean() {
+        if (!parameters.isEmpty()) {
+            String param = parameters.removeFirst();
+            if (param != null && !param.isEmpty()) {
+                return Boolean.valueOf(param);
+            }
+        }
+        return null;
+    }
+
+    public Character getCharacter() {
+        if (!parameters.isEmpty()) {
+            String param = parameters.removeFirst();
+            if (param != null && !param.isEmpty()) {
+                return param.charAt(0);
+            }
+        }
+        return null;
+    }
+
     public Date getDate() {
-    	String d = parameters.removeFirst();
-    	if(d != null && d.trim().length() > 0) {
-    		return DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).parse(d);
-    	} else {
-    		return null;
-    	}
+        if (!parameters.isEmpty()) {
+            String d = parameters.removeFirst();
+            if(d != null && d.trim().length() > 0) {
+                return DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).parse(d);
+            }
+        }
+        return null;
     }
 
     public Timestamp getTimestamp() {
-    	String ts = parameters.removeFirst();
-    	if(ts != null && ts.trim().length() > 0) {
-    		return new Timestamp(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).parse(ts).getTime());
-    	} else {
-    		return null;
-    	}
+        if (!parameters.isEmpty()) {
+            String ts = parameters.removeFirst();
+            if(ts != null && ts.trim().length() > 0) {
+                return new Timestamp(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).parse(ts).getTime());
+            }
+        }
+        return null;
     }
 
     public TokenizerUtil add(String param) {
@@ -104,12 +226,16 @@ public class TokenizerUtil {
         return this;
     }
 
-    public TokenizerUtil add(int param) {
-        parameters.add("" + param);
+    public TokenizerUtil add(Object param) {
+        if (param == null) {
+            parameters.add("");
+        } else {
+            parameters.add(param.toString());
+        }
         return this;
     }
 
-    public TokenizerUtil add(long param) {
+    public TokenizerUtil add(int param) {
         parameters.add("" + param);
         return this;
     }
@@ -128,22 +254,27 @@ public class TokenizerUtil {
         parameters.add("" + param);
         return this;
     }
-    
+
+    public TokenizerUtil add(char param) {
+        parameters.add("" + param);
+        return this;
+    }
+
     public TokenizerUtil add(Date param) {
-    	if(param != null) {
-    		parameters.add(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(param));
-    	} else {
-    		parameters.add("");
-    	}
+        if(param != null) {
+            parameters.add(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(param));
+        } else {
+            parameters.add("");
+        }
         return this;
     }
 
     public TokenizerUtil add(Timestamp param) {
-    	if(param != null) {
-    		parameters.add(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(param));
-    	} else {
-    		parameters.add("");
-    	}
+        if(param != null) {
+            parameters.add(DateTimeFormat.getFormat(PredefinedFormat.ISO_8601).format(param));
+        } else {
+            parameters.add("");
+        }
         return this;
     }
 

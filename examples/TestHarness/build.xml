@@ -36,7 +36,7 @@
         <mkdir dir="lib"/>
 
         <path id="project.class.path">
-            <pathelement location="../../build/package/slotted-0.2-SNAPSHOT.jar"/>
+            <pathelement location="../../build/package/slotted-0.3-SNAPSHOT.jar"/>
             <pathelement location="${build.classes.dir}"/>
             <pathelement location="${gwt.sdk}/gwt-user.jar"/>
             <fileset dir="${gwt.sdk}" includes="gwt-dev*.jar"/>
