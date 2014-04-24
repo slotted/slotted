@@ -7,6 +7,7 @@ import com.google.gwt.core.ext.TreeLogger;
 import com.google.gwt.core.ext.UnableToCompleteException;
 import com.google.gwt.core.ext.typeinfo.JClassType;
 import com.google.gwt.core.ext.typeinfo.JField;
+import com.google.gwt.core.ext.typeinfo.JType;
 import com.google.gwt.core.ext.typeinfo.NotFoundException;
 import com.google.gwt.core.ext.typeinfo.TypeOracle;
 import com.google.gwt.place.shared.PlaceTokenizer;
@@ -50,6 +51,7 @@ public class AutoTokenizerGenerator extends Generator {
                 for (JField field: fields) {
                     for (Annotation annotation: field.getAnnotations()) {
                         if (annotation instanceof TokenizerParameter) {
+                            checkType(logger, field.getType());
                             tokenParams.add(field);
                             if (((TokenizerParameter) annotation).useInEquals()) {
                                 equalsParams.add(field);
@@ -57,6 +59,7 @@ public class AutoTokenizerGenerator extends Generator {
                             break;
 
                         } else if (annotation instanceof GlobalParameter) {
+                            checkType(logger, field.getType());
                             globalParams.add(field);
                             if (((GlobalParameter) annotation).useInEquals()) {
                                 equalsParams.add(field);
@@ -88,6 +91,15 @@ public class AutoTokenizerGenerator extends Generator {
             throw new UnableToCompleteException();
         }
 
+    }
+
+    private void checkType(TreeLogger logger, JType type) throws UnableToCompleteException {
+        if ("long".equals(type.getQualifiedBinaryName())) {
+            logger.log(TreeLogger.ERROR, "long primitive is not allowed in AutoTokenizer, because JSNI " +
+                    "is used to populate fields.  Please use Long wrapper class to get long functionality. " +
+                    "For more info see: http://google-web-toolkit.googlecode.com/svn/trunk/distro-source/core/src/doc/helpInfo/longJsniRestriction.html");
+            throw new UnableToCompleteException();
+        }
     }
 
     private JClassType getPlaceType(TypeOracle typeOracle, String typeName)
@@ -240,12 +252,8 @@ public class AutoTokenizerGenerator extends Generator {
         if (!fields.isEmpty()) {
             sourceWriter.println("TokenizerUtil extractor = TokenizerUtil.extract(token);");
             for (JField field: fields) {
-                sourceWriter.println("if (extractor.hasMore()) {");
-                sourceWriter.indent();
                 sourceWriter.println("set" + field.getName() + "(place, extractor.get" +
                         getGetMethod(field) + "());");
-                sourceWriter.outdent();
-                sourceWriter.println("}");
             }
         }
         sourceWriter.println("return place;");
@@ -259,7 +267,7 @@ public class AutoTokenizerGenerator extends Generator {
         if ("String".equals(name)) {
             return "";
         } else {
-            return name.substring(0, 1).toUpperCase() + name.substring(1);
+            return name;
         }
 
     }
