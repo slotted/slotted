@@ -77,4 +77,13 @@ public class MultiParentTests extends GWTTestCase {
 
     }
 
+    public void testBug() {
+        TestHarness.slottedController.goTo(new Parent2Child1Place());
+        TestHarness.slottedController.goTo(new Child1Place());
+        TestHarness.slottedController.goTo(new Child2Place());
+        assertNull(TestHarness.slottedController.getCurrentPlace(Parent1Place.class));
+        assertNotNull(TestHarness.slottedController.getCurrentPlace(Parent2Place.class));
+    }
+
+
 }

@@ -28,12 +28,14 @@ abstract public class MultiParentPlace extends ContainerPlace {
             Slot[] parentSlots = getParentSlots();
             for (SlottedPlace possiblePlace: possibleParentPlaces) {
                 if (!(possiblePlace instanceof MultiParentPlace)) {
-                    Slot possibleSlot = possiblePlace.getParentSlot();
-                    if (possibleSlot != null) {
-                        for (int i = 0; i < parentSlots.length; i++) {
-                            if (possibleSlot.equals(parentSlots[i])) {
-                                slotIndex = i;
-                                return;
+                    Slot[] possibleSlots = possiblePlace.getChildSlots();
+                    if (possibleSlots != null) {
+                        for (Slot possibleSlot: possibleSlots) {
+                            for (int i = 0; i < parentSlots.length; i++) {
+                                if (possibleSlot.equals(parentSlots[i])) {
+                                    slotIndex = i;
+                                    return;
+                                }
                             }
                         }
                     }
