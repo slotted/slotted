@@ -7,6 +7,7 @@
     <buildFile url="file://$PROJECT_DIR$/examples/GwtActivitiesPlaces2/build.xml" />
     <buildFile url="file://$PROJECT_DIR$/examples/TestHarness/build.xml" />
     <buildFile url="file://$PROJECT_DIR$/examples/GinCodeSplitting/build.xml" />
+    <buildFile url="file://$PROJECT_DIR$/examples/SimpleCodeSplitting/build.xml" />
   </component>
 </project>
 

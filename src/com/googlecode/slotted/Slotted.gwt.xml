@@ -20,4 +20,8 @@
         <when-type-assignable class="com.googlecode.slotted.client.AutoTokenizer" />
     </generate-with>
 
+    <generate-with class="com.googlecode.slotted.rebind.CodeSplitGroupGenerator" >
+        <when-type-assignable class="com.googlecode.slotted.client.CodeSplitGroup" />
+    </generate-with>
+
 </module>

@@ -8,7 +8,7 @@ import com.googlecode.slotted.client.CodeSplitGroup;
 import com.googlecode.slotted.client.SlottedException;
 import com.googlecode.slotted.client.SlottedPlace;
 
-public class GapSplitGroup extends CodeSplitGroup {
+public class GapSplitGroup implements CodeSplitGroup {
     private static GapGinjector gapGinjector;
 
     @Override public void get(final SlottedPlace place, final Callback<? super Activity, ? super Throwable> callback) {
