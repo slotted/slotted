@@ -27,7 +27,7 @@ abstract public class AsyncPlace extends SlottedPlace {
         throw new UnsupportedOperationException("This shouldn't be called except for SlottedPlace.getAsynActivity()");
     }
 
-    @Override protected void runAsyncActivity(Callback<? super Activity, ? super Throwable> callback) {
+    @Override protected void runGetActivity(Callback<? super Activity, ? super Throwable> callback) {
         getAsyncActivity(callback);
     }
 }

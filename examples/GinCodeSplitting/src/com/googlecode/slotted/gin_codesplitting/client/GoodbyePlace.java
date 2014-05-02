@@ -1,14 +1,13 @@
 package com.googlecode.slotted.gin_codesplitting.client;
 
-import com.google.gwt.activity.shared.Activity;
-import com.google.gwt.core.client.AsyncProvider;
 import com.google.gwt.place.shared.PlaceTokenizer;
 import com.google.gwt.place.shared.Prefix;
-import com.googlecode.slotted.client.ProviderPlace;
+import com.googlecode.slotted.client.CodeSplitGroup;
+import com.googlecode.slotted.client.CodeSplitPlace;
 import com.googlecode.slotted.client.Slot;
 import com.googlecode.slotted.client.TokenizerUtil;
 
-public class GoodbyePlace extends ProviderPlace {
+public class GoodbyePlace extends CodeSplitPlace {
     private String helloName;
 
     private GoodbyePlace() {
@@ -30,7 +29,7 @@ public class GoodbyePlace extends ProviderPlace {
         return null;
     }
 
-    @Override public AsyncProvider<Activity, Throwable> getActivityProvider() {
+    @Override public CodeSplitGroup getCodeSplitGroup() {
         return new GapSplitGroup();
     }
 

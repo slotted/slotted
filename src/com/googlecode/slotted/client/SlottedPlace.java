@@ -61,7 +61,7 @@ abstract public class SlottedPlace extends Place implements HasParameters {
      */
     abstract public Activity getActivity();
 
-    protected void runAsyncActivity(Callback<? super Activity, ? super Throwable> callback) {
+    protected void runGetActivity(Callback<? super Activity, ? super Throwable> callback) {
         callback.onSuccess(getActivity());
     }
 

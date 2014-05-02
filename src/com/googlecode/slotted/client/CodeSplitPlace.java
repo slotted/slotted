@@ -16,24 +16,19 @@
 package com.googlecode.slotted.client;
 
 import com.google.gwt.activity.shared.Activity;
-import com.google.gwt.core.client.AsyncProvider;
 import com.google.gwt.core.client.Callback;
 
 //todo javadoc
-abstract public class ProviderPlace extends SlottedPlace {
+abstract public class CodeSplitPlace extends SlottedPlace {
 
-    abstract public AsyncProvider<? extends Activity, Throwable> getActivityProvider();
+    abstract public CodeSplitGroup getCodeSplitGroup();
 
     @Override public final Activity getActivity() {
         throw new UnsupportedOperationException("This shouldn't be called except for SlottedPlace.getAsynActivity()");
     }
 
-    @Override protected void runAsyncActivity(Callback<? super Activity, ? super Throwable> callback) {
-        AsyncProvider<? extends Activity, Throwable> provider = getActivityProvider();
-        if (provider instanceof GroupProvider) {
-            ((GroupProvider) provider).get(this, callback);
-        } else {
-            provider.get(callback);
-        }
+    @Override protected void runGetActivity(Callback<? super Activity, ? super Throwable> callback) {
+        CodeSplitGroup group = getCodeSplitGroup();
+        group.get(this, callback);
     }
 }

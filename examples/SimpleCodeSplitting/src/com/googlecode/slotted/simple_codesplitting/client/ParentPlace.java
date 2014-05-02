@@ -1,12 +1,11 @@
 package com.googlecode.slotted.simple_codesplitting.client;
 
-import com.google.gwt.activity.shared.Activity;
-import com.google.gwt.core.client.AsyncProvider;
-import com.googlecode.slotted.client.ProviderPlace;
+import com.googlecode.slotted.client.CodeSplitGroup;
+import com.googlecode.slotted.client.CodeSplitPlace;
 import com.googlecode.slotted.client.Slot;
 import com.googlecode.slotted.client.SlottedController;
 
-public class ParentPlace extends ProviderPlace {
+public class ParentPlace extends CodeSplitPlace {
     public static final Slot SLOT = new Slot(new ParentPlace(), new NestedPlace());
 
     public ParentPlace() {
@@ -21,7 +20,7 @@ public class ParentPlace extends ProviderPlace {
         return new Slot[] {SLOT};
     }
 
-    @Override public AsyncProvider<Activity, Throwable> getActivityProvider() {
+    @Override public CodeSplitGroup getCodeSplitGroup() {
         return new GroupNested();
     }
 }

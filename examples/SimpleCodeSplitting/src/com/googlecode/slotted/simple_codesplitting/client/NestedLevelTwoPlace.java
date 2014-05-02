@@ -1,13 +1,12 @@
 package com.googlecode.slotted.simple_codesplitting.client;
 
-import com.google.gwt.activity.shared.Activity;
-import com.google.gwt.core.client.AsyncProvider;
 import com.google.gwt.place.shared.Prefix;
-import com.googlecode.slotted.client.ProviderPlace;
+import com.googlecode.slotted.client.CodeSplitGroup;
+import com.googlecode.slotted.client.CodeSplitPlace;
 import com.googlecode.slotted.client.Slot;
 
 @Prefix("level2")
-public class NestedLevelTwoPlace extends ProviderPlace {
+public class NestedLevelTwoPlace extends CodeSplitPlace {
     @Override public Slot getParentSlot() {
         return NestedPlace.SLOT;
     }
@@ -16,7 +15,7 @@ public class NestedLevelTwoPlace extends ProviderPlace {
         return null;
     }
 
-    @Override public AsyncProvider<Activity, Throwable> getActivityProvider() {
+    @Override public CodeSplitGroup getCodeSplitGroup() {
         return new GroupNested();
     }
 }

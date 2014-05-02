@@ -308,7 +308,7 @@ public class ActiveSlot {
      * @param parameters The global parameters for the hierarchy
      */
     private void getStartActivity(final PlaceParameters parameters) {
-        place.runAsyncActivity(new Callback<Activity, Throwable>() {
+        place.runGetActivity(new Callback<Activity, Throwable>() {
             @Override public void onSuccess(Activity result) {
                 if (result != null) {
                     startActivity(result, parameters);
