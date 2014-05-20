@@ -1,13 +1,12 @@
 package com.googlecode.slotted.activity_cache.client;
 
 import com.googlecode.slotted.client.CacheActivities;
+import com.googlecode.slotted.client.ContainerPlace;
 import com.googlecode.slotted.client.Slot;
-import com.googlecode.slotted.client.SlottedActivity;
 import com.googlecode.slotted.client.SlottedController;
-import com.googlecode.slotted.client.SlottedPlace;
 
 @CacheActivities(CachePlace.class)
-public class CacheBasePlace extends SlottedPlace {
+public class CacheBasePlace extends ContainerPlace {
     public static Slot SLOT = new Slot(new CacheBasePlace(), new CachePlace());
 
     @Override public Slot getParentSlot() {
@@ -16,10 +15,5 @@ public class CacheBasePlace extends SlottedPlace {
 
     @Override public Slot[] getChildSlots() {
         return new Slot[]{SLOT};
-    }
-
-    @Override
-    public SlottedActivity getActivity() {
-        return new CacheBaseActivity();
     }
 }

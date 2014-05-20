@@ -183,8 +183,8 @@ public class ActiveSlot {
      * Stops the current Activity and all child Activities.  It also resets the EventBus to prevent memory leaks.
      */
     public void stopActivities() {
+        boolean backgrounded = false;
         try {
-            boolean backgrounded = false;
             ActivityCache activityCache = slottedController.getActivityCache();
             if (activity != null) {
                 if (activityCache.isMarkedForBackground(place)) {
@@ -217,7 +217,9 @@ public class ActiveSlot {
             place = null;
             currentProtectedDisplay = null;
         } finally {
-            resettableEventBus.removeHandlers();
+            if (!backgrounded) {
+                resettableEventBus.removeHandlers();
+            }
         }
     }
 
@@ -364,12 +366,13 @@ public class ActiveSlot {
      */
     private void foregroundActivity(PlaceParameters parameters) {
         if (activity instanceof SlottedActivity) {
+            currentProtectedDisplay = new ProtectedDisplay(activity, true);
+
             //todo is this needed
             ActivityCache activityCache = slottedController.getActivityCache();
             activityCache.add(place, activity);
 
             SlottedActivity slottedActivity = (SlottedActivity) activity;
-            slottedActivity.init(slottedController, place, parameters, resettableEventBus, this);
             boolean success = slot.foreground(activity);
             if (success) {
                 slottedActivity.onRefresh();

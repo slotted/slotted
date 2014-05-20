@@ -1,9 +1,11 @@
 package com.googlecode.slotted.activity_cache.client;
 
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -12,25 +14,48 @@ import com.googlecode.slotted.client.SlottedActivity;
 public class CacheActivity extends SlottedActivity {
 
     private Label titleLBL;
+    private boolean flag;
 
     @Override
     public void start(AcceptsOneWidget panel) {
-        VerticalPanel mainPNL = new VerticalPanel();
+        DockLayoutPanel mainPNL = new DockLayoutPanel(Unit.PX);
         panel.setWidget(mainPNL);
 
-        titleLBL = new Label("Cache-New");
-        mainPNL.add(titleLBL);
+        final CachePlace place = getCurrentPlace(CachePlace.class);
+        flag = place.getFlag();
+
+        titleLBL = new Label("New:" + flag);
+        mainPNL.addNorth(titleLBL, 40);
+
+        VerticalPanel buttons = new VerticalPanel();
+        mainPNL.addWest(buttons, 100);
 
         Button homeBTN = new Button("Home");
-        mainPNL.add(homeBTN);
+        buttons.add(homeBTN);
         homeBTN.addClickHandler(new ClickHandler() {
             @Override public void onClick(ClickEvent event) {
                 ActivityCache.slottedController.goTo(new HomePlace());
             }
         });
 
-        Button cacheBTN = new Button("No Cache");
-        mainPNL.add(cacheBTN);
+        Button cacheBTN = new Button("Cache " + false);
+        buttons.add(cacheBTN);
+        cacheBTN.addClickHandler(new ClickHandler() {
+            @Override public void onClick(ClickEvent event) {
+                ActivityCache.slottedController.goTo(new CachePlace(false));
+            }
+        });
+
+        cacheBTN = new Button("Cache " + true);
+        buttons.add(cacheBTN);
+        cacheBTN.addClickHandler(new ClickHandler() {
+            @Override public void onClick(ClickEvent event) {
+                ActivityCache.slottedController.goTo(new CachePlace(true));
+            }
+        });
+
+        cacheBTN = new Button("No Cache");
+        buttons.add(cacheBTN);
         cacheBTN.addClickHandler(new ClickHandler() {
             @Override public void onClick(ClickEvent event) {
                 ActivityCache.slottedController.goTo(new NoCachePlace());
@@ -39,7 +64,6 @@ public class CacheActivity extends SlottedActivity {
 
         ScrollPanel testSCR = new ScrollPanel();
         mainPNL.add(testSCR);
-        testSCR.setSize("200px", "200px");
 
         VerticalPanel testContentPNL = new VerticalPanel();
         testSCR.setWidget(testContentPNL);
@@ -49,6 +73,10 @@ public class CacheActivity extends SlottedActivity {
     }
 
     @Override public void onRefresh() {
-        titleLBL.setText("Cache-Existing");
+        titleLBL.setText("Existing:" + flag);
+    }
+
+    @Override public void onStop() {
+        super.onStop();
     }
 }

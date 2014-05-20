@@ -16,6 +16,7 @@
 package com.googlecode.slotted.client;
 
 import com.google.gwt.activity.shared.Activity;
+import com.google.gwt.dom.client.Style.Display;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.LayoutPanel;
@@ -102,9 +103,13 @@ public class Slot {
             cleanupCurrent();
             currentView = view.asWidget();
             currentBackgroundable = backgroundable;
-            backgroundPanel.add(currentView);
-            if (backgroundable) {
-                backgroundWidgets.put(activity, currentView);
+            if (backgroundPanel.getWidgetIndex(currentView) < 0) {
+                backgroundPanel.add(currentView);
+                if (backgroundable) {
+                    backgroundWidgets.put(activity, currentView);
+                }
+            } else {
+                foreground(activity);
             }
         }
     }
@@ -112,7 +117,10 @@ public class Slot {
     private void cleanupCurrent() {
         if (currentView != null) {
             if (currentBackgroundable) {
-                currentView.setVisible(false);
+                if (backgroundPanel.getWidgetIndex(currentView) > -1) {
+                    backgroundPanel.getWidgetContainerElement(currentView).getStyle().setDisplay(Display.NONE);
+                    currentView.setVisible(false);
+                }
             } else {
                 backgroundPanel.remove(currentView);
             }
@@ -123,6 +131,7 @@ public class Slot {
         cleanupCurrent();
         currentView = backgroundWidgets.get(activity);
         if (currentView != null) {
+            backgroundPanel.getWidgetContainerElement(currentView).getStyle().clearDisplay();
             currentView.setVisible(true);
             currentBackgroundable = true;
             return true;
