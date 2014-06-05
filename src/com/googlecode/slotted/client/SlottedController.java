@@ -170,8 +170,15 @@ public class SlottedController {
         Event.addNativePreviewHandler(new Event.NativePreviewHandler() {
             public void onPreviewNativeEvent(NativePreviewEvent event) {
                 NativeEvent ne = event.getNativeEvent();
-                openNewWindow = ne.getShiftKey();
-                openNewTab = ne.getMetaKey() || ne.getCtrlKey();
+                String type = ne.getType();
+                if (type.equals("mousedown") && type.equals("mouseup") && type.equals("click")) {
+                    System.out.println(ne.getType());
+                    openNewWindow = ne.getShiftKey();
+                    openNewTab = ne.getMetaKey() || ne.getCtrlKey();
+                } else {
+                    openNewWindow = false;
+                    openNewTab = false;
+                }
             }
         });
     }
@@ -393,9 +400,13 @@ public class SlottedController {
             Exception maybeGoToException = null;
             if (openNewTab) {
                 Window.open(createUrl(newPlace), "_blank", "");
+                openNewTab = false;
+                openNewWindow = false;
 
             }else if (openNewWindow) {
                 Window.open(createUrl(newPlace), "_blank", openWindowFeatures);
+                openNewWindow = false;
+                openNewTab = false;
 
             } else {
                 if (processingGoTo) {
