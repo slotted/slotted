@@ -171,8 +171,7 @@ public class SlottedController {
             public void onPreviewNativeEvent(NativePreviewEvent event) {
                 NativeEvent ne = event.getNativeEvent();
                 String type = ne.getType();
-                if (type.equals("mousedown") && type.equals("mouseup") && type.equals("click")) {
-                    System.out.println(ne.getType());
+                if (type.equals("mousedown") || type.equals("mouseup") || type.equals("click")) {
                     openNewWindow = ne.getShiftKey();
                     openNewTab = ne.getMetaKey() || ne.getCtrlKey();
                 } else {
