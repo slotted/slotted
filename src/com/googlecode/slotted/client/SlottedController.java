@@ -151,7 +151,7 @@ public class SlottedController {
         historyMapper.setController(this);
         History.addValueChangeHandler(new ValueChangeHandler<String>() {
             @Override public void onValueChange(ValueChangeEvent<String> event) {
-                historyMapper.handleHistory(event.getValue());
+                historyMapper.handleHistory(event.getValue(), false);
             }
         });
 
@@ -358,7 +358,7 @@ public class SlottedController {
      * @param historyToken Just the part of the url following the #.  Don't send complete URLs.
      */
     public void goTo(String historyToken) {
-        History.newItem(historyToken, true);
+        historyMapper.handleHistory(historyToken, true);
     }
 
     /**

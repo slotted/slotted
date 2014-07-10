@@ -348,9 +348,9 @@ abstract public class HistoryMapper {
      *
      * @param token History Token that needs to be navigated to.
      */
-    protected void handleHistory(String token) {
+    protected void handleHistory(String token, boolean createUrl) {
         RuntimeException parsingException = null;
-        handlingHistory = true;
+        handlingHistory = !createUrl;
         try {
             if (token == null || token.trim().isEmpty()) {
                 navDefaultPlace();
