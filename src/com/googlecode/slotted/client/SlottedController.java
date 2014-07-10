@@ -115,6 +115,7 @@ public class SlottedController {
     private List<SlottedPlace> possibleParentPlaces;
     private final Delegate delegate;
     private boolean reloadAll = false;
+    private boolean useExistingChildren = false;
     private ActiveSlot root;
     private PlaceParameters currentParameters;
     private NavigationOverride navigationOverride;
@@ -283,6 +284,21 @@ public class SlottedController {
     }
 
     /**
+     * Sets useExistingChildren (normally false).  If useExistingChildren is set to false (Slotted 0.3+), which means when navigating to a
+     * parent place, Slotted will use the parents default children, even if another child exists in the hierarchy.  This change was made,
+     * because it is more natural to have the goTo Place navigate to the same location every time.
+     *
+     * If useExistingChildren is set to true (Slotted 0.2 functionality), then when navigating to the parent place, if the parent
+     * already exists, the current children will be used.  This can create the feeling that the navigation failed, because no places
+     * will change.
+     *
+     * @param useExistingChildren The new default value to use on goTo() calls and URL changes.
+     */
+    public void setUseExistingChildren(boolean useExistingChildren) {
+        this.useExistingChildren = useExistingChildren;
+    }
+
+    /**
      * Allows for a NavigationOverride object to evaluate the Places before Slotted creates the Activities.
      *
      * @param navigationOverride That will called before on every goTo().
@@ -422,13 +438,13 @@ public class SlottedController {
 
                     List<SlottedPlace> nonDefaultPlacesList = Arrays.asList(nonDefaultPlaces);
                     indexMultiParentPlaces(newPlace, nonDefaultPlacesList);
-                    List<SlottedPlace> hierarchyList = createHierarchyList(newPlace, nonDefaultPlacesList, true);
+                    List<SlottedPlace> hierarchyList = createHierarchyList(newPlace, nonDefaultPlacesList);
                     currentParameters = historyMapper.extractParameters(hierarchyList);
 
                     if (navigationOverride != null) {
                         List<SlottedPlace> override = navigationOverride.checkOverrides(hierarchyList);
                         newPlace = override.get(0);
-                        hierarchyList = createHierarchyList(newPlace, Arrays.asList(nonDefaultPlaces), true);
+                        hierarchyList = createHierarchyList(newPlace, Arrays.asList(nonDefaultPlaces));
                         currentParameters = historyMapper.extractParameters(hierarchyList);
 
                     }
@@ -512,23 +528,23 @@ public class SlottedController {
      *
      * @param newPlace The place that is being navigated to.
      * @param nonDefaults The list of places that should be used instead of the default places.
-     * @param useExisting If true, it will use the existing place instead of the default.
      * @return List all/only the Places that will be displayed.
      */
-    private List<SlottedPlace> createHierarchyList(SlottedPlace newPlace, List<SlottedPlace> nonDefaults, boolean useExisting) {
+    private List<SlottedPlace> createHierarchyList(SlottedPlace newPlace, List<SlottedPlace> nonDefaults) {
         LinkedList<SlottedPlace> hierarchyList = new LinkedList<SlottedPlace>();
 
         hierarchyList.add(newPlace);
-        addChildPlaces(newPlace, nonDefaults, useExisting, null, hierarchyList);
+
+        addChildPlaces(newPlace, nonDefaults, useExistingChildren, null, hierarchyList);
 
         // Adding parent Places
         Slot childSlot = newPlace.getParentSlot();
         Slot parentSlot = getActualParentSlot(childSlot);
         while (parentSlot != null) {
-            SlottedPlace parentPlace = getPlaceForSlot(parentSlot, nonDefaults, childSlot.getOwnerPlace(), useExisting);
+            SlottedPlace parentPlace = getPlaceForSlot(parentSlot, nonDefaults, childSlot.getOwnerPlace(), true);
             if (parentPlace != null) {
                 hierarchyList.add(parentPlace);
-                addChildPlaces(parentPlace, nonDefaults, useExisting, childSlot, hierarchyList);
+                addChildPlaces(parentPlace, nonDefaults, true, childSlot, hierarchyList);
                 childSlot = parentSlot;
                 parentSlot = getActualParentSlot(parentSlot);
             } else {
@@ -751,7 +767,7 @@ public class SlottedController {
      * default places defined for the slots.
      */
     public String createToken(SlottedPlace newPlace, SlottedPlace... nonDefaultPlaces) {
-        List<SlottedPlace> hierarchyList = createHierarchyList(newPlace, Arrays.asList(nonDefaultPlaces), true);
+        List<SlottedPlace> hierarchyList = createHierarchyList(newPlace, Arrays.asList(nonDefaultPlaces));
         hierarchyList.remove(0);
 
         String token = historyMapper.createToken(newPlace, hierarchyList.toArray(new SlottedPlace[hierarchyList.size()]));
