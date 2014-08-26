@@ -27,6 +27,7 @@ import com.googlecode.slotted.client.SlottedController.RootSlotImpl;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
 
 /**
  * An internal object that holds all the data needed to correctly display a Slot.  This shouldn't be used outside
@@ -249,6 +250,10 @@ public class ActiveSlot {
         historyMapper.extractParameters(newPlace, parameters);
         newPlace.setPlaceParameters(parameters);
 
+        if (currentProtectedDisplay != null && !currentProtectedDisplay.widgetShown) {
+            // DelayedLoading might have error, so force reload to prevent UI from appearing hung.
+            reloadAll = true;
+        }
         if (reloadAll || !newPlace.equals(place)) {
             stopActivities();
         }
@@ -338,6 +343,13 @@ public class ActiveSlot {
         try {
             activity.start(currentProtectedDisplay, legacyBus);
         } catch (Exception e) {
+            try {
+                // Start caused an exception, so attempt to clean up Activity.
+                stopActivities();
+            } catch (Exception stopException) {
+                SlottedController.log.log(Level.WARNING,
+                        "Activity.start() threw an exception and then Activity.onStop()/onCancel() threw:", stopException);
+            }
             String token = historyMapper.createToken(place);
             throw new SlottedInitException(token, e);
         }

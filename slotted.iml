@@ -22,11 +22,11 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../javalib/gwt-2.5.0/gwt-dev.jar!/" />
+          <root url="jar://$MODULE_DIR$/../javalib/gwt-2.6.0/gwt-dev.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/../javalib/gwt-2.5.0/gwt-dev.jar!/" />
+          <root url="jar://$MODULE_DIR$/../javalib/gwt-2.6.0/gwt-dev.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

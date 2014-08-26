@@ -39,7 +39,7 @@ public class FlowTests extends GWTTestCase {
 
         TestHarness.startTestHarness();
         TestHarness.slottedController.goTo(new HomePlace());
-        TestPlace.resetCounts();
+        TestPlace.activityMap.clear();
     }
 
     public void testBasicStartUp() {
@@ -241,12 +241,7 @@ public class FlowTests extends GWTTestCase {
         assertEquals(0, b1aActivity.onRefreshCount);
 
         TestActivity b1bActivity = TestPlace.getActivity(B1bPlace.class);
-        assertEquals(0, b1bActivity.setChildSlotDisplayCount);
-        assertEquals(0, b1bActivity.startCount);
-        assertEquals(0, b1bActivity.mayStopCount);
-        assertEquals(0, b1bActivity.onCancelCount);
-        assertEquals(0, b1bActivity.onStopCount);
-        assertEquals(0, b1bActivity.onRefreshCount);
+        assertNull(b1bActivity);
 
         TestActivity b2aActivity = TestPlace.getActivity(B2aPlace.class);
         assertEquals(0, b2aActivity.setChildSlotDisplayCount);
@@ -721,5 +716,76 @@ public class FlowTests extends GWTTestCase {
         assertTrue(token.contains("A1b"));
     }
 
+    public void testStartException() {
+        TestActivity aActivity = TestPlace.getActivity(new APlace());
+        TestActivity a1aActivity = TestPlace.getActivity(new A1aPlace());
+        TestActivity a1bActivity = TestPlace.getActivity(new A1bPlace());
 
+        TestHarness.slottedController.goTo(new APlace());
+        TestPlace.resetCounts();
+
+        try {
+            a1bActivity.isThrowException = true;
+            TestHarness.slottedController.goTo(new A1bPlace());
+        } catch (Exception e) {/*ignore*/}
+
+        assertEquals(1, aActivity.onRefreshCount);
+        assertEquals(0, aActivity.startCount);
+        assertEquals(0, aActivity.mayStopCount);
+        assertEquals(0, aActivity.onStopCount);
+
+        assertEquals(1, a1aActivity.mayStopCount);
+        assertEquals(1, a1aActivity.onStopCount);
+
+        assertEquals(1, a1bActivity.startCount);
+        assertEquals(0, a1bActivity.mayStopCount);
+        assertEquals(1, a1bActivity.onStopCount);
+
+        TestPlace.resetCounts();
+        a1bActivity.isThrowException = false;
+        TestHarness.slottedController.goTo(new A1bPlace());
+
+        assertEquals(1, aActivity.onRefreshCount);
+        assertEquals(0, aActivity.startCount);
+        assertEquals(0, aActivity.mayStopCount);
+
+        assertEquals(0, a1aActivity.mayStopCount);
+        assertEquals(0, a1aActivity.onStopCount);
+
+        assertEquals(1, a1bActivity.startCount);
+        assertEquals(0, a1bActivity.mayStopCount);
+        assertEquals(0, a1bActivity.onStopCount);
+    }
+
+    public void testLoadingNeverCompletesRenavigate() {
+        TestActivity loadingActivity = TestPlace.getActivity(new LoadingPlace());
+        TestActivity loading1aActivity = TestPlace.getActivity(new Loading1aPlace());
+        loadingActivity.isStartLoading = true;
+
+        TestHarness.slottedController.goTo(new LoadingPlace());
+        assertEquals(1, loadingActivity.startCount);
+        assertEquals(0, loadingActivity.mayStopCount);
+        assertEquals(0, loadingActivity.onStopCount);
+        assertEquals(0, loadingActivity.onRefreshCount);
+
+        assertEquals(1, loading1aActivity.startCount);
+        assertEquals(0, loading1aActivity.mayStopCount);
+        assertEquals(0, loading1aActivity.onStopCount);
+        assertEquals(0, loading1aActivity.onRefreshCount);
+
+        TestPlace.resetCounts();
+        TestHarness.slottedController.goTo(new LoadingPlace());
+
+        assertEquals(1, loadingActivity.startCount);
+        assertEquals(0, loadingActivity.mayStopCount);
+        assertEquals(0, loadingActivity.onStopCount);
+        assertEquals(1, loadingActivity.onCancelCount);
+        assertEquals(0, loadingActivity.onRefreshCount);
+
+        assertEquals(1, loading1aActivity.startCount);
+        assertEquals(0, loading1aActivity.mayStopCount);
+        assertEquals(1, loading1aActivity.onStopCount);
+        assertEquals(0, loading1aActivity.onCancelCount);
+        assertEquals(0, loading1aActivity.onRefreshCount);
+    }
 }

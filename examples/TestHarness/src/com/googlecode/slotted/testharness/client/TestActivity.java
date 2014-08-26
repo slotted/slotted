@@ -13,6 +13,7 @@ public class TestActivity extends SlottedActivity {
 
     public boolean isStartLoading = false;
     public boolean isShowDisplay = true;
+    public boolean isThrowException = false;
     public TestDisplay testDisplay;
     public AcceptsOneWidget panel;
     public HashMap<Slot, SimplePanel> childDisplay;
@@ -66,6 +67,9 @@ public class TestActivity extends SlottedActivity {
         }
         if (isShowDisplay) {
             showDisplay();
+        }
+        if (isThrowException) {
+            throw new RuntimeException("TestError");
         }
     }
 

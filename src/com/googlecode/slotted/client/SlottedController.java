@@ -97,7 +97,7 @@ public class SlottedController {
         boolean confirm(String[] messages);
     }
 
-    private static final Logger log = Logger.getLogger(SlottedController.class.getName());
+    protected static final Logger log = Logger.getLogger(SlottedController.class.getName());
 
     private final EventBus eventBus;
     private final HistoryMapper historyMapper;
@@ -815,7 +815,7 @@ public class SlottedController {
         if (placeClass.equals(placeType)) {
             return (T) place;
         } else if(placeClass.getSuperclass() != null) {
-        	return (T) getCurrentPlace(place, placeClass.getSuperclass(), placeType);
+        	return getCurrentPlace(place, placeClass.getSuperclass(), placeType);
         }
         return null;
     }
