@@ -15,6 +15,11 @@
  */
 package com.googlecode.slotted.client;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.logging.Level;
+
 import com.google.gwt.activity.shared.Activity;
 import com.google.gwt.activity.shared.ActivityMapper;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
@@ -23,11 +28,6 @@ import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.ResettableEventBus;
 import com.googlecode.slotted.client.ActivityCache.Entry;
 import com.googlecode.slotted.client.SlottedController.RootSlotImpl;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.logging.Level;
 
 /**
  * An internal object that holds all the data needed to correctly display a Slot.  This shouldn't be used outside
@@ -343,6 +343,7 @@ public class ActiveSlot {
         try {
             activity.start(currentProtectedDisplay, legacyBus);
         } catch (Exception e) {
+            String token = historyMapper.createToken(place);
             try {
                 // Start caused an exception, so attempt to clean up Activity.
                 stopActivities();
@@ -350,7 +351,6 @@ public class ActiveSlot {
                 SlottedController.log.log(Level.WARNING,
                         "Activity.start() threw an exception and then Activity.onStop()/onCancel() threw:", stopException);
             }
-            String token = historyMapper.createToken(place);
             throw new SlottedInitException(token, e);
         }
 
