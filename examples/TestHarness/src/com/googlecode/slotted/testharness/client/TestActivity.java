@@ -1,5 +1,7 @@
 package com.googlecode.slotted.testharness.client;
 
+import java.util.HashMap;
+
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.SimplePanel;
@@ -7,11 +9,10 @@ import com.googlecode.slotted.client.Slot;
 import com.googlecode.slotted.client.SlottedActivity;
 import com.googlecode.slotted.client.SlottedPlace;
 
-import java.util.HashMap;
-
 public class TestActivity extends SlottedActivity {
 
     public boolean isStartLoading = false;
+    public String[] loadingLabels;
     public boolean isShowDisplay = true;
     public boolean isThrowException = false;
     public TestDisplay testDisplay;
@@ -63,7 +64,7 @@ public class TestActivity extends SlottedActivity {
         }
 
         if (isStartLoading) {
-            setLoadingStarted();
+            setLoadingStarted(loadingLabels);
         }
         if (isShowDisplay) {
             showDisplay();

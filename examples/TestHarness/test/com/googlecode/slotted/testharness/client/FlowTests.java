@@ -495,7 +495,42 @@ public class FlowTests extends GWTTestCase {
         assertTrue(loadingActivity.testDisplay.isDisplayed());
         assertTrue(loading1aActivity.testDisplay.isDisplayed());
         assertEquals(1, loadingHandler.stopCount);
+    }
 
+    public void testLoadingStartLoadingWithLabels() {
+        LoadingHandler loadingHandler = new LoadingHandler();
+        TestHarness.slottedController.getEventBus().addHandler(LoadingEvent.Type, loadingHandler);
+
+        TestActivity loadingActivity = TestPlace.getActivity(new LoadingPlace());
+        TestActivity loading1aActivity = TestPlace.getActivity(new Loading1aPlace());
+        loading1aActivity.isStartLoading = true;
+        loading1aActivity.loadingLabels = new String[] {"foo", "bar"};
+        loading1aActivity.isShowDisplay = true;
+
+        TestHarness.slottedController.goTo(new LoadingPlace());
+
+        assertFalse(loadingActivity.testDisplay.isDisplayed());
+        assertFalse(loading1aActivity.testDisplay.isDisplayed());
+        assertTrue(loadingHandler.startCount > 1);
+        assertEquals(0, loadingHandler.stopCount);
+
+        try {
+            loading1aActivity.setLoadingComplete();
+            fail("Expected IllegalStateException because no label was passed");
+        } catch (IllegalStateException e) {/*expected*/}
+
+
+        loading1aActivity.setLoadingComplete("foo");
+
+        assertFalse(loadingActivity.testDisplay.isDisplayed());
+        assertFalse(loading1aActivity.testDisplay.isDisplayed());
+        assertEquals(0, loadingHandler.stopCount);
+
+        loading1aActivity.setLoadingComplete("bar");
+
+        assertTrue(loadingActivity.testDisplay.isDisplayed());
+        assertTrue(loading1aActivity.testDisplay.isDisplayed());
+        assertEquals(1, loadingHandler.stopCount);
     }
 
     public void testLoadingOnCancel() {

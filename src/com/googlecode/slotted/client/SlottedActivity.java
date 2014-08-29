@@ -15,6 +15,9 @@
  */
 package com.googlecode.slotted.client;
 
+import java.util.Arrays;
+import java.util.LinkedList;
+
 import com.google.gwt.activity.shared.AbstractActivity;
 import com.google.gwt.activity.shared.Activity;
 import com.google.gwt.place.shared.Place;
@@ -33,6 +36,7 @@ abstract public class SlottedActivity extends AbstractActivity{
     private PlaceParameters placeParameters;
     private EventBus eventBus;
     private ActiveSlot activeSlot;
+    private LinkedList<Object> loadingLabels;
 
     /**
      * Replaces the legacy activity that uses the old legacy EventBus.
@@ -142,7 +146,10 @@ abstract public class SlottedActivity extends AbstractActivity{
      * Activates the Delayed Loading if called inside the {@link #start(AcceptsOneWidget)} method.  If called
      * outside the start(), then a LoadingEvent is sent, but Slotted lifecycle is unaffected.
      */
-    public void setLoadingStarted() {
+    public void setLoadingStarted(Object... labels) {
+        if (labels != null && labels.length > 0) {
+            loadingLabels = new LinkedList<Object>(Arrays.asList(labels));
+        }
         activeSlot.setLoading(true, this);
     }
 
@@ -151,8 +158,20 @@ abstract public class SlottedActivity extends AbstractActivity{
      * loading, this call will not trigger the widgets to be displayed.  If delayed loading is not active, then a
      * LoadingEvent with be sent stating loading is complete.
      */
-    public void setLoadingComplete() {
-        activeSlot.setLoading(false, this);
+    public void setLoadingComplete(Object... labels) {
+        if (labels != null && labels.length > 0) {
+            for (Object label: labels) {
+                loadingLabels.remove(label);
+            }
+
+        } else if (loadingLabels != null) {
+            throw new IllegalStateException("setLoadingComplete() must be called with a label, " +
+                    "when setLoadingStarted() was called with labels.");
+        }
+
+        if (loadingLabels == null || loadingLabels.isEmpty()) {
+            activeSlot.setLoading(false, this);
+        }
     }
 
     /**
