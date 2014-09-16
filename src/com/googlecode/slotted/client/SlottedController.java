@@ -15,6 +15,13 @@
  */
 package com.googlecode.slotted.client;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.google.gwt.activity.shared.Activity;
 import com.google.gwt.activity.shared.ActivityMapper;
 import com.google.gwt.core.client.GWT;
@@ -33,13 +40,6 @@ import com.google.gwt.user.client.Window.ClosingEvent;
 import com.google.gwt.user.client.Window.ClosingHandler;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.web.bindery.event.shared.EventBus;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Controls display of the RootSlot and all nested slots.
@@ -645,8 +645,8 @@ public class SlottedController {
     }
 
     /**
-     * Returns true if Slotted is processing a goTo() request or the {@link SlottedActivity#setLoadingStarted()} and the
-     * {@link SlottedActivity#setLoadingComplete()} hasn't been called.
+     * Returns true if Slotted is processing a goTo() request or the {@link SlottedActivity#setLoadingStarted(Object...)} and the
+     * {@link SlottedActivity#setLoadingComplete(Object...)} ()} hasn't been called.
      */
     public boolean isLoading() {
         return root.getFirstLoadingPlace() != null;
@@ -655,7 +655,7 @@ public class SlottedController {
     protected void showLoading() {
         SlottedPlace loadingPlace = root.getFirstLoadingPlace();
         if (loadingPlace != null) {
-            log.warning("Place loading:" + loadingPlace);
+            log.info("Place loading:" + loadingPlace);
             eventBus.fireEvent(new LoadingEvent(true));
         }
     }
