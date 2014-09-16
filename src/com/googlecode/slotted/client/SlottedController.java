@@ -148,11 +148,10 @@ public class SlottedController {
         instance = this;
         this.eventBus = eventBus;
         this.historyMapper = historyMapper;
-        historyMapper.setController(this);
        //Todo History
         History.addValueChangeHandler(new ValueChangeHandler<String>() {
             @Override public void onValueChange(ValueChangeEvent<String> event) {
-                historyMapper.handleHistory(event.getValue(), false);
+                historyMapper.handleHistory(event.getValue(), false, SlottedController.this);
             }
         });
 
@@ -362,7 +361,7 @@ public class SlottedController {
      * @param historyToken Just the part of the url following the #.  Don't send complete URLs.
      */
     public void goTo(String historyToken) {
-        historyMapper.handleHistory(historyToken, true);
+        historyMapper.handleHistory(historyToken, true, this);
     }
 
     /**
@@ -428,6 +427,7 @@ public class SlottedController {
                 openNewTab = false;
 
             } else {
+                //Todo Handle new Window
                 if (processingGoTo) {
                     nextGoToPlace = newPlace;
                     nextGoToNonDefaultPlaces = nonDefaultPlaces;
@@ -468,7 +468,7 @@ public class SlottedController {
                         fillPlaces(root, places);
 
                         referringToken = currentToken;
-                        currentToken = historyMapper.createToken();
+                        currentToken = historyMapper.createToken(this);
                         tokenDone = true;
                         activityCache.clearUnused();
                         //todo FireEvent

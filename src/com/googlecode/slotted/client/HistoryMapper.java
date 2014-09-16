@@ -15,19 +15,19 @@
  */
 package com.googlecode.slotted.client;
 
-import com.google.gwt.activity.shared.ActivityMapper;
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.place.shared.Place;
-import com.google.gwt.place.shared.PlaceHistoryMapper;
-import com.google.gwt.place.shared.PlaceTokenizer;
-import com.google.gwt.user.client.History;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.google.gwt.activity.shared.ActivityMapper;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.place.shared.Place;
+import com.google.gwt.place.shared.PlaceHistoryMapper;
+import com.google.gwt.place.shared.PlaceTokenizer;
+import com.google.gwt.user.client.History;
 
 /**
  * HistoryMapper is an abstract base class that manages generation and parsing of History Tokens.
@@ -77,7 +77,6 @@ abstract public class HistoryMapper {
     private HashMap<Class, Class<? extends SlottedPlace>[]> activityCacheMap = new HashMap<Class, Class<? extends SlottedPlace>[]>();
     private SlottedPlace defaultPlace;
     private SlottedPlace errorPlace;
-    private SlottedController controller;
     private ActivityMapper legacyActivityMapper;
     private PlaceHistoryMapper legacyHistoryMapper;
     private boolean handlingHistory;
@@ -97,13 +96,6 @@ abstract public class HistoryMapper {
      * @see #registerPlace(SlottedPlace)
      */
     protected abstract void init();
-
-    /**
-     * Called by SlottedController to provide the circular reference.
-     */
-    protected void setController(SlottedController controller) {
-        this.controller = controller;
-    }
 
     /**
      * Called by SlottedController to provide legacy HistoryMapper to process Places not migrated
@@ -348,12 +340,12 @@ abstract public class HistoryMapper {
      *
      * @param token History Token that needs to be navigated to.
      */
-    protected void handleHistory(String token, boolean createUrl) {
+    protected void handleHistory(String token, boolean createUrl, SlottedController controller) {
         RuntimeException parsingException = null;
         handlingHistory = !createUrl;
         try {
             if (token == null || token.trim().isEmpty()) {
-                navDefaultPlace();
+                navDefaultPlace(controller);
             } else {
                 SlottedPlace[] places = null;
                 try {
@@ -376,12 +368,12 @@ abstract public class HistoryMapper {
 
                 if (parsingException != null) {
                     log.log(Level.SEVERE, "Error parsing url", parsingException);
-                    navDefaultPlace();
+                    navDefaultPlace(controller);
                 }
             }
         } catch (Exception e) {
             log.log(Level.SEVERE, "Error processing goTo", e);
-            navErrorPlace(e);
+            navErrorPlace(e, controller);
         }
         handlingHistory = false;
     }
@@ -431,7 +423,7 @@ abstract public class HistoryMapper {
         return places;
     }
 
-    private void navDefaultPlace() {
+    private void navDefaultPlace(SlottedController controller) {
         if (defaultPlace == null) {
             throw new IllegalStateException("No default place defined.  Make sure that " +
                     "setDefaultPlace() is called");
@@ -439,7 +431,7 @@ abstract public class HistoryMapper {
         controller.goTo(defaultPlace);
     }
 
-    private void navErrorPlace(Exception e) {
+    private void navErrorPlace(Exception e, SlottedController controller) {
         if (errorPlace == null) {
             throw new IllegalStateException("No error or default place defined.  Make sure that " +
                     "setErrorPlace() or setDefaultPlace() is called");
@@ -557,9 +549,9 @@ abstract public class HistoryMapper {
     /**
      * Generates the History token for the currently display Places.
      */
-    public String createToken() {
+    public String createToken(SlottedController controller) {
         if (!handlingHistory) {
-            String token = createToken(controller.getRoot());
+            String token = createToken(controller.getRoot(), controller);
             History.newItem(token, false);
             return token;
         } else {
@@ -574,7 +566,7 @@ abstract public class HistoryMapper {
      *                   to be the Slotted root ActiveSlot.
      * @return History token string that contains all the Places in the hierarchy.
      */
-    protected String createToken(ActiveSlot activeSlot) {
+    protected String createToken(ActiveSlot activeSlot, SlottedController controller) {
         String token;
         token = createPageList(activeSlot);
 
