@@ -124,6 +124,8 @@ public class SlottedController {
     private boolean openNewTab;
     private boolean openNewWindow;
     private String openWindowFeatures = "directories=yes,location=yes,menubar=yes,status=yes,titlebar=yes,toolbar=yes";
+    protected boolean isMainController;
+    private SlottedDialogHandler dialogHandler;
 
     /**
      * Create a new SlottedController with a {@link DefaultDelegate}. The DefaultDelegate is created
@@ -145,44 +147,66 @@ public class SlottedController {
      * @param delegate the {@link Delegate} in charge of Window-related events
      */
     public SlottedController(final HistoryMapper historyMapper, EventBus eventBus, Delegate delegate) {
-        instance = this;
+        this(historyMapper, eventBus, delegate, true);
+    }
+
+    /**
+     * Creates a new SlottedController based on the passed controller.  This also sets useHistory to false;
+     *
+     * @param slottedController
+     */
+    protected SlottedController(SlottedController slottedController) {
+        this(slottedController.historyMapper, slottedController.eventBus, slottedController.delegate, false);
+    }
+
+    /**
+     * Create a new SlottedController.
+     *
+     * @param historyMapper the {@link HistoryMapper}
+     * @param eventBus the {@link EventBus}
+     * @param delegate the {@link Delegate} in charge of Window-related events
+     * @param isMainController false if this controller shouldn't handle History, WindowClosingEvent, and OpenWindow events.
+     */
+    private SlottedController(final HistoryMapper historyMapper, EventBus eventBus, Delegate delegate, boolean isMainController) {
         this.eventBus = eventBus;
         this.historyMapper = historyMapper;
-       //Todo History
-        History.addValueChangeHandler(new ValueChangeHandler<String>() {
-            @Override public void onValueChange(ValueChangeEvent<String> event) {
-                historyMapper.handleHistory(event.getValue(), false, SlottedController.this);
-            }
-        });
-
         this.delegate = delegate;
-        //Todo Window event (disable)
-        delegate.addWindowClosingHandler(new ClosingHandler() {
-            public void onWindowClosing(ClosingEvent event) {
-                if (root != null) {
-                    ArrayList<String> warnings = new ArrayList<String>();
-                    root.maybeGoTo(new ArrayList<SlottedPlace>(), true, warnings);
-                    if (!warnings.isEmpty()) {
-                        event.setMessage(warnings.get(0));
+        this.isMainController = isMainController;
+
+        if (isMainController) {
+            instance = this;
+            History.addValueChangeHandler(new ValueChangeHandler<String>() {
+                @Override public void onValueChange(ValueChangeEvent<String> event) {
+                    historyMapper.handleHistory(event.getValue(), false, SlottedController.this);
+                }
+            });
+
+            delegate.addWindowClosingHandler(new ClosingHandler() {
+                public void onWindowClosing(ClosingEvent event) {
+                    if (root != null) {
+                        ArrayList<String> warnings = new ArrayList<String>();
+                        root.maybeGoTo(new ArrayList<SlottedPlace>(), true, warnings);
+                        if (!warnings.isEmpty()) {
+                            event.setMessage(warnings.get(0));
+                        }
                     }
                 }
-            }
-        });
+            });
 
-        //Todo Window event (disable)
-        Event.addNativePreviewHandler(new Event.NativePreviewHandler() {
-            public void onPreviewNativeEvent(NativePreviewEvent event) {
-                NativeEvent ne = event.getNativeEvent();
-                String type = ne.getType();
-                if (type.equals("mousedown") || type.equals("mouseup") || type.equals("click")) {
-                    openNewWindow = ne.getShiftKey();
-                    openNewTab = ne.getMetaKey() || ne.getCtrlKey();
-                } else {
-                    openNewWindow = false;
-                    openNewTab = false;
+            Event.addNativePreviewHandler(new Event.NativePreviewHandler() {
+                public void onPreviewNativeEvent(NativePreviewEvent event) {
+                    NativeEvent ne = event.getNativeEvent();
+                    String type = ne.getType();
+                    if (type.equals("mousedown") || type.equals("mouseup") || type.equals("click")) {
+                        openNewWindow = ne.getShiftKey();
+                        openNewTab = ne.getMetaKey() || ne.getCtrlKey();
+                    } else {
+                        openNewWindow = false;
+                        openNewTab = false;
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     /**
@@ -214,6 +238,10 @@ public class SlottedController {
     public void setActivityMapper(ActivityMapper activityMapper) {
         this.legacyActivityMapper = activityMapper;
         historyMapper.setLegacyActivityMapper(activityMapper);
+    }
+
+    public void setDialogHandler(SlottedDialogHandler dialogHandler) {
+        this.dialogHandler = dialogHandler;
     }
 
     /**
@@ -268,8 +296,9 @@ public class SlottedController {
         rootSlot.setDisplay(display);
         root = new ActiveSlot(null, rootSlot, eventBus, this);
 
-        //Todo History
-        History.fireCurrentHistoryState();
+        if (isMainController) {
+            History.fireCurrentHistoryState();
+        }
     }
 
     /**
@@ -324,7 +353,11 @@ public class SlottedController {
      * {@link #goTo(Place)} with the default place.
      */
     protected void goToDefaultPlace() {
-        historyMapper.goToDefaultPlace();
+        if (isMainController) {
+            History.newItem("", true);
+        } else {
+            goTo(historyMapper.getDefaultPlace());
+        }
     }
 
     /**
@@ -427,7 +460,6 @@ public class SlottedController {
                 openNewTab = false;
 
             } else {
-                //Todo Handle new Window
                 if (processingGoTo) {
                     nextGoToPlace = newPlace;
                     nextGoToNonDefaultPlaces = nonDefaultPlaces;
@@ -471,15 +503,13 @@ public class SlottedController {
                         currentToken = historyMapper.createToken(this);
                         tokenDone = true;
                         activityCache.clearUnused();
-                        //todo FireEvent
-                        eventBus.fireEvent(new NewPlaceEvent(places));
+                        eventBus.fireEventFromSource(new NewPlaceEvent(places), SlottedController.this);
                     }
 
                     processingGoTo = false;
 
                     if (!attemptShowViews()) {
-                        //todo FireEvent
-                        eventBus.fireEvent(new LoadingEvent(true));
+                        eventBus.fireEventFromSource(new LoadingEvent(true), SlottedController.this);
                     }
 
                     if (nextGoToPlace != null) {
@@ -506,6 +536,14 @@ public class SlottedController {
         }
     }
 
+    public DialogSlottedController createSlottedDialog() {
+        if (dialogHandler == null) {
+            throw new IllegalStateException("Can't created Slotted Dialog without a DialogHandler set");
+        }
+
+        return new DialogSlottedController(this, dialogHandler);
+    }
+
     private void indexMultiParentPlaces(SlottedPlace newPlace, List<SlottedPlace> nonDefaults) {
         possibleParentPlaces = new LinkedList<SlottedPlace>();
         possibleParentPlaces.add(newPlace);
@@ -522,11 +560,6 @@ public class SlottedController {
                 ((MultiParentPlace) place).indexParentPlace(possibleParentPlaces, false);
             }
         }
-    }
-
-    private List<MultiParentPlace> getMultiParentPlaces(SlottedPlace newPlace, List<SlottedPlace> nonDefaults) {
-        List<MultiParentPlace> multiParentPlaces = new LinkedList<MultiParentPlace>();
-        return multiParentPlaces;
     }
 
     /**
@@ -662,8 +695,7 @@ public class SlottedController {
         SlottedPlace loadingPlace = root.getFirstLoadingPlace();
         if (loadingPlace != null) {
             log.info("Place loading:" + loadingPlace);
-            //todo FireEvent
-            eventBus.fireEvent(new LoadingEvent(true));
+            eventBus.fireEventFromSource(new LoadingEvent(true), SlottedController.this);
         }
     }
 
@@ -678,8 +710,7 @@ public class SlottedController {
             SlottedPlace loadingPlace = root.getFirstLoadingPlace();
             if (loadingPlace == null) {
                 root.showViews();
-                //todo FireEvent
-                eventBus.fireEvent(new LoadingEvent(false));
+                eventBus.fireEventFromSource(new LoadingEvent(false), SlottedController.this);
                 return true;
             } else {
                 log.warning("Waiting for loading place:" + loadingPlace);
@@ -711,8 +742,9 @@ public class SlottedController {
      */
     public void updateToken(SlottedPlace newPlace, SlottedPlace... nonDefaultPlaces) {
         String token = createToken(newPlace, nonDefaultPlaces);
-        //Todo History
-        History.newItem(token, false);
+        if (isMainController) {
+            History.newItem(token, false);
+        }
         referringToken = currentToken;
         currentToken = token;
     }

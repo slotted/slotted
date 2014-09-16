@@ -80,6 +80,7 @@ abstract public class HistoryMapper {
     private ActivityMapper legacyActivityMapper;
     private PlaceHistoryMapper legacyHistoryMapper;
     private boolean handlingHistory;
+    private String handlingToken;
 
     /**
      * Default constructor which adds itself as a History listener and calls init() on the base
@@ -328,14 +329,6 @@ abstract public class HistoryMapper {
     }
 
     /**
-     * Called by SlottedController to provide a URL empty history token when navigating to the
-     * default place.
-     */
-    protected void goToDefaultPlace() {
-        History.newItem("", true);
-    }
-
-    /**
      * Called by the History listener to parse and navigate the new history token.
      *
      * @param token History Token that needs to be navigated to.
@@ -343,6 +336,7 @@ abstract public class HistoryMapper {
     protected void handleHistory(String token, boolean createUrl, SlottedController controller) {
         RuntimeException parsingException = null;
         handlingHistory = !createUrl;
+        handlingToken = token;
         try {
             if (token == null || token.trim().isEmpty()) {
                 navDefaultPlace(controller);
@@ -552,10 +546,12 @@ abstract public class HistoryMapper {
     public String createToken(SlottedController controller) {
         if (!handlingHistory) {
             String token = createToken(controller.getRoot(), controller);
-            History.newItem(token, false);
+            if (controller.isMainController) {
+                History.newItem(token, false);
+            }
             return token;
         } else {
-            return History.getToken();
+            return handlingToken;
         }
     }
 
