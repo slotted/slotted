@@ -149,6 +149,7 @@ public class SlottedController {
         this.eventBus = eventBus;
         this.historyMapper = historyMapper;
         historyMapper.setController(this);
+       //Todo History
         History.addValueChangeHandler(new ValueChangeHandler<String>() {
             @Override public void onValueChange(ValueChangeEvent<String> event) {
                 historyMapper.handleHistory(event.getValue(), false);
@@ -156,6 +157,7 @@ public class SlottedController {
         });
 
         this.delegate = delegate;
+        //Todo Window event (disable)
         delegate.addWindowClosingHandler(new ClosingHandler() {
             public void onWindowClosing(ClosingEvent event) {
                 if (root != null) {
@@ -168,6 +170,7 @@ public class SlottedController {
             }
         });
 
+        //Todo Window event (disable)
         Event.addNativePreviewHandler(new Event.NativePreviewHandler() {
             public void onPreviewNativeEvent(NativePreviewEvent event) {
                 NativeEvent ne = event.getNativeEvent();
@@ -266,6 +269,7 @@ public class SlottedController {
         rootSlot.setDisplay(display);
         root = new ActiveSlot(null, rootSlot, eventBus, this);
 
+        //Todo History
         History.fireCurrentHistoryState();
     }
 
@@ -467,12 +471,14 @@ public class SlottedController {
                         currentToken = historyMapper.createToken();
                         tokenDone = true;
                         activityCache.clearUnused();
+                        //todo FireEvent
                         eventBus.fireEvent(new NewPlaceEvent(places));
                     }
 
                     processingGoTo = false;
 
                     if (!attemptShowViews()) {
+                        //todo FireEvent
                         eventBus.fireEvent(new LoadingEvent(true));
                     }
 
@@ -656,6 +662,7 @@ public class SlottedController {
         SlottedPlace loadingPlace = root.getFirstLoadingPlace();
         if (loadingPlace != null) {
             log.info("Place loading:" + loadingPlace);
+            //todo FireEvent
             eventBus.fireEvent(new LoadingEvent(true));
         }
     }
@@ -671,6 +678,7 @@ public class SlottedController {
             SlottedPlace loadingPlace = root.getFirstLoadingPlace();
             if (loadingPlace == null) {
                 root.showViews();
+                //todo FireEvent
                 eventBus.fireEvent(new LoadingEvent(false));
                 return true;
             } else {
@@ -703,6 +711,7 @@ public class SlottedController {
      */
     public void updateToken(SlottedPlace newPlace, SlottedPlace... nonDefaultPlaces) {
         String token = createToken(newPlace, nonDefaultPlaces);
+        //Todo History
         History.newItem(token, false);
         referringToken = currentToken;
         currentToken = token;
