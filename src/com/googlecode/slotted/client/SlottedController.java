@@ -39,6 +39,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.ClosingEvent;
 import com.google.gwt.user.client.Window.ClosingHandler;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
+import com.google.gwt.user.client.ui.DialogBox;
 import com.google.web.bindery.event.shared.EventBus;
 
 /**
@@ -125,7 +126,6 @@ public class SlottedController {
     private boolean openNewWindow;
     private String openWindowFeatures = "directories=yes,location=yes,menubar=yes,status=yes,titlebar=yes,toolbar=yes";
     protected boolean isMainController;
-    private SlottedDialogHandler dialogHandler;
 
     /**
      * Create a new SlottedController with a {@link DefaultDelegate}. The DefaultDelegate is created
@@ -238,10 +238,6 @@ public class SlottedController {
     public void setActivityMapper(ActivityMapper activityMapper) {
         this.legacyActivityMapper = activityMapper;
         historyMapper.setLegacyActivityMapper(activityMapper);
-    }
-
-    public void setDialogHandler(SlottedDialogHandler dialogHandler) {
-        this.dialogHandler = dialogHandler;
     }
 
     /**
@@ -536,12 +532,8 @@ public class SlottedController {
         }
     }
 
-    public DialogSlottedController createSlottedDialog() {
-        if (dialogHandler == null) {
-            throw new IllegalStateException("Can't created Slotted Dialog without a DialogHandler set");
-        }
-
-        return new DialogSlottedController(this, dialogHandler);
+    public DialogSlottedController createSlottedDialog(DialogBox dialogBox, AcceptsOneWidget display) {
+        return new DialogSlottedController(this, dialogBox, display);
     }
 
     private void indexMultiParentPlaces(SlottedPlace newPlace, List<SlottedPlace> nonDefaults) {

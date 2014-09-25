@@ -1,23 +1,21 @@
 package com.googlecode.slotted.client;
 
-import com.googlecode.slotted.client.SlottedDialogHandler.DialogStruct;
+import com.google.gwt.user.client.ui.AcceptsOneWidget;
+import com.google.gwt.user.client.ui.DialogBox;
 
 public class DialogSlottedController extends SlottedController {
-    private DialogStruct dialogStruct;
+    private DialogBox dialogBox;
 
-    public DialogSlottedController(SlottedController slottedController, SlottedDialogHandler dialogHandler) {
+    public DialogSlottedController(SlottedController slottedController, DialogBox dialogBox, AcceptsOneWidget display) {
         super(slottedController);
-
-        dialogStruct = new DialogStruct();
-        dialogHandler.createDialog(dialogStruct);
-
-        setDisplay(dialogStruct.dialogRootPanel);
+        this.dialogBox = dialogBox;
+        setDisplay(display);
     }
 
     @Override protected boolean attemptShowViews() {
         boolean shown = super.attemptShowViews();
         if (shown) {
-            dialogStruct.dialog.show();
+            dialogBox.show();
         }
         return shown;
     }

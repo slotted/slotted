@@ -28,9 +28,9 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="gwt-validation" level="application" />
     <orderEntry type="module" module-name="slotted" />
     <orderEntry type="library" name="layoutLib" level="project" />
+    <orderEntry type="library" name="gwt-user" level="project" />
   </component>
 </module>
 
