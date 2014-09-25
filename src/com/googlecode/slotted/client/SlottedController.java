@@ -532,8 +532,8 @@ public class SlottedController {
         }
     }
 
-    public DialogSlottedController createSlottedDialog(DialogBox dialogBox, AcceptsOneWidget display) {
-        return new DialogSlottedController(this, dialogBox, display);
+    public SlottedDialogController createSlottedDialog(DialogBox dialogBox, AcceptsOneWidget display) {
+        return new SlottedDialogController(this, dialogBox, display);
     }
 
     private void indexMultiParentPlaces(SlottedPlace newPlace, List<SlottedPlace> nonDefaults) {
