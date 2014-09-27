@@ -157,6 +157,7 @@ public class SlottedController {
      */
     protected SlottedController(SlottedController slottedController) {
         this(slottedController.historyMapper, slottedController.eventBus, slottedController.delegate, false);
+        this.navigationOverride = slottedController.navigationOverride;
     }
 
     /**
@@ -474,7 +475,7 @@ public class SlottedController {
                     currentParameters = historyMapper.extractParameters(hierarchyList);
 
                     if (navigationOverride != null) {
-                        List<SlottedPlace> override = navigationOverride.checkOverrides(hierarchyList);
+                        List<SlottedPlace> override = navigationOverride.checkOverrides(this, hierarchyList);
                         newPlace = override.get(0);
                         hierarchyList = createHierarchyList(newPlace, Arrays.asList(nonDefaultPlaces));
                         currentParameters = historyMapper.extractParameters(hierarchyList);

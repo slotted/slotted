@@ -29,5 +29,5 @@ public interface NavigationOverride {
      *                        other are non default places.
      * @return The places that should be navigated to.  Null is not allowed.
      */
-    List<SlottedPlace> checkOverrides(List<SlottedPlace> requestedPlaces);
+    List<SlottedPlace> checkOverrides(SlottedController slottedController, List<SlottedPlace> requestedPlaces);
 }
