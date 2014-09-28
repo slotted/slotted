@@ -41,6 +41,13 @@ abstract public class MultiParentPlace extends ContainerPlace {
                     }
                 }
             }
+
+            for (int i = 0; i < parentSlots.length; i++) {
+                if (SlottedController.RootSlot.equals(parentSlots[i])) {
+                    slotIndex = i;
+                    return;
+                }
+            }
             slotIndex = 0;
         }
     }
