@@ -1,6 +1,7 @@
 package com.googlecode.slotted.testharness.client;
 
 import com.google.gwt.junit.client.GWTTestCase;
+import com.googlecode.slotted.client.SlottedController;
 import com.googlecode.slotted.testharness.client.flow.HomePlace;
 import com.googlecode.slotted.testharness.client.multi_parent.Child1Place;
 import com.googlecode.slotted.testharness.client.multi_parent.Child2Place;
@@ -83,6 +84,17 @@ public class MultiParentTests extends GWTTestCase {
         TestHarness.slottedController.goTo(new Child2Place());
         assertNull(TestHarness.slottedController.getCurrentPlace(Parent1Place.class));
         assertNotNull(TestHarness.slottedController.getCurrentPlace(Parent2Place.class));
+    }
+
+    public void testRootSlotParent() {
+        TestHarness.slottedController.goTo(new Child1Place(), new MultiPlace(SlottedController.RootSlot));
+        assertNull(TestHarness.slottedController.getCurrentPlace(Parent1Place.class));
+        assertNull(TestHarness.slottedController.getCurrentPlace(Parent2Place.class));
+
+        //Navigate to another child
+        TestHarness.slottedController.goTo(new Child2Place());
+        assertNull(TestHarness.slottedController.getCurrentPlace(Parent1Place.class));
+        assertNull(TestHarness.slottedController.getCurrentPlace(Parent2Place.class));
     }
 
 
