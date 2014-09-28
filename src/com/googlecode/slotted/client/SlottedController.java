@@ -151,16 +151,6 @@ public class SlottedController {
     }
 
     /**
-     * Creates a new SlottedController based on the passed controller.  This also sets useHistory to false;
-     *
-     * @param slottedController
-     */
-    protected SlottedController(SlottedController slottedController) {
-        this(slottedController.historyMapper, slottedController.eventBus, slottedController.delegate, false);
-        this.navigationOverride = slottedController.navigationOverride;
-    }
-
-    /**
      * Create a new SlottedController.
      *
      * @param historyMapper the {@link HistoryMapper}
@@ -168,7 +158,7 @@ public class SlottedController {
      * @param delegate the {@link Delegate} in charge of Window-related events
      * @param isMainController false if this controller shouldn't handle History, WindowClosingEvent, and OpenWindow events.
      */
-    private SlottedController(final HistoryMapper historyMapper, EventBus eventBus, Delegate delegate, boolean isMainController) {
+    protected SlottedController(final HistoryMapper historyMapper, EventBus eventBus, Delegate delegate, boolean isMainController) {
         this.eventBus = eventBus;
         this.historyMapper = historyMapper;
         this.delegate = delegate;
@@ -335,6 +325,13 @@ public class SlottedController {
      */
     public void setNavigationOverride(NavigationOverride navigationOverride) {
         this.navigationOverride = navigationOverride;
+    }
+
+    /**
+     * Gets the current NavigationOverride that has been set.
+     */
+    public NavigationOverride getNavigationOverride() {
+        return navigationOverride;
     }
 
     /**
@@ -907,6 +904,13 @@ public class SlottedController {
      */
     public HistoryMapper getHistoryMapper() {
         return historyMapper;
+    }
+
+    /**
+     * Gets the Delegate used when navigation is stopped by mayStop().
+     */
+    public Delegate getDelegate() {
+        return delegate;
     }
 
     /**
