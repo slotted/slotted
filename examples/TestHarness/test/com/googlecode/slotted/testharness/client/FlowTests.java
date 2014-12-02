@@ -12,6 +12,7 @@ import com.googlecode.slotted.testharness.client.flow.APlace;
 import com.googlecode.slotted.testharness.client.flow.B1aPlace;
 import com.googlecode.slotted.testharness.client.flow.B1bPlace;
 import com.googlecode.slotted.testharness.client.flow.B2aPlace;
+import com.googlecode.slotted.testharness.client.flow.B2bPlace;
 import com.googlecode.slotted.testharness.client.flow.BPlace;
 import com.googlecode.slotted.testharness.client.flow.CacheA1aPlace;
 import com.googlecode.slotted.testharness.client.flow.CacheAPlace;
@@ -745,10 +746,19 @@ public class FlowTests extends GWTTestCase {
     }
 
     public void testCreateTokenWithNonDefaults() {
-        TestHarness.slottedController.goTo(new A1bPlace());
+        TestHarness.slottedController.goTo(new BPlace());
 
-        String token = TestHarness.slottedController.createToken(new APlace());
-        assertTrue(token.contains("A1b"));
+        String token = TestHarness.slottedController.createToken(new B1bPlace());
+        assertTrue(token.contains("B2a"));
+        assertFalse(token.contains("B1a"));
+        assertNotNull(TestHarness.slottedController.getCurrentPlace(B1aPlace.class));
+
+        TestHarness.slottedController.goTo(new B2bPlace());
+
+        token = TestHarness.slottedController.createToken(new B1bPlace());
+        assertTrue(token.contains("B2b"));
+        assertNotNull(TestHarness.slottedController.getCurrentPlace(B1aPlace.class));
+        assertFalse(token.contains("B1a"));
     }
 
     public void testStartException() {
