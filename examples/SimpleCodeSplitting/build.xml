@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="Simple" default="build" basedir=".">
+<project name="Simple CodeSplitting" default="build" basedir=".">
     <!--         App specifics              -->
-    <property name="gwt.modules" value="com.googlecode.slotted.simple_example.Simple"/>
+    <property name="gwt.modules" value="com.googlecode.slotted.simple_codesplitting.Simple"/>
 
     <!--         Install Versions           -->
     <property name="ivy.install.version" value="2.1.0-rc2" />

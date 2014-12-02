@@ -16,6 +16,7 @@
 package com.googlecode.slotted.client;
 
 import com.google.gwt.activity.shared.Activity;
+import com.google.gwt.core.client.Callback;
 import com.google.gwt.place.shared.Place;
 
 import java.util.LinkedList;
@@ -59,6 +60,10 @@ abstract public class SlottedPlace extends Place implements HasParameters {
      * @return The activity responsible for creating the UI.
      */
     abstract public Activity getActivity();
+
+    protected void runGetActivity(Callback<? super Activity, ? super Throwable> callback) {
+        callback.onSuccess(getActivity());
+    }
 
     /**
      * Used to set a global parameter if AutoTokenizer is not used.

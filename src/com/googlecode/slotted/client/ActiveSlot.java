@@ -22,6 +22,7 @@ import java.util.logging.Level;
 
 import com.google.gwt.activity.shared.Activity;
 import com.google.gwt.activity.shared.ActivityMapper;
+import com.google.gwt.core.client.Callback;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.web.bindery.event.shared.EventBus;
@@ -313,20 +314,41 @@ public class ActiveSlot {
      *
      * @param parameters The global parameters for the hierarchy
      */
-    private void getStartActivity(PlaceParameters parameters) {
-        activity = place.getActivity();
-        if (activity == null) {
-            ActivityMapper mapper = slottedController.getLegacyActivityMapper();
-            if (mapper == null) {
-                throw new IllegalStateException("SlottedPlace.getActivity() returned null, " +
-                        "and LegacyActivityMapper wasn't set.");
+    private void getStartActivity(final PlaceParameters parameters) {
+        place.runGetActivity(new Callback<Activity, Throwable>() {
+            @Override public void onSuccess(Activity result) {
+                if (result != null) {
+                    startActivity(result, parameters);
+                } else {
+                    getStartFromMapper(parameters);
+                }
             }
-            activity = mapper.getActivity(place);
-            if (activity == null) {
-                throw new IllegalStateException("SlottedPlace.getActivity() returned null, " +
-                        "and LegacyActivityMapper also return null.");
+
+            @Override public void onFailure(Throwable reason) {
+                new RuntimeException("Code Splitting load failed", reason);
             }
+        });
+
+    }
+
+    private void getStartFromMapper(final PlaceParameters parameters) {
+        ActivityMapper mapper = slottedController.getLegacyActivityMapper();
+        if (mapper == null) {
+            throw new IllegalStateException("SlottedPlace.getActivity() returned null, " +
+                    "and LegacyActivityMapper wasn't set.");
         }
+        activity = mapper.getActivity(place);
+        if (activity == null) {
+            throw new IllegalStateException("SlottedPlace.getActivity() returned null, " +
+                    "and LegacyActivityMapper also return null.");
+        }
+
+        startActivity(activity, parameters);
+    }
+
+    private void startActivity(Activity activity, PlaceParameters parameters) {
+        this.activity = activity;
+
         ActivityCache activityCache = slottedController.getActivityCache();
         activityCache.add(place, activity);
         List<Class<? extends SlottedPlace>> placesOfActivitiesToCache = historyMapper.getPlacesOfActivitiesToCache(place);

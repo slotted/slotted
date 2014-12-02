@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="Simple" default="build" basedir=".">
+<project name="GinCodeSplitting"
+         default="build" basedir=".">
     <!--         App specifics              -->
-    <property name="gwt.modules" value="com.googlecode.slotted.simple_example.Simple"/>
+    <property name="gwt.modules" value="com.googlecode.slotted.gin_codesplitting.HelloMVP"/>
 
     <!--         Install Versions           -->
     <property name="ivy.install.version" value="2.1.0-rc2" />
@@ -20,7 +21,7 @@
         <property name="gwt.sdk" location="${java.lib.home}/gwt-${gwt.install.version}" />
 
         <property name="src.dir" location="src"/>
-        <property name="lib.dir" location="lib"/>
+        <property name="lib.dir" location="war/WEB-INF/lib"/>
 
         <property name="build.dir" location="build"/>
         <property name="build.classes.dir" value="${build.dir}/classes"/>
@@ -40,6 +41,7 @@
             <pathelement location="${build.classes.dir}"/>
             <pathelement location="${gwt.sdk}/gwt-user.jar"/>
             <fileset dir="${gwt.sdk}" includes="gwt-dev*.jar"/>
+            <fileset dir="${lib.dir}" includes="*.jar"/>
         </path>
 
         <path id="tools.class.path">
@@ -69,6 +71,7 @@
             </classpath>
             <!-- add jvmarg -Xss16M or similar if you see a StackOverflowError -->
             <jvmarg value="-Xmx256M"/>
+            <arg line="-compileReport"/>
             <arg line="-war"/>
             <arg value="${build.gwt.dir}"/>
             <arg line="-gen"/>
@@ -85,6 +88,7 @@
     <target name="clean" depends="properties" description="Removes all artifacts from build except ivy artifacts">
         <delete includeemptydirs="true" quiet="true">
             <fileset dir="${build.dir}" includes="**/*"/>
+            <fileset dir="extras" includes="**/*"/>
         </delete>
     </target>
 
