@@ -26,9 +26,9 @@ public class MultiParentTests extends GWTTestCase {
 
     @SuppressWarnings("UnusedDeclaration")
     public void test() {
-        // No existing parent - Child goes to first parent
+        // Root parent - Child goes to first parent
         TestHarness.slottedController.goTo(new Child1Place());
-        assertNotNull(TestHarness.slottedController.getCurrentPlace(Parent1Place.class));
+        assertNull(TestHarness.slottedController.getCurrentPlace(Parent1Place.class));
         assertNull(TestHarness.slottedController.getCurrentPlace(Parent2Place.class));
 
         // Parent1 exists - Child stays under that parent
