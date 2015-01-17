@@ -391,6 +391,7 @@ public class ActiveSlot {
             throw new IllegalStateException(place + " needs to an instance of SlottedActivity, because " +
                     "it has child slots.");
         }
+        slottedController.attemptShowViews();
     }
 
     /**
