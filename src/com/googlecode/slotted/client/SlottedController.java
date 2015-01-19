@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 
 import com.google.gwt.activity.shared.Activity;
 import com.google.gwt.activity.shared.ActivityMapper;
+import com.google.gwt.core.client.Callback;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.NativeEvent;
@@ -107,6 +108,8 @@ public class SlottedController {
 
     private boolean processingGoTo;
     private boolean tokenDone;
+    private SlottedPlace mainGoToPlace;
+    protected List<Callback<Activity, Throwable>> asyncActivities = new LinkedList<Callback<Activity, Throwable>>();
     private SlottedPlace nextGoToPlace;
     @SuppressWarnings("FieldCanBeLocal")
     private SlottedPlace[] nextGoToNonDefaultPlaces;
@@ -120,6 +123,7 @@ public class SlottedController {
     private ActiveSlot root;
     private PlaceParameters currentParameters;
     private NavigationOverride navigationOverride;
+    private String goToList;
     private String referringToken;
     private String currentToken;
     private boolean openNewTab;
@@ -436,11 +440,11 @@ public class SlottedController {
      * @param reloadAll true if existing activities should be refreshed.
      */
     public void goTo(SlottedPlace newPlace, SlottedPlace[] nonDefaultPlaces, boolean reloadAll) {
-        String goToLog = "GoTo: " + newPlace;
+        goToList = "GoTo: " + newPlace;
         for (SlottedPlace place: nonDefaultPlaces) {
-            goToLog += "/" + place;
+            goToList += "/" + place;
         }
-        log.info(goToLog);
+        log.info(goToList);
         try {
             Exception maybeGoToException = null;
             if (openNewTab) {
@@ -461,6 +465,7 @@ public class SlottedController {
 
                 } else {
                     processingGoTo = true;
+                    mainGoToPlace = newPlace;
                     tokenDone = false;
                     nextGoToPlace = null;
                     nextGoToNonDefaultPlaces = null;
@@ -486,46 +491,61 @@ public class SlottedController {
                         maybeGoToException = e;
                     }
 
+                    boolean constructedCleanup = false;
                     if (warnings.isEmpty() || delegate.confirm(warnings.toArray(new String[warnings.size()]))) {
                         currentHierarchyList = hierarchyList;
                         root.constructStopStart(currentParameters, hierarchyList, reloadAll);
-
-                        LinkedList<SlottedPlace> places = new LinkedList<SlottedPlace>();
-                        fillPlaces(root, places);
-
-                        referringToken = currentToken;
-                        currentToken = historyMapper.createToken(this);
-                        tokenDone = true;
-                        activityCache.clearUnused();
-                        eventBus.fireEventFromSource(new NewPlaceEvent(places), SlottedController.this);
+                        constructedCleanup = true;
                     }
 
-                    processingGoTo = false;
-
-                    if (!attemptShowViews()) {
-                        eventBus.fireEventFromSource(new LoadingEvent(true), SlottedController.this);
-                    }
-
-                    if (nextGoToPlace != null) {
-                        goTo(nextGoToPlace, nextGoToNonDefaultPlaces, nextGoToReloadAll);
-                    }
+                    asyncGoToCleanup(constructedCleanup);
                 }
             }
             if (maybeGoToException != null) {
                 throw maybeGoToException;
             }
         } catch (Exception e) {
+            handleGoToException(e);
+        }
+    }
+
+    protected void handleGoToException(Exception e) {
+        processingGoTo = false;
+        asyncActivities.clear();
+        log.log(Level.SEVERE, "Problem while goTo:" + goToList, e);
+        SlottedErrorPlace errorPlace = historyMapper.getErrorPlace();
+        if (errorPlace != null && !(mainGoToPlace instanceof SlottedErrorPlace)) {
+            errorPlace.setException(e);
+            goTo(errorPlace);
+        } else if (e instanceof SlottedInitException) {
+            ((SlottedInitException) e).setGoToList(goToList);
+            throw ((SlottedInitException) e);
+        } else {
+            throw SlottedException.wrap(e);
+        }
+    }
+
+    private void asyncGoToCleanup(boolean constructedCleanup) {
+        if (asyncActivities.isEmpty()) {
+            if (constructedCleanup) {
+                LinkedList<SlottedPlace> places = new LinkedList<SlottedPlace>();
+                fillPlaces(root, places);
+
+                referringToken = currentToken;
+                currentToken = historyMapper.createToken(this);
+                tokenDone = true;
+                activityCache.clearUnused();
+                eventBus.fireEventFromSource(new NewPlaceEvent(places), SlottedController.this);
+            }
+
             processingGoTo = false;
-            log.log(Level.SEVERE, "Problem while goTo:" + newPlace, e);
-            SlottedErrorPlace errorPlace = historyMapper.getErrorPlace();
-            if (errorPlace != null && !(newPlace instanceof SlottedErrorPlace)) {
-                errorPlace.setException(e);
-                goTo(errorPlace);
-            } else if (e instanceof SlottedInitException) {
-                ((SlottedInitException) e).setGoToList(goToLog);
-                throw ((SlottedInitException) e);
-            } else {
-                throw SlottedException.wrap(e);
+
+            if (!attemptShowViews()) {
+                eventBus.fireEventFromSource(new LoadingEvent(true), SlottedController.this);
+            }
+
+            if (nextGoToPlace != null) {
+                goTo(nextGoToPlace, nextGoToNonDefaultPlaces, nextGoToReloadAll);
             }
         }
     }

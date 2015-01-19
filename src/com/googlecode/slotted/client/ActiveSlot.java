@@ -315,20 +315,30 @@ public class ActiveSlot {
      * @param parameters The global parameters for the hierarchy
      */
     private void getStartActivity(final PlaceParameters parameters) {
-        place.runGetActivity(new Callback<Activity, Throwable>() {
+        Callback<Activity, Throwable> callback = new Callback<Activity, Throwable>() {
             @Override public void onSuccess(Activity result) {
-                if (result != null) {
-                    startActivity(result, parameters);
-                } else {
-                    getStartFromMapper(parameters);
+                try {
+                    if (slottedController.asyncActivities.contains(this)) {
+                        if (result != null) {
+                            startActivity(result, parameters);
+                        } else {
+                            getStartFromMapper(parameters);
+                        }
+                        slottedController.asyncActivities.remove(this);
+                    }
+                } catch (Exception e) {
+                    slottedController.handleGoToException(e);
                 }
+
             }
 
             @Override public void onFailure(Throwable reason) {
                 new RuntimeException("Code Splitting load failed", reason);
             }
-        });
+        };
 
+        slottedController.asyncActivities.add(callback);
+        place.runGetActivity(callback);
     }
 
     private void getStartFromMapper(final PlaceParameters parameters) {
