@@ -1,13 +1,14 @@
 package com.googlecode.slotted.simple_codesplitting.client;
 
-import com.google.gwt.core.client.GWT;
-import com.googlecode.slotted.client.CodeSplitActivity;
-import com.googlecode.slotted.client.CodeSplitGroup;
-import com.googlecode.slotted.client.CodeSplitPlace;
+import com.googlecode.slotted.client.CodeSplitMapperClass;
+import com.googlecode.slotted.client.PlaceActivity;
 import com.googlecode.slotted.client.Slot;
 import com.googlecode.slotted.client.SlottedController;
+import com.googlecode.slotted.client.SlottedPlace;
 
-public class ParentPlace extends CodeSplitPlace {
+@CodeSplitMapperClass(NestedMapper.class)
+@PlaceActivity(ParentActivity.class)
+public class ParentPlace extends SlottedPlace {
     public static final Slot SLOT = new Slot(new ParentPlace(), new NestedPlace());
 
     public ParentPlace() {
@@ -20,10 +21,5 @@ public class ParentPlace extends CodeSplitPlace {
 
     @Override public Slot[] getChildSlots() {
         return new Slot[] {SLOT};
-    }
-
-    @CodeSplitActivity(ParentActivity.class)
-    @Override public CodeSplitGroup getCodeSplitGroup() {
-        return GWT.create(NestedGroup.class);
     }
 }

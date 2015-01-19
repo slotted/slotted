@@ -75,6 +75,7 @@ abstract public class HistoryMapper {
     private HashMap<String, PlaceTokenizer<? extends SlottedPlace>> nameToTokenizerMap = new HashMap<String, PlaceTokenizer<? extends SlottedPlace>>();
     private HashMap<Class, String> placeToNameMap = new HashMap<Class, String>();
     private HashMap<Class, Class<? extends SlottedPlace>[]> activityCacheMap = new HashMap<Class, Class<? extends SlottedPlace>[]>();
+    private HashMap<Class, Class<? extends CodeSplitMapper>> codeSplitMap = new HashMap<Class, Class<? extends CodeSplitMapper>>();
     private SlottedPlace defaultPlace;
     private SlottedPlace errorPlace;
     private ActivityMapper legacyActivityMapper;
@@ -154,6 +155,15 @@ abstract public class HistoryMapper {
             return (SlottedErrorPlace) errorPlace;
         }
         return null;
+    }
+
+    /**
+     *  Gets the CodeSplitMapper that was registered for passed Place.  The Place
+     *  must have the @CodeSplitMapperClass annotation to be registered for Code
+     *  Splitting by the AutoHistoryMapper.
+     */
+    public Class<? extends CodeSplitMapper> getCodeSplitMapper(Place place) {
+        return codeSplitMap.get(place.getClass());
     }
 
     /**
@@ -263,12 +273,36 @@ abstract public class HistoryMapper {
      *                   constructor, but it may be private.
      * @param name The new URL token to display in the History token, must be URL safe.
      * @param tokenizer That handles the creation of the token and parsing the token into a Place.
+     * @param placeActivitiesToCache Array of child Activities that should be cached while the Place
+     *                               in the heirarchy.
      *
      * @see #registerPlace(Class, PlaceTokenizer)
      * @see #registerPlace(Class, String)
      */
     public void registerPlace(Class<? extends Place> placeClass, String name,
             PlaceTokenizer<? extends SlottedPlace> tokenizer, Class<? extends SlottedPlace>[] placeActivitiesToCache)
+    {
+        registerPlace(placeClass, name, tokenizer, null);
+    }
+
+    /**
+     * Same as {@link #registerPlace(SlottedPlace)}, but allows for overridden name, and
+     * parameter tokens.
+     *
+     * @param placeClass The Class of the place to be managed.  The Place must have a default
+     *                   constructor, but it may be private.
+     * @param name The new URL token to display in the History token, must be URL safe.
+     * @param tokenizer That handles the creation of the token and parsing the token into a Place.
+     * @param placeActivitiesToCache Array of child Activities that should be cached while the Place
+     *                               in the heirarchy.
+     * @param codeSplitMapper
+     *
+     * @see #registerPlace(Class, PlaceTokenizer)
+     * @see #registerPlace(Class, String)
+     */
+    public void registerPlace(Class<? extends Place> placeClass, String name,
+            PlaceTokenizer<? extends SlottedPlace> tokenizer, Class<? extends SlottedPlace>[] placeActivitiesToCache,
+            Class<? extends CodeSplitMapper> codeSplitMapper)
     {
         Place place = placeFactory.newInstance(placeClass);
         if (place == null) {
@@ -326,6 +360,7 @@ abstract public class HistoryMapper {
                         "constructor which can be private.");
             }
         }
+        codeSplitMap.put(placeClass, codeSplitMapper);
     }
 
     /**

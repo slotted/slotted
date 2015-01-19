@@ -1,5 +1,10 @@
 package com.googlecode.slotted.rebind;
 
+import java.io.PrintWriter;
+import java.lang.annotation.Annotation;
+import java.util.LinkedList;
+import java.util.List;
+
 import com.google.gwt.activity.shared.Activity;
 import com.google.gwt.core.client.Callback;
 import com.google.gwt.core.client.GWT;
@@ -7,22 +12,20 @@ import com.google.gwt.core.client.RunAsyncCallback;
 import com.google.gwt.core.ext.Generator;
 import com.google.gwt.core.ext.GeneratorContext;
 import com.google.gwt.core.ext.TreeLogger;
+import com.google.gwt.core.ext.TreeLogger.Type;
 import com.google.gwt.core.ext.UnableToCompleteException;
 import com.google.gwt.core.ext.typeinfo.JClassType;
-import com.google.gwt.core.ext.typeinfo.JMethod;
-import com.google.gwt.core.ext.typeinfo.JType;
 import com.google.gwt.core.ext.typeinfo.NotFoundException;
 import com.google.gwt.core.ext.typeinfo.TypeOracle;
+import com.google.gwt.place.shared.Place;
 import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
 import com.google.gwt.user.rebind.SourceWriter;
-import com.googlecode.slotted.client.CodeSplitActivity;
-import com.googlecode.slotted.client.CodeSplitPlace;
+import com.googlecode.slotted.client.CodeSplitMapperClass;
+import com.googlecode.slotted.client.PlaceActivity;
 import com.googlecode.slotted.client.SlottedException;
 import com.googlecode.slotted.client.SlottedPlace;
 
-import java.io.PrintWriter;
-
-public class CodeSplitGroupGenerator extends Generator {
+public class CodeSplitMapperGenerator extends Generator {
     private static String NamePostfix = "Impl";
     private String typeName;
 
@@ -39,9 +42,10 @@ public class CodeSplitGroupGenerator extends Generator {
 
         try {
 
-            SourceWriter sourceWriter = getSourceWriter(clazz, context, logger);
+            SourceWriter sourceWriter = getSourceWriter(logger, context, clazz);
             if (sourceWriter != null) {
-                writeInitMethod(logger, context, typeOracle, sourceWriter);
+                List<JClassType> codeSplitPlaces = getCodeSplitPlaces(logger, typeOracle, typeName);
+                writeInitMethod(logger, sourceWriter, codeSplitPlaces);
 
                 sourceWriter.commit(logger);
                 logger.log(TreeLogger.DEBUG, "Done Generating source for "
@@ -56,7 +60,7 @@ public class CodeSplitGroupGenerator extends Generator {
         return clazz.getQualifiedSourceName() + NamePostfix;
     }
 
-    public SourceWriter getSourceWriter(JClassType classType, GeneratorContext context, TreeLogger logger) {
+    public SourceWriter getSourceWriter(TreeLogger logger, GeneratorContext context, JClassType classType) {
 
         String packageName = classType.getPackage().getName();
         String simpleName = classType.getSimpleSourceName() + NamePostfix;
@@ -82,7 +86,35 @@ public class CodeSplitGroupGenerator extends Generator {
 
     }
 
-    private void writeInitMethod(TreeLogger logger, GeneratorContext context, TypeOracle typeOracle, SourceWriter sourceWriter) throws NotFoundException, UnableToCompleteException {
+    private List<JClassType> getCodeSplitPlaces(TreeLogger logger, TypeOracle typeOracle, String mapperType) throws NotFoundException, UnableToCompleteException {
+        List<JClassType> codeSplitPlaces = new LinkedList<JClassType>();
+        JClassType[] types = typeOracle.getTypes();
+        JClassType placeType = typeOracle.getType(Place.class.getName());
+        for (JClassType place: types) {
+            if (place.isAssignableTo(placeType)) {
+                Annotation annotation = place.getAnnotation(CodeSplitMapperClass.class);
+                if (annotation != null) {
+                    Class codeSplitClass = ((CodeSplitMapperClass) annotation).value();
+                    if (codeSplitClass != null && mapperType.equals(codeSplitClass.getCanonicalName())) {
+                        if (place.isAbstract() || !place.isDefaultInstantiable()) {
+                            logger.log(Type.ERROR, "Place is abstract or not default instantiable:" + place.getName());
+                            throw new UnableToCompleteException();
+                        }
+
+                        codeSplitPlaces.add(place);
+                    }
+                }
+            }
+        }
+        if (codeSplitPlaces.isEmpty()) {
+            logger.log(Type.ERROR, "No places found for CodeSplitMapper:" + mapperType);
+            throw new UnableToCompleteException();
+        }
+
+        return codeSplitPlaces;
+    }
+
+    private void writeInitMethod(TreeLogger logger, SourceWriter sourceWriter, List<JClassType> codeSplitPlaces) throws NotFoundException, UnableToCompleteException {
         sourceWriter.println("@Override public void get(final SlottedPlace place, final Callback<? super Activity, ? super Throwable> callback) {");
         sourceWriter.indent();
         sourceWriter.println("GWT.runAsync(new RunAsyncCallback() {");
@@ -96,20 +128,12 @@ public class CodeSplitGroupGenerator extends Generator {
         sourceWriter.println("@Override public void onSuccess() {");
         sourceWriter.indent();
 
-        JClassType[] types = typeOracle.getTypes();
-        JClassType placeType = typeOracle.getType(CodeSplitPlace.class.getName());
         boolean first = true;
-        for (JClassType place: types) {
-            if (!place.isAbstract() && place.isDefaultInstantiable() && place.isAssignableTo(placeType)) {
-                generateif(logger, place, first, sourceWriter);
-                if (first) {
-                    first = false;
-                }
+        for (JClassType place: codeSplitPlaces) {
+            generateIf(logger, sourceWriter, place, first);
+            if (first) {
+                first = false;
             }
-        }
-        if (first) {
-            logger.log(TreeLogger.ERROR, "No matching CodeSplitPlaces for Group:" + typeName);
-            throw new UnableToCompleteException();
         }
 
         sourceWriter.println("} else {");
@@ -125,15 +149,13 @@ public class CodeSplitGroupGenerator extends Generator {
         sourceWriter.println("}");
     }
 
-    private void generateif(TreeLogger logger, JClassType placeType, boolean first, SourceWriter sourceWriter) throws NotFoundException, UnableToCompleteException {
-
-        JMethod method = placeType.getMethod("getCodeSplitGroup", new JType[0]);
-        CodeSplitActivity annotation = method.getAnnotation(CodeSplitActivity.class);
-        if (annotation == null || annotation.value() == null || annotation.value().length != 1) {
-            logger.log(TreeLogger.ERROR, "@CodeSplitActivity not defined on getCodeSplitGroup() for:" + placeType);
+    private void generateIf(TreeLogger logger, SourceWriter sourceWriter, JClassType placeType, boolean first) throws NotFoundException, UnableToCompleteException {
+        PlaceActivity annotation = placeType.getAnnotation(PlaceActivity.class);
+        if (annotation == null || annotation.value() == null) {
+            logger.log(TreeLogger.ERROR, "@PlaceActivity not defined on:" + placeType);
             throw new UnableToCompleteException();
         }
-        Class<? extends Activity> activityClass = annotation.value()[0];
+        Class<? extends Activity> activityClass = annotation.value();
 
         if (!first) {
             sourceWriter.print("} else ");

@@ -15,11 +15,11 @@
  */
 package com.googlecode.slotted.client;
 
+import java.util.LinkedList;
+
 import com.google.gwt.activity.shared.Activity;
 import com.google.gwt.core.client.Callback;
 import com.google.gwt.place.shared.Place;
-
-import java.util.LinkedList;
 
 /**
  * Defines how this place fits in the Place Hierarchy, and what Activity will be displayed for
@@ -59,8 +59,15 @@ abstract public class SlottedPlace extends Place implements HasParameters {
      *
      * @return The activity responsible for creating the UI.
      */
-    abstract public Activity getActivity();
+    public Activity getActivity() {
+        return null;
+    }
 
+    /**
+     * Attempts to get the Activity via async call, which allows for custom Code Splitting logic.
+     *
+     * @param callback Passed by SlottedController to handle the async call.
+     */
     protected void runGetActivity(Callback<? super Activity, ? super Throwable> callback) {
         callback.onSuccess(getActivity());
     }

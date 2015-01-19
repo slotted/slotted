@@ -17,6 +17,7 @@ package com.googlecode.slotted.client;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
@@ -105,6 +106,7 @@ public class SlottedController {
     private final HistoryMapper historyMapper;
     private ActivityMapper legacyActivityMapper;
     private ActivityCache activityCache = new ActivityCache();
+    private HashMap<Class, CodeSplitMapper> codeSplitMap = new HashMap<Class, CodeSplitMapper>();
 
     private boolean processingGoTo;
     private boolean tokenDone;
@@ -254,6 +256,26 @@ public class SlottedController {
         }
 
         historyMapper.setDefaultPlace(slottedPlace);
+    }
+
+    /**
+     * Registers a CodeSplitMapper to be used retrieve Activities from a Code Split call.
+     *
+     * @param mapperClass The class represents this CodeSplitMapper.  Used because the CodeSplitMapper
+     *                    might be generated.
+     * @param codeSplitMapper The mapper that should be used to retrieve Activities for specified Places
+     */
+    public void registerCodeSplitMapper(Class<? extends CodeSplitMapper> mapperClass, CodeSplitMapper codeSplitMapper) {
+        codeSplitMap.put(mapperClass, codeSplitMapper);
+    }
+
+    /**
+     * Internal call to get the CodeSplitMapper during goTo Activity construction.
+     *
+     * @param codeSplitMapperClass The mapperClass specified in the @CodeSplitMapperClass
+     */
+    protected CodeSplitMapper getCodeSplitMapper(Class codeSplitMapperClass) {
+        return codeSplitMap.get(codeSplitMapperClass);
     }
 
     /**
@@ -509,6 +531,11 @@ public class SlottedController {
         }
     }
 
+    /**
+     * Handles exceptions for GoTo for synchronous and asynchronous calls.
+     *
+     * @param e The exception that needs to be handled.
+     */
     protected void handleGoToException(Exception e) {
         processingGoTo = false;
         asyncActivities.clear();
@@ -525,7 +552,12 @@ public class SlottedController {
         }
     }
 
-    private void asyncGoToCleanup(boolean constructedCleanup) {
+    /**
+     * Cleans up the goTo processing only after all the async Activity request finish.
+     *
+     * @param constructedCleanup True when new Activities were created.
+     */
+    protected void asyncGoToCleanup(boolean constructedCleanup) {
         if (asyncActivities.isEmpty()) {
             if (constructedCleanup) {
                 LinkedList<SlottedPlace> places = new LinkedList<SlottedPlace>();
@@ -698,13 +730,13 @@ public class SlottedController {
      * {@link SlottedActivity#setLoadingComplete(Object...)} ()} hasn't been called.
      */
     public boolean isLoading() {
-        return root.getFirstLoadingPlace() != null;
+        return root.getFirstBlockingSlot() != null;
     }
 
     protected void showLoading() {
-        SlottedPlace loadingPlace = root.getFirstLoadingPlace();
-        if (loadingPlace != null) {
-            log.info("Place loading:" + loadingPlace);
+        ActiveSlot blockingSlot = root.getFirstBlockingSlot();
+        if (blockingSlot != null) {
+            log.info("Place loading:" + blockingSlot);
             eventBus.fireEventFromSource(new LoadingEvent(true), SlottedController.this);
         }
     }
@@ -717,13 +749,13 @@ public class SlottedController {
      */
     protected boolean attemptShowViews() {
         if (!processingGoTo) {
-            SlottedPlace loadingPlace = root.getFirstLoadingPlace();
-            if (loadingPlace == null) {
+            ActiveSlot blockingSlot = root.getFirstBlockingSlot();
+            if (blockingSlot == null) {
                 root.showViews();
                 eventBus.fireEventFromSource(new LoadingEvent(false), SlottedController.this);
                 return true;
-            } else {
-                log.warning("Waiting for loading place:" + loadingPlace);
+            } else if (blockingSlot.isLoading()) {
+                log.info("Waiting for loading place:" + blockingSlot);
             }
         }
         return false;

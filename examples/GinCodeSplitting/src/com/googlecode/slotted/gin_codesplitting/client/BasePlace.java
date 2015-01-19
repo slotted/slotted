@@ -1,6 +1,6 @@
 package com.googlecode.slotted.gin_codesplitting.client;
 
-import com.googlecode.slotted.client.CodeSplitGroup;
+import com.googlecode.slotted.client.CodeSplitMapper;
 import com.googlecode.slotted.client.CodeSplitPlace;
 import com.googlecode.slotted.client.Slot;
 import com.googlecode.slotted.client.SlottedController;
@@ -16,7 +16,7 @@ public class BasePlace extends CodeSplitPlace {
         return new Slot[] {SLOT};
     }
 
-    @Override public CodeSplitGroup getCodeSplitGroup() {
+    @Override public CodeSplitMapper getCodeSplitGroup() {
         return null;
         //return AppGinjector.instance.getBaseActivity();
     }

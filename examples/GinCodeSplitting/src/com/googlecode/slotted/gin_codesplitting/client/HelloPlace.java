@@ -1,7 +1,7 @@
 package com.googlecode.slotted.gin_codesplitting.client;
 
 import com.google.gwt.place.shared.Prefix;
-import com.googlecode.slotted.client.CodeSplitGroup;
+import com.googlecode.slotted.client.CodeSplitMapper;
 import com.googlecode.slotted.client.CodeSplitPlace;
 import com.googlecode.slotted.client.Slot;
 import com.googlecode.slotted.client.TokenizerParameter;
@@ -29,7 +29,7 @@ public class HelloPlace extends CodeSplitPlace {
         return null;
     }
 
-    @Override public CodeSplitGroup getCodeSplitGroup() {
-        return new GapSplitGroup();
+    @Override public CodeSplitMapper getCodeSplitGroup() {
+        return new GapMapper();
     }
 }

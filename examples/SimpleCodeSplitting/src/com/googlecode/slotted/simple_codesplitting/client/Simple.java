@@ -5,6 +5,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.googlecode.slotted.client.AutoHistoryMapper;
+import com.googlecode.slotted.client.CodeSplitMapper;
 import com.googlecode.slotted.client.HistoryMapper;
 import com.googlecode.slotted.client.SlottedController;
 import com.googlecode.slotted.client.SlottedEventBus;
@@ -22,6 +23,7 @@ public class Simple implements EntryPoint {
         HistoryMapper historyMapper = GWT.create(AutoHistoryMapper.class);
         slottedController = new SlottedController(historyMapper, new SlottedEventBus());
         slottedController.setDefaultPlace(new HomePlace());
+        slottedController.registerCodeSplitMapper(NestedMapper.class, GWT.<CodeSplitMapper>create(NestedMapper.class));
 
         SimplePanel rootDisplay = new SimplePanel();
         RootPanel.get().add(rootDisplay);

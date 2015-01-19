@@ -315,7 +315,7 @@ public class ActiveSlot {
      * @param parameters The global parameters for the hierarchy
      */
     private void getStartActivity(final PlaceParameters parameters) {
-        Callback<Activity, Throwable> callback = new Callback<Activity, Throwable>() {
+        Callback<Activity, Throwable> activityCallback = new Callback<Activity, Throwable>() {
             @Override public void onSuccess(Activity result) {
                 try {
                     if (slottedController.asyncActivities.contains(this)) {
@@ -325,6 +325,7 @@ public class ActiveSlot {
                             getStartFromMapper(parameters);
                         }
                         slottedController.asyncActivities.remove(this);
+                        slottedController.asyncGoToCleanup(true);
                     }
                 } catch (Exception e) {
                     slottedController.handleGoToException(e);
@@ -337,8 +338,18 @@ public class ActiveSlot {
             }
         };
 
-        slottedController.asyncActivities.add(callback);
-        place.runGetActivity(callback);
+        slottedController.asyncActivities.add(activityCallback);
+        Class codeSplitClass = historyMapper.getCodeSplitMapper(place);
+        if (codeSplitClass != null) {
+            CodeSplitMapper codeSplitMapper = slottedController.getCodeSplitMapper(codeSplitClass);
+            if (codeSplitMapper == null) {
+                throw new SlottedException("CodeSplitMapper not registered:" + codeSplitClass.getName());
+            }
+            codeSplitMapper.get(place, activityCallback);
+
+        } else {
+            place.runGetActivity(activityCallback);
+        }
     }
 
     private void getStartFromMapper(final PlaceParameters parameters) {
@@ -477,20 +488,26 @@ public class ActiveSlot {
     }
 
     /**
-     * Recursively checks the hierarchy to find a Slot that is loading.  If more than on Slot is loading, it can't be
-     * determined with Slot's place will be determined.
-     *
-     * @return The current Place for the Slot that is loading.
+     * @return True if the slot's activity called setLoadingStarted() without completing.
      */
-    public SlottedPlace getFirstLoadingPlace() {
+    public boolean isLoading() {
+        return currentProtectedDisplay != null && currentProtectedDisplay.loading;
+    }
+
+    /**
+     * Recursively checks the hierarchy to find a Slot that is blocking displaying Activities.
+     *
+     * @return The ActiveSlot for the Slot that is loading.
+     */
+    public ActiveSlot getFirstBlockingSlot() {
         if (currentProtectedDisplay == null || currentProtectedDisplay.loading) {
-            return place;
+            return this;
         }
         if (children!= null) {
             for (ActiveSlot child: children) {
-                SlottedPlace childPlace = child.getFirstLoadingPlace();
-                if (childPlace != null) {
-                    return childPlace;
+                ActiveSlot childSlot = child.getFirstBlockingSlot();
+                if (childSlot != null) {
+                    return childSlot;
                 }
             }
         }

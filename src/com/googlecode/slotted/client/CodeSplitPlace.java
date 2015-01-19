@@ -21,14 +21,14 @@ import com.google.gwt.core.client.Callback;
 //todo javadoc
 abstract public class CodeSplitPlace extends SlottedPlace {
 
-    abstract public CodeSplitGroup getCodeSplitGroup();
+    abstract public CodeSplitMapper getCodeSplitGroup();
 
     @Override public final Activity getActivity() {
         throw new UnsupportedOperationException("This shouldn't be called except for SlottedPlace.getAsynActivity()");
     }
 
     @Override protected void runGetActivity(Callback<? super Activity, ? super Throwable> callback) {
-        CodeSplitGroup group = getCodeSplitGroup();
+        CodeSplitMapper group = getCodeSplitGroup();
         group.get(this, callback);
     }
 }

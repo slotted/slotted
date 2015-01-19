@@ -18,6 +18,7 @@ import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
 import com.google.gwt.user.rebind.SourceWriter;
 import com.googlecode.slotted.client.AutoHistoryMapper;
 import com.googlecode.slotted.client.CacheActivities;
+import com.googlecode.slotted.client.CodeSplitMapperClass;
 
 public class AutoHistoryMapperGenerator extends Generator {
     private static String NamePostfix = "Gen";
@@ -92,6 +93,7 @@ public class AutoHistoryMapperGenerator extends Generator {
                 JClassType tokenizer = getTokenizer(place, tokenizerType);
                 String prefix = getPrefix(place, tokenizer);
                 String placeActivitiesToCache = getPlaceActivitiesToCache(place);
+                String codeSplitMapper = getCodeSplitMapper(place);
 
                 String tokenizerParam;
                 if (tokenizer != null) {
@@ -104,7 +106,8 @@ public class AutoHistoryMapperGenerator extends Generator {
                 }
 
                 sourceWriter.println("registerPlace(" + place.getQualifiedSourceName() +
-                        ".class, " + prefix + ", " + tokenizerParam + ", " + placeActivitiesToCache + ");");
+                        ".class, " + prefix + ", " + tokenizerParam + ", " +
+                        placeActivitiesToCache + ", " + codeSplitMapper + ");");
             }
         }
 
@@ -163,5 +166,15 @@ public class AutoHistoryMapperGenerator extends Generator {
             }
         }
         return "null";
+    }
+
+    private String getCodeSplitMapper(JClassType place) {
+        CodeSplitMapperClass annotation = place.getAnnotation(CodeSplitMapperClass.class);
+        if (annotation != null) {
+            Class mapperClass = ((CodeSplitMapperClass) annotation).value();
+            return mapperClass.getCanonicalName() + ".class";
+        } else {
+            return "null";
+        }
     }
 }
