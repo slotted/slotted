@@ -1,5 +1,8 @@
 package com.googlecode.slotted.rebind;
 
+import java.io.PrintWriter;
+import java.lang.annotation.Annotation;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.ext.Generator;
 import com.google.gwt.core.ext.GeneratorContext;
@@ -16,10 +19,7 @@ import com.google.gwt.user.rebind.SourceWriter;
 import com.googlecode.slotted.client.AutoHistoryMapper;
 import com.googlecode.slotted.client.CacheActivities;
 
-import java.io.PrintWriter;
-import java.lang.annotation.Annotation;
-
-public class AutoHistoryManagerGenerator extends Generator {
+public class AutoHistoryMapperGenerator extends Generator {
     private static String NamePostfix = "Gen";
 
     public String generate(TreeLogger logger, GeneratorContext context, String typeName)

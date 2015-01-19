@@ -12,7 +12,7 @@
         <when-type-assignable class="com.googlecode.slotted.client.PlaceFactory" />
     </generate-with>
 
-    <generate-with class="com.googlecode.slotted.rebind.AutoHistoryManagerGenerator" >
+    <generate-with class="com.googlecode.slotted.rebind.AutoHistoryMapperGenerator" >
         <when-type-assignable class="com.googlecode.slotted.client.AutoHistoryMapper" />
     </generate-with>
 
