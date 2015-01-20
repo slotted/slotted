@@ -5,12 +5,12 @@ import com.google.gwt.core.client.Callback;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.RunAsyncCallback;
 import com.google.gwt.place.shared.Prefix;
-import com.googlecode.slotted.client.AsyncPlace;
 import com.googlecode.slotted.client.Slot;
 import com.googlecode.slotted.client.SlottedController;
+import com.googlecode.slotted.client.SlottedPlace;
 
 @Prefix("home")
-public class HomePlace extends AsyncPlace {
+public class HomePlace extends SlottedPlace {
     @Override public Slot getParentSlot() {
         return SlottedController.RootSlot;
     }
@@ -19,7 +19,7 @@ public class HomePlace extends AsyncPlace {
         return null;
     }
 
-    @Override public void getAsyncActivity(final Callback<? super Activity, ? super Throwable> callback) {
+    @Override protected void runGetActivity(final Callback<? super Activity, ? super Throwable> callback) {
         GWT.runAsync(new RunAsyncCallback() {
             @Override public void onFailure(Throwable reason) {
                 callback.onFailure(reason);
