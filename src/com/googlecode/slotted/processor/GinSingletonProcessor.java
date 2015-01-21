@@ -3,7 +3,6 @@ package com.googlecode.slotted.processor;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -16,34 +15,58 @@ import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
+import com.googlecode.slotted.client.GenerateGinSingletons;
 
-@SupportedAnnotationTypes({"javax.inject.Singleton", "com.google.inject.Singleton"})
+
+@SupportedAnnotationTypes({"com.googlecode.slotted.client.GenerateGinSingletons", "javax.inject.Singleton", "com.google.inject.Singleton"})
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class GinSingletonProcessor extends AbstractProcessor {
     @Override public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-
-        List<TypeElement> singletonTypes = new LinkedList<TypeElement>();
-        for (TypeElement annotation: annotations) {
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "SingletonProcessing:" + annotation.getQualifiedName());
-            for (Element element: roundEnv.getElementsAnnotatedWith(annotation)) {
-                if (element.getKind().isClass() || element.getKind().isInterface()) {
-                    singletonTypes.add((TypeElement) element);
-                }
-            }
+        LinkedList<GenStruct> genStructs = new LinkedList<GenStruct>();
+        for (Element element: roundEnv.getElementsAnnotatedWith(GenerateGinSingletons.class)) {
+            GenerateGinSingletons genAnnotation = element.getAnnotation(GenerateGinSingletons.class);
+            GenStruct genStruct = new GenStruct();
+            genStruct.fullPackage = genAnnotation.fullPackage();
+            genStruct.baseName = genAnnotation.baseName();
+            genStruct.scanPackages = genAnnotation.scanPackages();
+            genStructs.add(genStruct);
         }
 
-        writeSingletonGinjector(singletonTypes);
-        writeSingletonModule(singletonTypes);
+        if (!genStructs.isEmpty()) {
+            for (TypeElement annotation : annotations) {
+                if (!"com.googlecode.slotted.client.GenerateGinSingletons".equals(annotation.getQualifiedName().toString())) {
+                    for (Element element : roundEnv.getElementsAnnotatedWith(annotation)) {
+                        if (element.getKind().isClass() || element.getKind().isInterface()) {
+                            TypeElement typeElement = (TypeElement) element;
+                            String className = typeElement.getQualifiedName().toString();
+                            for (GenStruct genStruct : genStructs) {
+                                for (String packageStart : genStruct.scanPackages) {
+                                    if (className.startsWith(packageStart)) {
+                                        genStruct.singletonTypes.add(typeElement);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            for (GenStruct genStruct: genStructs) {
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "Generating Ginjector and Module for:" + genStruct.baseName);
+                writeSingletonGinjector(genStruct);
+                writeSingletonModule(genStruct);
+            }
+        }
 
         return false;
     }
 
-    private void writeSingletonModule(List<TypeElement> singletonTypes)  {
+    private void writeSingletonModule(GenStruct genStruct)  {
         try {
-            JavaFileObject jfo = processingEnv.getFiler().createSourceFile("com.googlecode.slotted.client.SingletonModule");
+            JavaFileObject jfo = processingEnv.getFiler().createSourceFile(genStruct.fullPackage + "." + genStruct.baseName + "Module");
 
             BufferedWriter bw = new BufferedWriter(jfo.openWriter());
-            bw.append("package com.googlecode.slotted.client;\n");
+            bw.append("package ").append(genStruct.fullPackage).append(";\n");
             bw.newLine();
             bw.append("import javax.inject.Singleton;\n");
             bw.append("import com.google.gwt.inject.client.AbstractGinModule;\n");
@@ -54,7 +77,7 @@ public class GinSingletonProcessor extends AbstractProcessor {
             bw.append("\tprotected void configure() {\n");
             bw.append("\t}\n");
             bw.newLine();
-            for (TypeElement type: singletonTypes) {
+            for (TypeElement type: genStruct.singletonTypes) {
                 bw.append("\t@Provides @Singleton\n");
                 bw.append("\tpublic ").append(type.getQualifiedName()).append(" get").append(type.getSimpleName()).append("() {\n");
                 bw.append("\t\treturn SingletonGinjector.instance.get").append(type.getSimpleName()).append("();\n");
@@ -72,12 +95,12 @@ public class GinSingletonProcessor extends AbstractProcessor {
         }
     }
 
-    private void writeSingletonGinjector(List<TypeElement> singletonTypes)  {
+    private void writeSingletonGinjector(GenStruct genStruct)  {
         try {
-            JavaFileObject jfo = processingEnv.getFiler().createSourceFile("com.googlecode.slotted.client.SingletonGinjector");
+            JavaFileObject jfo = processingEnv.getFiler().createSourceFile(genStruct.fullPackage + "." + genStruct.baseName + "Ginjector");
 
             BufferedWriter bw = new BufferedWriter(jfo.openWriter());
-            bw.append("package com.googlecode.slotted.client;\n");
+            bw.append("package ").append(genStruct.fullPackage).append(";\n");
             bw.newLine();
             bw.append("import com.google.gwt.core.client.GWT;\n");
             bw.append("import com.google.gwt.inject.client.GinModules;\n");
@@ -88,7 +111,7 @@ public class GinSingletonProcessor extends AbstractProcessor {
             bw.newLine();
             bw.append("\tpublic static final SingletonGinjector instance = GWT.create(SingletonGinjector.class);\n");
             bw.newLine();
-            for (TypeElement type: singletonTypes) {
+            for (TypeElement type: genStruct.singletonTypes) {
                 bw.append("\t").append(type.getQualifiedName()).append(" get").append(type.getSimpleName()).append("();\n");
                 bw.newLine();
             }
@@ -102,4 +125,10 @@ public class GinSingletonProcessor extends AbstractProcessor {
         }
     }
 
+    private class GenStruct {
+        public String fullPackage;
+        public String baseName;
+        public String[] scanPackages;
+        public LinkedList<TypeElement> singletonTypes = new LinkedList<TypeElement>();
+    }
 }

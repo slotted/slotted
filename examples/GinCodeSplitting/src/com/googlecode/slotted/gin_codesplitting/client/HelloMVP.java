@@ -5,8 +5,13 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.googlecode.slotted.client.CodeSplitMapper;
+import com.googlecode.slotted.client.GenerateGinSingletons;
 import com.googlecode.slotted.client.SlottedController;
 
+@GenerateGinSingletons(
+        baseName = "Singleton",
+        fullPackage = "com.googlecode.slotted.gin_codesplitting.client",
+        scanPackages = {"com.googlecode.slotted.gin_codesplitting.client"})
 public class HelloMVP implements EntryPoint {
     private SimplePanel appWidget = new SimplePanel();
 
