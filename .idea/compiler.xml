@@ -16,10 +16,12 @@
       <entry name="?*.ftl" />
     </wildcardResourcePatterns>
     <annotationProcessing>
-      <profile default="true" name="Default" enabled="false">
+      <profile default="true" name="Default" enabled="true">
+        <sourceOutputDir name=".apt_generated" />
+        <sourceTestOutputDir name=".apt_generated_tests" />
+        <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
       </profile>
     </annotationProcessing>
   </component>
 </project>
-

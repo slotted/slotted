@@ -166,6 +166,7 @@
         <jar destfile="${maven-jar}">
             <fileset dir="${build.classes.dir}" includes="**/*"/>
             <fileset dir="${src.dir}" includes="**/*"/>
+            <metainf dir="META-INF" />
         </jar>
 
         <!-- build the javadoc artifact -->
