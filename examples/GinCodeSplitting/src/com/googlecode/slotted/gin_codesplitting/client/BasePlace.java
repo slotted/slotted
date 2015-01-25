@@ -17,6 +17,6 @@ public class BasePlace extends SlottedPlace {
     }
 
     @Override public Activity getActivity() {
-        return AppGinjector.instance.getBaseActivity();
+        return AppGinjector.INSTANCE.getBaseActivity();
     }
 }

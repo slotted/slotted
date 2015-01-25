@@ -37,11 +37,11 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../build/package/slotted-1.0-SNAPSHOT.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../build/package/slotted-0.4-SNAPSHOT.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/../../build/package/slotted-1.0-SNAPSHOT.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../build/package/slotted-0.4-SNAPSHOT.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

@@ -130,6 +130,11 @@ public class CodeSplitGinMapperGenerator extends Generator {
 
     private void writeGetMethod(TreeLogger logger, SourceWriter sourceWriter, List<JClassType> codeSplitPlaces, JClassType ginType) throws NotFoundException, UnableToCompleteException {
         sourceWriter.println("private static " + ginType.getQualifiedBinaryName() + " ginjector;");
+        sourceWriter.println("public " + ginType.getQualifiedBinaryName() + " getGinjector() {");
+        sourceWriter.indent();
+        sourceWriter.println("return ginjector;");
+        sourceWriter.outdent();
+        sourceWriter.println("}");
         sourceWriter.println("@Override public void get(final SlottedPlace place, final Callback<? super Activity, ? super Throwable> callback) {");
         sourceWriter.indent();
         sourceWriter.println("GWT.runAsync(new RunAsyncCallback() {");

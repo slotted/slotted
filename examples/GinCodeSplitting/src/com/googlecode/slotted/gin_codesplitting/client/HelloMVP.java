@@ -15,7 +15,7 @@ public class HelloMVP implements EntryPoint {
     private SimplePanel appWidget = new SimplePanel();
 
     public void onModuleLoad() {
-        SlottedController slottedController = AppGinjector.instance.getSlottedController();
+        SlottedController slottedController = AppGinjector.INSTANCE.getSlottedController();
         slottedController.setDefaultPlace(new HelloPlace("World!"));
         slottedController.registerCodeSplitMapper(GapMapper.class, GWT.<CodeSplitMapper>create(GapMapper.class));
         RootPanel.get().add(appWidget);
