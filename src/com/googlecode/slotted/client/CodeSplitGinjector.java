@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * Defines the Ginjector to use in the {@link CodeSplitMapper}.
  *
- * @see CodeSplitMapperClass
+ * @see CodeSplit
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)

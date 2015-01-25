@@ -18,7 +18,7 @@ import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
 import com.google.gwt.user.rebind.SourceWriter;
 import com.googlecode.slotted.client.AutoHistoryMapper;
 import com.googlecode.slotted.client.CacheActivities;
-import com.googlecode.slotted.client.CodeSplitMapperClass;
+import com.googlecode.slotted.client.CodeSplit;
 
 public class AutoHistoryMapperGenerator extends Generator {
     private static String NamePostfix = "Gen";
@@ -169,9 +169,9 @@ public class AutoHistoryMapperGenerator extends Generator {
     }
 
     private String getCodeSplitMapper(JClassType place) {
-        CodeSplitMapperClass annotation = place.getAnnotation(CodeSplitMapperClass.class);
+        CodeSplit annotation = place.getAnnotation(CodeSplit.class);
         if (annotation != null) {
-            Class mapperClass = ((CodeSplitMapperClass) annotation).value();
+            Class mapperClass = ((CodeSplit) annotation).value();
             return mapperClass.getCanonicalName() + ".class";
         } else {
             return "null";

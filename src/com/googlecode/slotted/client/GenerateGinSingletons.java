@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface GenerateGinSingletons {
+    String baseName() default "Singleton";
     String fullPackage();
-    String baseName();
     String[] scanPackages();
 }

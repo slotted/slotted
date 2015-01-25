@@ -1,12 +1,12 @@
 package com.googlecode.slotted.simple_codesplitting.client;
 
-import com.googlecode.slotted.client.CodeSplitMapperClass;
+import com.googlecode.slotted.client.CodeSplit;
 import com.googlecode.slotted.client.PlaceActivity;
 import com.googlecode.slotted.client.Slot;
 import com.googlecode.slotted.client.SlottedController;
 import com.googlecode.slotted.client.SlottedPlace;
 
-@CodeSplitMapperClass(NestedMapper.class)
+@CodeSplit(NestedMapper.class)
 @PlaceActivity(ParentActivity.class)
 public class ParentPlace extends SlottedPlace {
     public static final Slot SLOT = new Slot(new ParentPlace(), new NestedPlace());

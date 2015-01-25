@@ -21,7 +21,10 @@ import com.googlecode.slotted.client.GenerateGinSingletons;
 @SupportedAnnotationTypes({"com.googlecode.slotted.client.GenerateGinSingletons", "javax.inject.Singleton", "com.google.inject.Singleton"})
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class GinSingletonProcessor extends AbstractProcessor {
+    private int runCount = 0;
+
     @Override public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+
         LinkedList<GenStruct> genStructs = new LinkedList<GenStruct>();
         for (Element element: roundEnv.getElementsAnnotatedWith(GenerateGinSingletons.class)) {
             GenerateGinSingletons genAnnotation = element.getAnnotation(GenerateGinSingletons.class);
@@ -32,7 +35,10 @@ public class GinSingletonProcessor extends AbstractProcessor {
             genStructs.add(genStruct);
         }
 
-        if (!genStructs.isEmpty()) {
+        if (!genStructs.isEmpty() && runCount == 0) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "No GenerateGinSingletons found, skipping Singleton object creation");
+
+        } else {
             for (TypeElement annotation : annotations) {
                 if (!"com.googlecode.slotted.client.GenerateGinSingletons".equals(annotation.getQualifiedName().toString())) {
                     for (Element element : roundEnv.getElementsAnnotatedWith(annotation)) {
@@ -58,6 +64,7 @@ public class GinSingletonProcessor extends AbstractProcessor {
             }
         }
 
+        runCount++;
         return false;
     }
 

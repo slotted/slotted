@@ -19,7 +19,7 @@ public class HomePlace extends SlottedPlace {
         return null;
     }
 
-    @Override protected void runGetActivity(final Callback<? super Activity, ? super Throwable> callback) {
+    @Override public void getActivity(final Callback<? super Activity, ? super Throwable> callback) {
         GWT.runAsync(new RunAsyncCallback() {
             @Override public void onFailure(Throwable reason) {
                 callback.onFailure(reason);

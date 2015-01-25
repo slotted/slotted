@@ -348,7 +348,7 @@ public class ActiveSlot {
             codeSplitMapper.get(place, activityCallback);
 
         } else {
-            place.runGetActivity(activityCallback);
+            place.getActivity(activityCallback);
         }
     }
 

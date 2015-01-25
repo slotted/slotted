@@ -21,8 +21,8 @@ import com.google.gwt.core.ext.typeinfo.TypeOracle;
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
 import com.google.gwt.user.rebind.SourceWriter;
-import com.googlecode.slotted.client.CodeSplitGinjector;
-import com.googlecode.slotted.client.CodeSplitMapperClass;
+import com.googlecode.slotted.client.CodeSplit;
+import com.googlecode.slotted.client.CodeSplitGinMapper;
 import com.googlecode.slotted.client.PlaceActivity;
 import com.googlecode.slotted.client.SlottedException;
 import com.googlecode.slotted.client.SlottedPlace;
@@ -35,6 +35,7 @@ public class CodeSplitGinMapperGenerator extends Generator {
     {
         TypeOracle typeOracle = context.getTypeOracle();
         JClassType classType = typeOracle.findType(typeName);
+        JClassType ginMapperType = typeOracle.findType(CodeSplitGinMapper.class.getCanonicalName());
 
         if (classType == null) {
             throw new UnableToCompleteException();
@@ -44,7 +45,7 @@ public class CodeSplitGinMapperGenerator extends Generator {
 
             SourceWriter sourceWriter = getSourceWriter(logger, context, classType);
             if (sourceWriter != null) {
-                JClassType ginType = getGinjectorType(logger, typeOracle, classType);
+                JClassType ginType = getGinjectorType(logger, typeOracle, classType, ginMapperType);
                 List<JClassType> codeSplitPlaces = getCodeSplitPlaces(logger, typeOracle, typeName);
                 writeGetMethod(logger, sourceWriter, codeSplitPlaces, ginType);
 
@@ -87,15 +88,16 @@ public class CodeSplitGinMapperGenerator extends Generator {
 
     }
 
-    private JClassType getGinjectorType(TreeLogger logger, TypeOracle typeOracle, JClassType classType) throws UnableToCompleteException, NotFoundException {
-        CodeSplitGinjector annotation = classType.getAnnotation(CodeSplitGinjector.class);
-        if (annotation == null) {
-            logger.log(Type.ERROR, "Must provide a @CodeSplitGinjector");
-            throw new UnableToCompleteException();
-        }
+    private JClassType getGinjectorType(TreeLogger logger, TypeOracle typeOracle, JClassType classType, JClassType ginMapperType) throws UnableToCompleteException, NotFoundException {
 
-        JClassType ginType = typeOracle.getType(annotation.value().getName());
-        return ginType;
+        for (JClassType implInt: classType.getImplementedInterfaces()) {
+            if (implInt.isAssignableTo(ginMapperType) && implInt.isParameterized() != null) {
+                JClassType ginType = implInt.isParameterized().getTypeArgs()[0];
+                return ginType;
+            }
+        }
+        logger.log(Type.ERROR, "Must provide a must provide a generic type on CodeSplitGinMapper");
+        throw new UnableToCompleteException();
     }
 
     private List<JClassType> getCodeSplitPlaces(TreeLogger logger, TypeOracle typeOracle, String mapperType) throws NotFoundException, UnableToCompleteException {
@@ -104,9 +106,9 @@ public class CodeSplitGinMapperGenerator extends Generator {
         JClassType placeType = typeOracle.getType(Place.class.getName());
         for (JClassType place: types) {
             if (place.isAssignableTo(placeType)) {
-                Annotation annotation = place.getAnnotation(CodeSplitMapperClass.class);
+                Annotation annotation = place.getAnnotation(CodeSplit.class);
                 if (annotation != null) {
-                    Class codeSplitClass = ((CodeSplitMapperClass) annotation).value();
+                    Class codeSplitClass = ((CodeSplit) annotation).value();
                     if (codeSplitClass != null && mapperType.equals(codeSplitClass.getCanonicalName())) {
                         if (place.isAbstract() || !place.isDefaultInstantiable()) {
                             logger.log(Type.ERROR, "Place is abstract or not default instantiable:" + place.getName());

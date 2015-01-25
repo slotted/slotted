@@ -20,7 +20,7 @@ import com.google.gwt.core.ext.typeinfo.TypeOracle;
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
 import com.google.gwt.user.rebind.SourceWriter;
-import com.googlecode.slotted.client.CodeSplitMapperClass;
+import com.googlecode.slotted.client.CodeSplit;
 import com.googlecode.slotted.client.PlaceActivity;
 import com.googlecode.slotted.client.SlottedException;
 import com.googlecode.slotted.client.SlottedPlace;
@@ -92,9 +92,9 @@ public class CodeSplitMapperGenerator extends Generator {
         JClassType placeType = typeOracle.getType(Place.class.getName());
         for (JClassType place: types) {
             if (place.isAssignableTo(placeType)) {
-                Annotation annotation = place.getAnnotation(CodeSplitMapperClass.class);
+                Annotation annotation = place.getAnnotation(CodeSplit.class);
                 if (annotation != null) {
-                    Class codeSplitClass = ((CodeSplitMapperClass) annotation).value();
+                    Class codeSplitClass = ((CodeSplit) annotation).value();
                     if (codeSplitClass != null && mapperType.equals(codeSplitClass.getCanonicalName())) {
                         if (place.isAbstract() || !place.isDefaultInstantiable()) {
                             logger.log(Type.ERROR, "Place is abstract or not default instantiable:" + place.getName());

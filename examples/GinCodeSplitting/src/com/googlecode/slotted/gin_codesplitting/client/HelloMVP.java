@@ -9,7 +9,6 @@ import com.googlecode.slotted.client.GenerateGinSingletons;
 import com.googlecode.slotted.client.SlottedController;
 
 @GenerateGinSingletons(
-        baseName = "Singleton",
         fullPackage = "com.googlecode.slotted.gin_codesplitting.client",
         scanPackages = {"com.googlecode.slotted.gin_codesplitting.client"})
 public class HelloMVP implements EntryPoint {
