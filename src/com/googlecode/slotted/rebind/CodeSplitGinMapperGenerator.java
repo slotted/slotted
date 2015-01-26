@@ -135,6 +135,13 @@ public class CodeSplitGinMapperGenerator extends Generator {
         sourceWriter.println("return ginjector;");
         sourceWriter.outdent();
         sourceWriter.println("}");
+        sourceWriter.println();
+        sourceWriter.println(" public void preload() {");
+        sourceWriter.indent();
+        sourceWriter.println("get(null, null);");
+        sourceWriter.outdent();
+        sourceWriter.println("}");
+        sourceWriter.println();
         sourceWriter.println("@Override public void get(final SlottedPlace place, final Callback<? super Activity, ? super Throwable> callback) {");
         sourceWriter.indent();
         sourceWriter.println("GWT.runAsync(new RunAsyncCallback() {");
@@ -147,6 +154,7 @@ public class CodeSplitGinMapperGenerator extends Generator {
         sourceWriter.println();
         sourceWriter.println("@Override public void onSuccess() {");
         sourceWriter.indent();
+        sourceWriter.println("if (callback == null) {return}");
         sourceWriter.println("if (ginjector == null) {");
         sourceWriter.indent();
         sourceWriter.println("ginjector = GWT.create(" + ginType.getQualifiedBinaryName() + ".class);");

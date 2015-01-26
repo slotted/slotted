@@ -115,6 +115,12 @@ public class CodeSplitMapperGenerator extends Generator {
     }
 
     private void writeInitMethod(TreeLogger logger, SourceWriter sourceWriter, List<JClassType> codeSplitPlaces) throws NotFoundException, UnableToCompleteException {
+        sourceWriter.println(" public void preload() {");
+        sourceWriter.indent();
+        sourceWriter.println("get(null, null);");
+        sourceWriter.outdent();
+        sourceWriter.println("}");
+        sourceWriter.println();
         sourceWriter.println("@Override public void get(final SlottedPlace place, final Callback<? super Activity, ? super Throwable> callback) {");
         sourceWriter.indent();
         sourceWriter.println("GWT.runAsync(new RunAsyncCallback() {");
@@ -127,6 +133,7 @@ public class CodeSplitMapperGenerator extends Generator {
         sourceWriter.println();
         sourceWriter.println("@Override public void onSuccess() {");
         sourceWriter.indent();
+        sourceWriter.println("if (callback == null) {return;}");
 
         boolean first = true;
         for (JClassType place: codeSplitPlaces) {
