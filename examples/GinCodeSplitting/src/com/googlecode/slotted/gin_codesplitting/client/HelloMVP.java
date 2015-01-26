@@ -10,7 +10,8 @@ import com.googlecode.slotted.client.SlottedController;
 
 @GenerateGinSingletons(
         fullPackage = "com.googlecode.slotted.gin_codesplitting.client",
-        scanPackages = {"com.googlecode.slotted.gin_codesplitting.client"})
+        scanPackages = {"com.googlecode.slotted.gin_codesplitting.client"},
+        modules = {"com.googlecode.slotted.gin_codesplitting.client.GlobalGinModule"})
 public class HelloMVP implements EntryPoint {
     private SimplePanel appWidget = new SimplePanel();
 

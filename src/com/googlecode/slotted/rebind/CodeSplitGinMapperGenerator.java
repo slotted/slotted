@@ -149,7 +149,7 @@ public class CodeSplitGinMapperGenerator extends Generator {
         sourceWriter.indent();
         sourceWriter.println("if (ginjector == null) {");
         sourceWriter.indent();
-        sourceWriter.println("ginjector = GWT.create(GapGinjector.class);");
+        sourceWriter.println("ginjector = GWT.create(" + ginType.getQualifiedBinaryName() + ".class);");
         sourceWriter.outdent();
         sourceWriter.println("}");
 

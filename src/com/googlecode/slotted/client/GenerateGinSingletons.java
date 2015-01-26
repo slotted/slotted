@@ -13,4 +13,5 @@ public @interface GenerateGinSingletons {
     String baseName() default "Singleton";
     String fullPackage();
     String[] scanPackages();
+    String[] modules() default {};
 }

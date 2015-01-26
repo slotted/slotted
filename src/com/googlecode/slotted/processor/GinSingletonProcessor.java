@@ -34,9 +34,7 @@ public class GinSingletonProcessor extends AbstractProcessor {
         for (Element element: roundEnv.getElementsAnnotatedWith(GenerateGinSingletons.class)) {
             GenerateGinSingletons genAnnotation = element.getAnnotation(GenerateGinSingletons.class);
             GenStruct genStruct = new GenStruct();
-            genStruct.fullPackage = genAnnotation.fullPackage();
-            genStruct.baseName = genAnnotation.baseName();
-            genStruct.scanPackages = genAnnotation.scanPackages();
+            genStruct.annotation = genAnnotation;
             genStructs.add(genStruct);
         }
 
@@ -50,7 +48,7 @@ public class GinSingletonProcessor extends AbstractProcessor {
             findSingletons(annotations, roundEnv, genStructs);
 
             for (GenStruct genStruct: genStructs) {
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "Generating Ginjector and Module for:" + genStruct.baseName);
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "Generating Ginjector and Module for:" + genStruct.annotation.baseName());
                 writeSingletonGinjector(genStruct);
                 writeSingletonModule(genStruct);
             }
@@ -72,13 +70,12 @@ public class GinSingletonProcessor extends AbstractProcessor {
                         TypeElement typeElement = (TypeElement) element;
                         String className = typeElement.getQualifiedName().toString();
                         for (GenStruct genStruct : genStructs) {
-                            for (String packageStart : genStruct.scanPackages) {
+                            for (String packageStart : genStruct.annotation.scanPackages()) {
                                 if (className.startsWith(packageStart)) {
                                     genStruct.singletonTypes.add(typeElement);
                                 }
                             }
                         }
-
                     }
                 }
             }
@@ -90,14 +87,12 @@ public class GinSingletonProcessor extends AbstractProcessor {
             GlobalSingleton globalAnnotation = element.getAnnotation(GlobalSingleton.class);
             if (globalAnnotation.value() && element.getKind() == ElementKind.METHOD) {
                 Element parentElement = element.getEnclosingElement();
-                while (parentElement != null && !parentElement.getKind().isInterface()) {
+                while (parentElement != null && !parentElement.getKind().isClass()) {
                     parentElement = parentElement.getEnclosingElement();
                 }
-                TypeElement ginjectorType = (TypeElement) parentElement;
-                if (ginjectorType != null) {
-                    GinSingletonProcessor.GlobalStruct globalStruct = new GinSingletonProcessor.GlobalStruct();
-                    globalStruct.ginjector = ginjectorType;
-                    globalStruct.singletonType = element.asType().accept(new SimpleTypeVisitor6<TypeElement, Void>() {
+                TypeElement moduleType = (TypeElement) parentElement;
+                if (moduleType != null) {
+                    TypeElement singletonType = element.asType().accept(new SimpleTypeVisitor6<TypeElement, Void>() {
                         @Override public TypeElement visitExecutable(ExecutableType t, Void aVoid) {
                             DeclaredType dType = (DeclaredType) t.getReturnType();
                             return (TypeElement) dType.asElement();
@@ -105,23 +100,23 @@ public class GinSingletonProcessor extends AbstractProcessor {
                     }, null);
 
                     for (GenStruct genStruct : genStructs) {
-                        for (String packageStart : genStruct.scanPackages) {
-                                genStruct.globalTypes.add(globalStruct);
+                        for (String module: genStruct.annotation.modules()) {
+                            if (module.equals(moduleType.getQualifiedName().toString())) {
+                                genStruct.singletonTypes.add(singletonType);
+                            }
                         }
                     }
-
                 }
-
             }
         }
     }
 
     private void writeSingletonModule(GenStruct genStruct)  {
         try {
-            JavaFileObject jfo = processingEnv.getFiler().createSourceFile(genStruct.fullPackage + "." + genStruct.baseName + "Module");
+            JavaFileObject jfo = processingEnv.getFiler().createSourceFile(genStruct.annotation.fullPackage() + "." + genStruct.annotation.baseName() + "Module");
 
             BufferedWriter bw = new BufferedWriter(jfo.openWriter());
-            bw.append("package ").append(genStruct.fullPackage).append(";\n");
+            bw.append("package ").append(genStruct.annotation.fullPackage()).append(";\n");
             bw.newLine();
             bw.append("import javax.inject.Singleton;\n");
             bw.append("import com.google.gwt.inject.client.AbstractGinModule;\n");
@@ -133,16 +128,9 @@ public class GinSingletonProcessor extends AbstractProcessor {
             bw.append("\t}\n");
             bw.newLine();
             for (TypeElement type: genStruct.singletonTypes) {
-                bw.append("\t@Provides @Singleton\n");
+                bw.append("\t@Provides\n");
                 bw.append("\tpublic ").append(type.getQualifiedName()).append(" get").append(type.getSimpleName()).append("() {\n");
-                bw.append("\t\treturn SingletonGinjector.instance.get").append(type.getSimpleName()).append("();\n");
-                bw.append("\t}\n");
-                bw.newLine();
-            }
-            for (GlobalStruct globalStruct: genStruct.globalTypes) {
-                bw.append("\t@Provides @Singleton\n");
-                bw.append("\tpublic ").append(globalStruct.singletonType.getQualifiedName()).append(" get").append(globalStruct.singletonType.getSimpleName()).append("() {\n");
-                bw.append("\t\treturn ").append(globalStruct.ginjector.getQualifiedName()).append(".INSTANCE.get").append(globalStruct.singletonType.getSimpleName()).append("();\n");
+                bw.append("\t\treturn SingletonGinjector.INSTANCE.get").append(type.getSimpleName()).append("();\n");
                 bw.append("\t}\n");
                 bw.newLine();
             }
@@ -159,26 +147,31 @@ public class GinSingletonProcessor extends AbstractProcessor {
 
     private void writeSingletonGinjector(GenStruct genStruct)  {
         try {
-            JavaFileObject jfo = processingEnv.getFiler().createSourceFile(genStruct.fullPackage + "." + genStruct.baseName + "Ginjector");
+            JavaFileObject jfo = processingEnv.getFiler().createSourceFile(genStruct.annotation.fullPackage() + "." + genStruct.annotation.baseName() + "Ginjector");
 
             BufferedWriter bw = new BufferedWriter(jfo.openWriter());
-            bw.append("package ").append(genStruct.fullPackage).append(";\n");
+            bw.append("package ").append(genStruct.annotation.fullPackage()).append(";\n");
             bw.newLine();
             bw.append("import com.google.gwt.core.client.GWT;\n");
             bw.append("import com.google.gwt.inject.client.GinModules;\n");
             bw.append("import com.google.gwt.inject.client.Ginjector;\n");
             bw.newLine();
-            bw.append("@GinModules({})\n");
+            bw.append("@GinModules({");
+            boolean first = true;
+            for (String module: genStruct.annotation.modules()) {
+                if (!first) {
+                    bw.append(", ");
+                }
+                bw.append(module).append(".class");
+                first = false;
+            }
+            bw.append("})\n");
             bw.append("public interface SingletonGinjector extends Ginjector {\n");
             bw.newLine();
             bw.append("\tpublic static final SingletonGinjector INSTANCE = GWT.create(SingletonGinjector.class);\n");
             bw.newLine();
             for (TypeElement type: genStruct.singletonTypes) {
                 bw.append("\t").append(type.getQualifiedName()).append(" get").append(type.getSimpleName()).append("();\n");
-                bw.newLine();
-            }
-            for (GlobalStruct globalStruct: genStruct.globalTypes) {
-                bw.append("\t").append(globalStruct.singletonType.getQualifiedName()).append(" get").append(globalStruct.singletonType.getSimpleName()).append("();\n");
                 bw.newLine();
             }
             bw.append("}\n");
@@ -192,11 +185,8 @@ public class GinSingletonProcessor extends AbstractProcessor {
     }
 
     private class GenStruct {
-        public String fullPackage;
-        public String baseName;
-        public String[] scanPackages;
+        public GenerateGinSingletons annotation;
         public LinkedList<TypeElement> singletonTypes = new LinkedList<TypeElement>();
-        public LinkedList<GlobalStruct> globalTypes = new LinkedList<GlobalStruct>();
     }
 
     private class GlobalStruct {
