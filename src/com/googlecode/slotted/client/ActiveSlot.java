@@ -326,6 +326,8 @@ public class ActiveSlot {
                         }
                         slottedController.asyncActivities.remove(this);
                         slottedController.asyncGoToCleanup(true);
+                    } else {
+                        throw new IllegalStateException("Invalid load");
                     }
                 } catch (Exception e) {
                     slottedController.handleGoToException(e);

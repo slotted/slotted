@@ -109,6 +109,7 @@ public class SlottedController {
     private HashMap<Class, CodeSplitMapper> codeSplitMap = new HashMap<Class, CodeSplitMapper>();
 
     private boolean processingGoTo;
+    private boolean processingSync;
     private boolean tokenDone;
     private SlottedPlace mainGoToPlace;
     protected List<Callback<Activity, Throwable>> asyncActivities = new LinkedList<Callback<Activity, Throwable>>();
@@ -487,6 +488,7 @@ public class SlottedController {
 
                 } else {
                     processingGoTo = true;
+                    processingSync = true;
                     mainGoToPlace = newPlace;
                     tokenDone = false;
                     nextGoToPlace = null;
@@ -520,6 +522,7 @@ public class SlottedController {
                         constructedCleanup = true;
                     }
 
+                    processingSync = false;
                     asyncGoToCleanup(constructedCleanup);
                 }
             }
@@ -558,7 +561,7 @@ public class SlottedController {
      * @param constructedCleanup True when new Activities were created.
      */
     protected void asyncGoToCleanup(boolean constructedCleanup) {
-        if (asyncActivities.isEmpty()) {
+        if (!processingSync && asyncActivities.isEmpty()) {
             if (constructedCleanup) {
                 LinkedList<SlottedPlace> places = new LinkedList<SlottedPlace>();
                 fillPlaces(root, places);

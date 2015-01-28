@@ -154,7 +154,7 @@ public class CodeSplitGinMapperGenerator extends Generator {
         sourceWriter.println();
         sourceWriter.println("@Override public void onSuccess() {");
         sourceWriter.indent();
-        sourceWriter.println("if (callback == null) {return}");
+        sourceWriter.println("if (callback == null) {return;}");
         sourceWriter.println("if (ginjector == null) {");
         sourceWriter.indent();
         sourceWriter.println("ginjector = GWT.create(" + ginType.getQualifiedBinaryName() + ".class);");
