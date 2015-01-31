@@ -12,6 +12,7 @@ import com.google.gwt.core.client.Callback;
  * https://code.google.com/p/slotted/wiki/CodeSplitting
  */
 public interface CodeSplitMapper {
-    void preload();
+    boolean isLoaded();
+    void load(Callback<? super Activity, ? super Throwable> callback);
     void get(SlottedPlace place, Callback<? super Activity, ? super Throwable> callback);
 }

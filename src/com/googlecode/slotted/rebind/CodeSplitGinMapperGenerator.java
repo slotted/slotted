@@ -47,7 +47,8 @@ public class CodeSplitGinMapperGenerator extends Generator {
             if (sourceWriter != null) {
                 JClassType ginType = getGinjectorType(logger, typeOracle, classType, ginMapperType);
                 List<JClassType> codeSplitPlaces = getCodeSplitPlaces(logger, typeOracle, typeName);
-                writeGetMethod(logger, sourceWriter, codeSplitPlaces, ginType);
+                writeGetMethod(logger, sourceWriter);
+                writeGetActivityMethod(logger, sourceWriter, codeSplitPlaces, ginType);
 
                 sourceWriter.commit(logger);
                 logger.log(TreeLogger.DEBUG, "Done Generating source for "
@@ -128,51 +129,48 @@ public class CodeSplitGinMapperGenerator extends Generator {
         return codeSplitPlaces;
     }
 
-    private void writeGetMethod(TreeLogger logger, SourceWriter sourceWriter, List<JClassType> codeSplitPlaces, JClassType ginType) throws NotFoundException, UnableToCompleteException {
-        sourceWriter.println("private static " + ginType.getQualifiedBinaryName() + " ginjector;");
-        sourceWriter.println("public " + ginType.getQualifiedBinaryName() + " getGinjector() {");
+    protected void writeGetMethod(TreeLogger logger, SourceWriter sourceWriter) throws NotFoundException, UnableToCompleteException {
+        sourceWriter.println("private boolean loaded = false;");
+        sourceWriter.println("public boolean isLoaded() {");
         sourceWriter.indent();
-        sourceWriter.println("return ginjector;");
+        sourceWriter.println("return loaded;");
         sourceWriter.outdent();
         sourceWriter.println("}");
-        sourceWriter.println();
-        sourceWriter.println(" public void preload() {");
+        sourceWriter.println("public void load(Callback<? super Activity, ? super Throwable> callback) {");
         sourceWriter.indent();
-        sourceWriter.println("get(null, null);");
+        sourceWriter.println("get(null, callback);");
         sourceWriter.outdent();
         sourceWriter.println("}");
-        sourceWriter.println();
-        sourceWriter.println("@Override public void get(final SlottedPlace place, final Callback<? super Activity, ? super Throwable> callback) {");
+        sourceWriter.println("public void get(final SlottedPlace place, final Callback<? super Activity, ? super Throwable> callback) {");
         sourceWriter.indent();
         sourceWriter.println("GWT.runAsync(new RunAsyncCallback() {");
         sourceWriter.indent();
-        sourceWriter.println("@Override public void onFailure(Throwable reason) {");
+        sourceWriter.println("public void onFailure(Throwable reason) {");
         sourceWriter.indent();
         sourceWriter.println("callback.onFailure(reason);");
         sourceWriter.outdent();
         sourceWriter.println("}");
         sourceWriter.println();
-        sourceWriter.println("@Override public void onSuccess() {");
+        sourceWriter.println("public void onSuccess() {");
         sourceWriter.indent();
-        sourceWriter.println("if (callback == null) {return;}");
-        sourceWriter.println("if (ginjector == null) {");
+        sourceWriter.println("loaded = true;");
+        sourceWriter.println("if (place == null) {");
         sourceWriter.indent();
-        sourceWriter.println("ginjector = GWT.create(" + ginType.getQualifiedBinaryName() + ".class);");
+        sourceWriter.println("callback.onSuccess(null);");
         sourceWriter.outdent();
-        sourceWriter.println("}");
-
-
-        boolean first = true;
-        for (JClassType place: codeSplitPlaces) {
-            generateIf(logger, sourceWriter, place, ginType, first);
-            if (first) {
-                first = false;
-            }
-        }
 
         sourceWriter.println("} else {");
         sourceWriter.indent();
+        sourceWriter.println("Activity activity = getActivity(place);");
+        sourceWriter.println("if (activity != null) {");
+        sourceWriter.indent();
+        sourceWriter.println("callback.onSuccess(activity);");
+        sourceWriter.outdent();
+        sourceWriter.println("} else {");
+        sourceWriter.indent();
         sourceWriter.println("callback.onFailure(new SlottedException(place.getClass().getName() + \" is not found.\"));");
+        sourceWriter.outdent();
+        sourceWriter.println("}");
         sourceWriter.outdent();
         sourceWriter.println("}");
         sourceWriter.outdent();
@@ -183,7 +181,32 @@ public class CodeSplitGinMapperGenerator extends Generator {
         sourceWriter.println("}");
     }
 
-    private void generateIf(TreeLogger logger, SourceWriter sourceWriter, JClassType placeType, JClassType ginType, boolean first) throws NotFoundException, UnableToCompleteException {
+    private void writeGetActivityMethod(TreeLogger logger, SourceWriter sourceWriter, List<JClassType> codeSplitPlaces, JClassType ginType) throws NotFoundException, UnableToCompleteException {
+        sourceWriter.println("private static " + ginType.getQualifiedBinaryName() + " ginjector;");
+        sourceWriter.println("public " + ginType.getQualifiedBinaryName() + " getGinjector() {");
+        sourceWriter.indent();
+        sourceWriter.println("return ginjector;");
+        sourceWriter.outdent();
+        sourceWriter.println("}");
+        sourceWriter.println();
+        sourceWriter.println("public Activity getActivity(final SlottedPlace place) {");
+        sourceWriter.indent();
+        sourceWriter.println("if (ginjector == null) {");
+        sourceWriter.indent();
+        sourceWriter.println("ginjector = GWT.create(" + ginType.getQualifiedBinaryName() + ".class);");
+        sourceWriter.outdent();
+        sourceWriter.println("}");
+
+        for (JClassType place: codeSplitPlaces) {
+            generateIf(logger, sourceWriter, place, ginType);
+        }
+
+        sourceWriter.println("return null;");
+        sourceWriter.outdent();
+        sourceWriter.println("}");
+    }
+
+    private void generateIf(TreeLogger logger, SourceWriter sourceWriter, JClassType placeType, JClassType ginType) throws NotFoundException, UnableToCompleteException {
         PlaceActivity annotation = placeType.getAnnotation(PlaceActivity.class);
         if (annotation == null || annotation.value() == null) {
             logger.log(TreeLogger.ERROR, "@PlaceActivity not defined on:" + placeType);
@@ -199,13 +222,11 @@ public class CodeSplitGinMapperGenerator extends Generator {
             throw new UnableToCompleteException();
         }
 
-        if (!first) {
-            sourceWriter.print("} else ");
-        }
         sourceWriter.println("if (place instanceof " + placeType.getQualifiedSourceName() + ") {");
         sourceWriter.indent();
-        sourceWriter.println("callback.onSuccess(ginjector." + methodName + "());");
+        sourceWriter.println("return ginjector." + methodName + "();");
         sourceWriter.outdent();
+        sourceWriter.println("}");
     }
 
 }
