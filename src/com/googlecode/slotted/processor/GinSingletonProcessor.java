@@ -122,7 +122,7 @@ public class GinSingletonProcessor extends AbstractProcessor {
             bw.append("import com.google.gwt.inject.client.AbstractGinModule;\n");
             bw.append("import com.google.inject.Provides;\n");
             bw.newLine();
-            bw.append("public class SingletonModule extends AbstractGinModule {\n");
+            bw.append("public class ").append(genStruct.annotation.baseName()).append("Module extends AbstractGinModule {\n");
             bw.append("\t@Override\n");
             bw.append("\tprotected void configure() {\n");
             bw.append("\t}\n");
@@ -166,9 +166,10 @@ public class GinSingletonProcessor extends AbstractProcessor {
                 first = false;
             }
             bw.append("})\n");
-            bw.append("public interface SingletonGinjector extends Ginjector {\n");
+            bw.append("public interface ").append(genStruct.annotation.baseName()).append("Ginjector extends Ginjector {\n");
             bw.newLine();
-            bw.append("\tpublic static final SingletonGinjector INSTANCE = GWT.create(SingletonGinjector.class);\n");
+            bw.append("\tpublic static final ").append(genStruct.annotation.baseName()).append("Ginjector INSTANCE = GWT.create(")
+                    .append(genStruct.annotation.baseName()).append("Ginjector.class);\n");
             bw.newLine();
             for (TypeElement type: genStruct.singletonTypes) {
                 bw.append("\t").append(type.getQualifiedName()).append(" get").append(type.getSimpleName()).append("();\n");
