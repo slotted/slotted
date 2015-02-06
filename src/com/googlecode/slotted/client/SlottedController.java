@@ -106,7 +106,7 @@ public class SlottedController {
     private final HistoryMapper historyMapper;
     private ActivityMapper legacyActivityMapper;
     private ActivityCache activityCache = new ActivityCache();
-    private HashMap<Class, CodeSplitMapper> codeSplitMap = new HashMap<Class, CodeSplitMapper>();
+    protected HashMap<Class, CodeSplitMapper> codeSplitMap = new HashMap<Class, CodeSplitMapper>();
 
     private boolean processingGoTo;
     private boolean processingSync;

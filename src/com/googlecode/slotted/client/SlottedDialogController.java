@@ -13,6 +13,7 @@ public class SlottedDialogController extends SlottedController {
     public SlottedDialogController(SlottedController slottedController, DialogBox dialogBox, AcceptsOneWidget display) {
         super(slottedController.getHistoryMapper(), new ResettableEventBus(slottedController.getEventBus()), slottedController.getDelegate(), false);
         setNavigationOverride(slottedController.getNavigationOverride());
+        this.codeSplitMap.putAll(slottedController.codeSplitMap);
         this.dialogBox = dialogBox;
         setDisplay(display);
 
