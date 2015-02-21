@@ -11,6 +11,9 @@
     <inherits name="com.google.gwt.logging.Logging"/>
     <set-property name="gwt.logging.popupHandler" value="DISABLED"/>
 
+    <extend-configuration-property name="slotted.place.scan.package" value="com.googlecode.slotted.simple_example.client.place"/>
+    <extend-configuration-property name="slotted.place.scan.package" value="com.googlecode.slotted.simple_example.client.place2"/>
+
     <entry-point class='com.googlecode.slotted.simple_example.client.Simple'/>
 
 </module>

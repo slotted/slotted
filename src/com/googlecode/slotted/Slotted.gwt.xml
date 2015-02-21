@@ -6,6 +6,8 @@
     <inherits name="com.google.gwt.place.Place"/>
     <inherits name="com.google.gwt.activity.Activity"/>
 
+    <define-configuration-property name="slotted.place.scan.package" is-multi-valued="true" />
+
     <entry-point class='com.googlecode.slotted.client.Slotted'/>
 
     <generate-with class="com.googlecode.slotted.rebind.PlaceFactoryGenerator" >
