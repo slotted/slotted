@@ -336,7 +336,7 @@ public class ActiveSlot {
             }
 
             @Override public void onFailure(Throwable reason) {
-                new RuntimeException("Code Splitting load failed", reason);
+                slottedController.handleGoToException(new RuntimeException("Code Splitting load failed", reason));
             }
         };
 
