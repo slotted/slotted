@@ -1,0 +1,20 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <g:DockLayoutPanel unit='PX'>
+        <g:north size='30'>
+            <g:HorizontalPanel>
+                <g:Button ui:field="menuButton" text="menu" visible="false"/>
+                <g:Label>Header-Defines one slot which is blue</g:Label>
+            </g:HorizontalPanel>
+        </g:north>
+        <g:center>
+            <g:SimpleLayoutPanel ui:field="headerSlot" addStyleNames="{style.headerSlot}"/>
+        </g:center>
+    </g:DockLayoutPanel>
+
+    <ui:style>
+        .headerSlot {
+            border: solid 3px blue;
+        }
+    </ui:style>
+</ui:UiBinder>

@@ -1,0 +1,16 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <g:HTMLPanel>
+        <div>
+            This is a collection of different layout patterns that you can do with Slotted
+            framework.  The styling of the site is done to highlight the different Slots and
+            the Slot hierarchy interact.  All the code for this site can be found here:
+            <a href="https://code.google.com/p/slotted/source/browse/#git%2Fexamples%2FLayout">https://code.google.com/p/slotted/source/browse/#git%2Fexamples%2FLayout</a>
+        </div>
+        <g:Hyperlink ui:field="headLeftbarButton" text="Header with LeftBar menu"/>
+    </g:HTMLPanel>
+
+    <ui:style>
+
+    </ui:style>
+</ui:UiBinder>

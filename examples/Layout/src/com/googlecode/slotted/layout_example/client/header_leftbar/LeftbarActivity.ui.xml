@@ -1,0 +1,22 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <g:DockLayoutPanel unit='PX' ui:field="dockPanel">
+        <g:west size='200'>
+            <g:VerticalPanel ui:field="leftbarPanel">
+                <g:Label>Leftbar</g:Label>
+                <g:Label>One Slot: Red</g:Label>
+                <g:Button ui:field="content1Button">Content 1</g:Button>
+                <g:Button ui:field="content2Button">Content 2</g:Button>
+            </g:VerticalPanel>
+        </g:west>
+        <g:center>
+            <g:SimpleLayoutPanel ui:field="leftbarSlot" addStyleNames="{style.leftbarSlot}"/>
+        </g:center>
+    </g:DockLayoutPanel>
+
+    <ui:style type="com.googlecode.slotted.layout_example.client.header_leftbar.LeftbarActivity.Style">
+        .leftbarSlot {
+            border: solid 3px red;
+        }
+    </ui:style>
+</ui:UiBinder>
