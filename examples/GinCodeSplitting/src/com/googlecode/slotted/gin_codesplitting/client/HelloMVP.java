@@ -9,14 +9,14 @@ import com.googlecode.slotted.client.GenerateGinSingletons;
 import com.googlecode.slotted.client.SlottedController;
 
 @GenerateGinSingletons(
-        baseName = "Singleton",
         fullPackage = "com.googlecode.slotted.gin_codesplitting.client",
-        scanPackages = {"com.googlecode.slotted.gin_codesplitting.client"})
+        scanPackages = {"com.googlecode.slotted.gin_codesplitting.client"},
+        modules = {"com.googlecode.slotted.gin_codesplitting.client.GlobalGinModule"})
 public class HelloMVP implements EntryPoint {
     private SimplePanel appWidget = new SimplePanel();
 
     public void onModuleLoad() {
-        SlottedController slottedController = AppGinjector.instance.getSlottedController();
+        SlottedController slottedController = AppGinjector.INSTANCE.getSlottedController();
         slottedController.setDefaultPlace(new HelloPlace("World!"));
         slottedController.registerCodeSplitMapper(GapMapper.class, GWT.<CodeSplitMapper>create(GapMapper.class));
         RootPanel.get().add(appWidget);

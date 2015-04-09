@@ -2,8 +2,11 @@ package com.googlecode.slotted.rebind;
 
 import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
+import java.util.Arrays;
+import java.util.List;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.ext.BadPropertyValueException;
 import com.google.gwt.core.ext.Generator;
 import com.google.gwt.core.ext.GeneratorContext;
 import com.google.gwt.core.ext.TreeLogger;
@@ -18,7 +21,8 @@ import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
 import com.google.gwt.user.rebind.SourceWriter;
 import com.googlecode.slotted.client.AutoHistoryMapper;
 import com.googlecode.slotted.client.CacheActivities;
-import com.googlecode.slotted.client.CodeSplitMapperClass;
+import com.googlecode.slotted.client.CodeSplit;
+import com.googlecode.slotted.client.ScanPackages;
 
 public class AutoHistoryMapperGenerator extends Generator {
     private static String NamePostfix = "Gen";
@@ -37,7 +41,7 @@ public class AutoHistoryMapperGenerator extends Generator {
 
             SourceWriter sourceWriter = getSourceWriter(clazz, context, logger);
             if (sourceWriter != null) {
-                writeInitMethod(logger, context, typeOracle, sourceWriter);
+                writeInitMethod(logger, context, typeOracle, sourceWriter, clazz);
 
                 sourceWriter.commit(logger);
                 logger.log(TreeLogger.DEBUG, "Done Generating source for "
@@ -76,7 +80,7 @@ public class AutoHistoryMapperGenerator extends Generator {
     }
 
     private void writeInitMethod(TreeLogger logger, GeneratorContext context, TypeOracle typeOracle,
-            SourceWriter sourceWriter) throws NotFoundException, UnableToCompleteException
+            SourceWriter sourceWriter, JClassType clazz) throws NotFoundException, UnableToCompleteException
     {
         JClassType placeType = typeOracle.getType(Place.class.getName());
         JClassType tokenizerType = typeOracle.getType(PlaceTokenizer.class.getName());
@@ -85,10 +89,11 @@ public class AutoHistoryMapperGenerator extends Generator {
         sourceWriter.indent();
 
         JClassType[] types = typeOracle.getTypes();
+        List<String> scanPackages = getScanPackages(context, clazz);
 
         for (JClassType place: types) {
             if (!place.isAbstract() && place.isDefaultInstantiable() &&
-                    place.isAssignableTo(placeType))
+                    place.isAssignableTo(placeType) && isInScanPackages(place, scanPackages))
             {
                 JClassType tokenizer = getTokenizer(place, tokenizerType);
                 String prefix = getPrefix(place, tokenizer);
@@ -113,6 +118,35 @@ public class AutoHistoryMapperGenerator extends Generator {
 
         sourceWriter.outdent();
         sourceWriter.println("}");
+    }
+
+    private List<String> getScanPackages(GeneratorContext context, JClassType clazz) {
+        ScanPackages scanAnnotation = clazz.getAnnotation(ScanPackages.class);
+        if (scanAnnotation != null) {
+            return Arrays.asList(scanAnnotation.value());
+        }
+
+        try {
+            return context.getPropertyOracle().getConfigurationProperty("slotted.place.scan.package").getValues();
+        } catch (BadPropertyValueException e) {
+            return null;
+        }
+
+    }
+
+    private boolean isInScanPackages(JClassType place, List<String> scanPackages) {
+        if (scanPackages == null || scanPackages.isEmpty()) {
+            return true;
+
+        } else {
+            String className = place.getQualifiedSourceName();
+            for (String packageString: scanPackages) {
+                if (className.startsWith(packageString)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private JClassType getTokenizer(JClassType place, JClassType tokenizerType) {
@@ -169,9 +203,9 @@ public class AutoHistoryMapperGenerator extends Generator {
     }
 
     private String getCodeSplitMapper(JClassType place) {
-        CodeSplitMapperClass annotation = place.getAnnotation(CodeSplitMapperClass.class);
+        CodeSplit annotation = place.getAnnotation(CodeSplit.class);
         if (annotation != null) {
-            Class mapperClass = ((CodeSplitMapperClass) annotation).value();
+            Class mapperClass = ((CodeSplit) annotation).value();
             return mapperClass.getCanonicalName() + ".class";
         } else {
             return "null";

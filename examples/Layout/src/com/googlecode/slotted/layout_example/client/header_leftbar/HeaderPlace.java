@@ -1,22 +1,22 @@
-package com.googlecode.slotted.gin_codesplitting.client;
+package com.googlecode.slotted.layout_example.client.header_leftbar;
 
 import com.google.gwt.activity.shared.Activity;
 import com.googlecode.slotted.client.Slot;
 import com.googlecode.slotted.client.SlottedController;
 import com.googlecode.slotted.client.SlottedPlace;
 
-public class BasePlace extends SlottedPlace {
-    public static final Slot SLOT = new Slot(new BasePlace(), new HelloPlace("Base!"));
+public class HeaderPlace extends SlottedPlace {
+    public static final Slot HeaderSlot = new Slot(new HeaderPlace(), new LeftbarPlace());
 
     @Override public Slot getParentSlot() {
         return SlottedController.RootSlot;
     }
 
     @Override public Slot[] getChildSlots() {
-        return new Slot[] {SLOT};
+        return new Slot[] {HeaderSlot};
     }
 
     @Override public Activity getActivity() {
-        return AppGinjector.INSTANCE.getBaseActivity();
+        return new HeaderActivity();
     }
 }

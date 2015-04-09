@@ -2,13 +2,13 @@ package com.googlecode.slotted.gin_codesplitting.client;
 
 import com.google.gwt.place.shared.PlaceTokenizer;
 import com.google.gwt.place.shared.Prefix;
-import com.googlecode.slotted.client.CodeSplitMapperClass;
+import com.googlecode.slotted.client.CodeSplit;
 import com.googlecode.slotted.client.PlaceActivity;
 import com.googlecode.slotted.client.Slot;
 import com.googlecode.slotted.client.SlottedPlace;
 import com.googlecode.slotted.client.TokenizerUtil;
 
-@CodeSplitMapperClass(GapMapper.class)
+@CodeSplit(GapMapper.class)
 @PlaceActivity(GoodbyeActivity.class)
 public class GoodbyePlace extends SlottedPlace {
     private String helloName;

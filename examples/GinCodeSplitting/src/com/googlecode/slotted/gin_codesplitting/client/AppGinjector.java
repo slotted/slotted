@@ -7,7 +7,7 @@ import com.googlecode.slotted.client.SlottedController;
 
 @GinModules({AppGinModule.class, SingletonModule.class})
 public interface AppGinjector extends Ginjector {
-    public static final AppGinjector instance = GWT.create(AppGinjector.class);
+    public static final AppGinjector INSTANCE = GWT.create(AppGinjector.class);
 
     SlottedController getSlottedController();
 

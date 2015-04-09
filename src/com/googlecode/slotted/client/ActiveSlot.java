@@ -326,6 +326,8 @@ public class ActiveSlot {
                         }
                         slottedController.asyncActivities.remove(this);
                         slottedController.asyncGoToCleanup(true);
+                    } else {
+                        throw new IllegalStateException("Invalid load");
                     }
                 } catch (Exception e) {
                     slottedController.handleGoToException(e);
@@ -334,7 +336,7 @@ public class ActiveSlot {
             }
 
             @Override public void onFailure(Throwable reason) {
-                new RuntimeException("Code Splitting load failed", reason);
+                slottedController.handleGoToException(new RuntimeException("Code Splitting load failed", reason));
             }
         };
 
@@ -348,7 +350,7 @@ public class ActiveSlot {
             codeSplitMapper.get(place, activityCallback);
 
         } else {
-            place.runGetActivity(activityCallback);
+            place.getActivity(activityCallback);
         }
     }
 

@@ -20,19 +20,17 @@ import com.google.gwt.core.ext.typeinfo.TypeOracle;
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
 import com.google.gwt.user.rebind.SourceWriter;
-import com.googlecode.slotted.client.CodeSplitMapperClass;
+import com.googlecode.slotted.client.CodeSplit;
 import com.googlecode.slotted.client.PlaceActivity;
 import com.googlecode.slotted.client.SlottedException;
 import com.googlecode.slotted.client.SlottedPlace;
 
 public class CodeSplitMapperGenerator extends Generator {
     private static String NamePostfix = "Impl";
-    private String typeName;
 
     public String generate(TreeLogger logger, GeneratorContext context, String typeName)
             throws UnableToCompleteException
     {
-        this.typeName = typeName;
         TypeOracle typeOracle = context.getTypeOracle();
         JClassType clazz = typeOracle.findType(typeName);
 
@@ -45,7 +43,8 @@ public class CodeSplitMapperGenerator extends Generator {
             SourceWriter sourceWriter = getSourceWriter(logger, context, clazz);
             if (sourceWriter != null) {
                 List<JClassType> codeSplitPlaces = getCodeSplitPlaces(logger, typeOracle, typeName);
-                writeInitMethod(logger, sourceWriter, codeSplitPlaces);
+                writeGetMethod(logger, sourceWriter);
+                writeGetActivityMethod(logger, sourceWriter, codeSplitPlaces);
 
                 sourceWriter.commit(logger);
                 logger.log(TreeLogger.DEBUG, "Done Generating source for "
@@ -60,7 +59,7 @@ public class CodeSplitMapperGenerator extends Generator {
         return clazz.getQualifiedSourceName() + NamePostfix;
     }
 
-    public SourceWriter getSourceWriter(TreeLogger logger, GeneratorContext context, JClassType classType) {
+    protected SourceWriter getSourceWriter(TreeLogger logger, GeneratorContext context, JClassType classType) {
 
         String packageName = classType.getPackage().getName();
         String simpleName = classType.getSimpleSourceName() + NamePostfix;
@@ -86,15 +85,15 @@ public class CodeSplitMapperGenerator extends Generator {
 
     }
 
-    private List<JClassType> getCodeSplitPlaces(TreeLogger logger, TypeOracle typeOracle, String mapperType) throws NotFoundException, UnableToCompleteException {
+    protected List<JClassType> getCodeSplitPlaces(TreeLogger logger, TypeOracle typeOracle, String mapperType) throws NotFoundException, UnableToCompleteException {
         List<JClassType> codeSplitPlaces = new LinkedList<JClassType>();
         JClassType[] types = typeOracle.getTypes();
         JClassType placeType = typeOracle.getType(Place.class.getName());
         for (JClassType place: types) {
             if (place.isAssignableTo(placeType)) {
-                Annotation annotation = place.getAnnotation(CodeSplitMapperClass.class);
+                Annotation annotation = place.getAnnotation(CodeSplit.class);
                 if (annotation != null) {
-                    Class codeSplitClass = ((CodeSplitMapperClass) annotation).value();
+                    Class codeSplitClass = ((CodeSplit) annotation).value();
                     if (codeSplitClass != null && mapperType.equals(codeSplitClass.getCanonicalName())) {
                         if (place.isAbstract() || !place.isDefaultInstantiable()) {
                             logger.log(Type.ERROR, "Place is abstract or not default instantiable:" + place.getName());
@@ -114,31 +113,48 @@ public class CodeSplitMapperGenerator extends Generator {
         return codeSplitPlaces;
     }
 
-    private void writeInitMethod(TreeLogger logger, SourceWriter sourceWriter, List<JClassType> codeSplitPlaces) throws NotFoundException, UnableToCompleteException {
-        sourceWriter.println("@Override public void get(final SlottedPlace place, final Callback<? super Activity, ? super Throwable> callback) {");
+    protected void writeGetMethod(TreeLogger logger, SourceWriter sourceWriter) throws NotFoundException, UnableToCompleteException {
+        sourceWriter.println("private boolean loaded = false;");
+        sourceWriter.println("public boolean isLoaded() {");
+        sourceWriter.indent();
+        sourceWriter.println("return loaded;");
+        sourceWriter.outdent();
+        sourceWriter.println("}");
+        sourceWriter.println("public void load(Callback<? super Activity, ? super Throwable> callback) {");
+        sourceWriter.indent();
+        sourceWriter.println("get(null, callback);");
+        sourceWriter.outdent();
+        sourceWriter.println("}");
+        sourceWriter.println("public void get(final SlottedPlace place, final Callback<? super Activity, ? super Throwable> callback) {");
         sourceWriter.indent();
         sourceWriter.println("GWT.runAsync(new RunAsyncCallback() {");
         sourceWriter.indent();
-        sourceWriter.println("@Override public void onFailure(Throwable reason) {");
+        sourceWriter.println("public void onFailure(Throwable reason) {");
         sourceWriter.indent();
         sourceWriter.println("callback.onFailure(reason);");
         sourceWriter.outdent();
         sourceWriter.println("}");
         sourceWriter.println();
-        sourceWriter.println("@Override public void onSuccess() {");
+        sourceWriter.println("public void onSuccess() {");
         sourceWriter.indent();
-
-        boolean first = true;
-        for (JClassType place: codeSplitPlaces) {
-            generateIf(logger, sourceWriter, place, first);
-            if (first) {
-                first = false;
-            }
-        }
+        sourceWriter.println("loaded = true;");
+        sourceWriter.println("if (place == null) {");
+        sourceWriter.indent();
+        sourceWriter.println("callback.onSuccess(null);");
+        sourceWriter.outdent();
 
         sourceWriter.println("} else {");
         sourceWriter.indent();
+        sourceWriter.println("Activity activity = getActivity(place);");
+        sourceWriter.println("if (activity != null) {");
+        sourceWriter.indent();
+        sourceWriter.println("callback.onSuccess(activity);");
+        sourceWriter.outdent();
+        sourceWriter.println("} else {");
+        sourceWriter.indent();
         sourceWriter.println("callback.onFailure(new SlottedException(place.getClass().getName() + \" is not found.\"));");
+        sourceWriter.outdent();
+        sourceWriter.println("}");
         sourceWriter.outdent();
         sourceWriter.println("}");
         sourceWriter.outdent();
@@ -149,7 +165,19 @@ public class CodeSplitMapperGenerator extends Generator {
         sourceWriter.println("}");
     }
 
-    private void generateIf(TreeLogger logger, SourceWriter sourceWriter, JClassType placeType, boolean first) throws NotFoundException, UnableToCompleteException {
+    protected void writeGetActivityMethod(TreeLogger logger, SourceWriter sourceWriter, List<JClassType> codeSplitPlaces) throws NotFoundException, UnableToCompleteException {
+        sourceWriter.println("public void getActivity(final SlottedPlace place) {");
+        sourceWriter.indent();
+        for (JClassType place: codeSplitPlaces) {
+            generateIf(logger, sourceWriter, place);
+        }
+        sourceWriter.println();
+        sourceWriter.println("return null;");
+        sourceWriter.outdent();
+        sourceWriter.println("}");
+    }
+
+    protected void generateIf(TreeLogger logger, SourceWriter sourceWriter, JClassType placeType) throws NotFoundException, UnableToCompleteException {
         PlaceActivity annotation = placeType.getAnnotation(PlaceActivity.class);
         if (annotation == null || annotation.value() == null) {
             logger.log(TreeLogger.ERROR, "@PlaceActivity not defined on:" + placeType);
@@ -157,13 +185,11 @@ public class CodeSplitMapperGenerator extends Generator {
         }
         Class<? extends Activity> activityClass = annotation.value();
 
-        if (!first) {
-            sourceWriter.print("} else ");
-        }
         sourceWriter.println("if (place instanceof " + placeType.getQualifiedSourceName() + ") {");
         sourceWriter.indent();
-        sourceWriter.println("callback.onSuccess((Activity)GWT.create(" + activityClass.getCanonicalName() + ".class));");
+        sourceWriter.println("return (Activity)GWT.create(" + activityClass.getCanonicalName() + ".class);");
         sourceWriter.outdent();
+        sourceWriter.println("}");
     }
 
 }

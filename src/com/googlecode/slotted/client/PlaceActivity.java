@@ -10,7 +10,7 @@ import com.google.gwt.activity.shared.Activity;
 /**
  * Defines the Activity that should be constructed for a place by the {@link CodeSplitMapper}.
  *
- * @see CodeSplitMapperClass
+ * @see CodeSplit
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
