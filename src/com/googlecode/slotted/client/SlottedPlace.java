@@ -64,6 +64,16 @@ abstract public class SlottedPlace extends Place implements HasParameters {
     }
 
     /**
+     * Used by CodeSplittingMapper get the Activity Class that should be created for this place.  This
+     * allows for runtime logic to determine which Activity is used.
+     *
+     * @return The Activity Class when created will be responsible for creating the UI.
+     */
+    public Class<? extends Activity> getActivityClass() {
+        return null;
+    }
+
+    /**
      * Attempts to get the Activity via async call, which allows for custom Code Splitting logic.
      *
      * @param callback Passed by SlottedController to handle the async call.

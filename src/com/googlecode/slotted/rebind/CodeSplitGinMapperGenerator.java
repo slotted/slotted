@@ -212,8 +212,33 @@ public class CodeSplitGinMapperGenerator extends Generator {
             logger.log(TreeLogger.ERROR, "@PlaceActivity not defined on:" + placeType);
             throw new UnableToCompleteException();
         }
-        Class<? extends Activity> activityClass = annotation.value();
 
+        sourceWriter.println("if (place instanceof " + placeType.getQualifiedSourceName() + ") {");
+
+        Class<? extends Activity>[] activityClasses = annotation.value();
+        if (activityClasses.length == 1) {
+            writeGinGet(logger, sourceWriter, activityClasses[0], ginType);
+
+        } else {
+            sourceWriter.indent();
+            sourceWriter.println("Class activityClass = place.getActivityClass();");
+            for (Class activityClass: activityClasses) {
+                sourceWriter.println("if (" + activityClass.getCanonicalName() + ".class.equals(activityClass)) {");
+                writeGinGet(logger, sourceWriter, activityClass, ginType);
+                sourceWriter.println("}");
+            }
+            sourceWriter.print("throw new IllegalStateException(\"Place needs to have getActivityClass() that returns one of these:\\n");
+            for (Class activityClass: activityClasses) {
+                sourceWriter.print(activityClass + "\\n");
+            }
+            sourceWriter.println("\");");
+            sourceWriter.outdent();
+        }
+
+        sourceWriter.println("}");
+    }
+
+    private void writeGinGet(TreeLogger logger, SourceWriter sourceWriter, Class<? extends Activity> activityClass, JClassType ginType) throws UnableToCompleteException {
         String methodName = "get" + activityClass.getSimpleName();
         try {
             ginType.getMethod(methodName, new JType[0]);
@@ -221,12 +246,9 @@ public class CodeSplitGinMapperGenerator extends Generator {
             logger.log(TreeLogger.ERROR, ginType + " needs to implement method:" + methodName + "()");
             throw new UnableToCompleteException();
         }
-
-        sourceWriter.println("if (place instanceof " + placeType.getQualifiedSourceName() + ") {");
         sourceWriter.indent();
         sourceWriter.println("return ginjector." + methodName + "();");
         sourceWriter.outdent();
-        sourceWriter.println("}");
     }
 
 }

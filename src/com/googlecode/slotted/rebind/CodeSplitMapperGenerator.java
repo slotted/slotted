@@ -183,13 +183,36 @@ public class CodeSplitMapperGenerator extends Generator {
             logger.log(TreeLogger.ERROR, "@PlaceActivity not defined on:" + placeType);
             throw new UnableToCompleteException();
         }
-        Class<? extends Activity> activityClass = annotation.value();
-
         sourceWriter.println("if (place instanceof " + placeType.getQualifiedSourceName() + ") {");
+
+        Class<? extends Activity>[] activityClasses = annotation.value();
+        if (activityClasses.length == 1) {
+            writeCreate(sourceWriter, activityClasses[0]);
+
+        } else {
+            sourceWriter.indent();
+            sourceWriter.println("Class activityClass = place.getActivityClass();");
+            for (Class activityClass: activityClasses) {
+                sourceWriter.println("if (" + activityClass.getCanonicalName() + ".class.equals(activityClass)) {");
+                writeCreate(sourceWriter, activityClass);
+                sourceWriter.println("}");
+            }
+            sourceWriter.print("throw new IllegalStateException(\"Place needs to have getActivityClass() that returns one of these:\\n");
+            for (Class activityClass: activityClasses) {
+                sourceWriter.print(activityClass + "\\n");
+            }
+            sourceWriter.println("\");");
+            sourceWriter.outdent();
+        }
+
+        sourceWriter.println("}");
+    }
+
+    private void writeCreate(SourceWriter sourceWriter, Class<? extends Activity> activityClass) throws UnableToCompleteException {
         sourceWriter.indent();
         sourceWriter.println("return (Activity)GWT.create(" + activityClass.getCanonicalName() + ".class);");
         sourceWriter.outdent();
-        sourceWriter.println("}");
     }
+
 
 }

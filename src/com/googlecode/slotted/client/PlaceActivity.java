@@ -15,5 +15,5 @@ import com.google.gwt.activity.shared.Activity;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PlaceActivity {
-    Class<? extends Activity> value();
+    Class<? extends Activity>[] value();
 }
