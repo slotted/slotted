@@ -28,19 +28,8 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="slotted" />
     <orderEntry type="library" name="layoutLib" level="project" />
     <orderEntry type="library" name="gwt-user" level="project" />
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../build/package/slotted-0.4-SNAPSHOT.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/../../build/package/slotted-0.4-SNAPSHOT.jar!/" />
-        </SOURCES>
-      </library>
-    </orderEntry>
+    <orderEntry type="library" name="slotted" level="project" />
   </component>
 </module>

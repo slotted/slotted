@@ -2,10 +2,12 @@
   <library name="gwt-user">
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/../javalib/gwt-2.6.0/gwt-user.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../javalib/gwt-2.6.0/gwt-dev.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
       <root url="jar://$PROJECT_DIR$/../javalib/gwt-2.6.0/gwt-user.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../javalib/gwt-2.6.0/gwt-dev.jar!/" />
     </SOURCES>
   </library>
 </component>

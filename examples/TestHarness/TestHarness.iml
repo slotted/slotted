@@ -31,7 +31,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="gwt-user" level="project" />
-    <orderEntry type="module" module-name="slotted" />
     <orderEntry type="module-library" scope="TEST">
       <library>
         <CLASSES>
@@ -41,6 +40,6 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="slotted" level="project" />
   </component>
 </module>
-
