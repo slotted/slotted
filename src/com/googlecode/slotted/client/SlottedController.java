@@ -758,7 +758,7 @@ public class SlottedController {
                 eventBus.fireEventFromSource(new LoadingEvent(false), SlottedController.this);
                 return true;
             } else if (blockingSlot.isLoading()) {
-                log.info("Waiting for loading place:" + blockingSlot);
+                log.info("Waiting for loading Activity:" + blockingSlot.getActivity().getClass());
             }
         }
         return false;
