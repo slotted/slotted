@@ -16,7 +16,7 @@
 package com.googlecode.slotted.client;
 
 import java.util.Arrays;
-import java.util.LinkedList;
+import java.util.HashSet;
 
 import com.google.gwt.activity.shared.AbstractActivity;
 import com.google.gwt.activity.shared.Activity;
@@ -36,7 +36,7 @@ abstract public class SlottedActivity extends AbstractActivity{
     private PlaceParameters placeParameters;
     private EventBus eventBus;
     private ActiveSlot activeSlot;
-    private LinkedList<Object> loadingLabels;
+    private HashSet<Object> loadingLabels = new HashSet<Object>();
 
     /**
      * Replaces the legacy activity that uses the old legacy EventBus.
@@ -148,7 +148,9 @@ abstract public class SlottedActivity extends AbstractActivity{
      */
     public void setLoadingStarted(Object... labels) {
         if (labels != null && labels.length > 0) {
-            loadingLabels = new LinkedList<Object>(Arrays.asList(labels));
+            loadingLabels.addAll(Arrays.asList(labels));
+        } else {
+            loadingLabels.add(SlottedActivity.class);
         }
         activeSlot.setLoading(true, this);
     }
@@ -164,12 +166,11 @@ abstract public class SlottedActivity extends AbstractActivity{
                 loadingLabels.remove(label);
             }
 
-        } else if (loadingLabels != null) {
-            throw new IllegalStateException("setLoadingComplete() must be called with a label, " +
-                    "when setLoadingStarted() was called with labels.");
+        } else {
+            loadingLabels.remove(SlottedActivity.class);
         }
 
-        if (loadingLabels == null || loadingLabels.isEmpty()) {
+        if (loadingLabels.isEmpty()) {
             activeSlot.setLoading(false, this);
         }
     }
