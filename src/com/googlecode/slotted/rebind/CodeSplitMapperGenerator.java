@@ -145,6 +145,8 @@ public class CodeSplitMapperGenerator extends Generator {
 
         sourceWriter.println("} else {");
         sourceWriter.indent();
+        sourceWriter.println("try {");
+        sourceWriter.indent();
         sourceWriter.println("Activity activity = getActivity(place);");
         sourceWriter.println("if (activity != null) {");
         sourceWriter.indent();
@@ -153,6 +155,12 @@ public class CodeSplitMapperGenerator extends Generator {
         sourceWriter.println("} else {");
         sourceWriter.indent();
         sourceWriter.println("callback.onFailure(new SlottedException(place.getClass().getName() + \" is not found.\"));");
+        sourceWriter.outdent();
+        sourceWriter.println("}");
+        sourceWriter.outdent();
+        sourceWriter.println("} catch (Exception e) {");
+        sourceWriter.indent();
+        sourceWriter.println("callback.onFailure(e);");
         sourceWriter.outdent();
         sourceWriter.println("}");
         sourceWriter.outdent();
