@@ -42,6 +42,7 @@ import com.google.gwt.user.client.Window.ClosingEvent;
 import com.google.gwt.user.client.Window.ClosingHandler;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.web.bindery.event.shared.EventBus;
 
 /**
@@ -585,8 +586,8 @@ public class SlottedController {
         }
     }
 
-    public SlottedDialogController createSlottedDialog(DialogBox dialogBox, AcceptsOneWidget display) {
-        return new SlottedDialogController(this, dialogBox, display);
+    public SlottedDialogController createSlottedDialog(PopupPanel popupPanel, AcceptsOneWidget display) {
+        return new SlottedDialogController(this, popupPanel, display);
     }
 
     private void indexMultiParentPlaces(SlottedPlace newPlace, List<SlottedPlace> nonDefaults) {
