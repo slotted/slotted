@@ -15,14 +15,14 @@
  */
 package com.googlecode.slotted.client;
 
-import java.util.Arrays;
-import java.util.HashSet;
-
 import com.google.gwt.activity.shared.AbstractActivity;
 import com.google.gwt.activity.shared.Activity;
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.web.bindery.event.shared.EventBus;
+
+import java.util.Arrays;
+import java.util.HashSet;
 
 /**
  * Implemented by other objects to control a portion of the UI, and the life cycle is controlled
@@ -173,6 +173,13 @@ abstract public class SlottedActivity extends AbstractActivity{
         if (loadingLabels.isEmpty()) {
             activeSlot.setLoading(false, this);
         }
+    }
+
+    /**
+     * Returns true if this activity is loading.
+     */
+    public boolean isLoading() {
+        return !loadingLabels.isEmpty();
     }
 
     /**
