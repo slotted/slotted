@@ -3,7 +3,6 @@ package com.googlecode.slotted.client;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
-import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.web.bindery.event.shared.ResettableEventBus;
 
@@ -31,6 +30,11 @@ public class SlottedDialogController extends SlottedController {
             popupPanel.show();
         }
         return shown;
+    }
+
+    @Deprecated
+    public PopupPanel getDialogBox() {
+        return popupPanel;
     }
 
     public PopupPanel getPopupPanel() {
