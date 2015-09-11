@@ -1,11 +1,11 @@
 <component name="libraryTable">
   <library name="slotted">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/build/package/slotted-0.5-SNAPSHOT.jar!/" />
+      <root url="jar://$PROJECT_DIR$/build/package/slotted-0.5.1-SNAPSHOT.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
-      <root url="jar://$PROJECT_DIR$/build/package/slotted-0.5-SNAPSHOT.jar!/" />
+      <root url="jar://$PROJECT_DIR$/build/package/slotted-0.5.1-SNAPSHOT.jar!/" />
     </SOURCES>
   </library>
 </component>
