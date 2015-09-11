@@ -1,9 +1,13 @@
 package com.googlecode.slotted.testharness.client;
 
 import com.google.gwt.junit.client.GWTTestCase;
+import com.google.gwt.place.shared.Place;
+import com.googlecode.slotted.client.SlottedController;
 import com.googlecode.slotted.testharness.client.flow.A1aPlace;
 import com.googlecode.slotted.testharness.client.flow.APlace;
 import com.googlecode.slotted.testharness.client.flow.HomePlace;
+import com.googlecode.slotted.testharness.client.tokenizer.BasePlace;
+import com.googlecode.slotted.testharness.client.tokenizer.SuperPlace;
 
 public class SlottedControllerTests extends GWTTestCase {
     @Override public String getModuleName() {
@@ -27,6 +31,23 @@ public class SlottedControllerTests extends GWTTestCase {
 
         assertNull(TestHarness.slottedController.getCurrentActivityByPlace(HomePlace.class));
 
+    }
+
+    public void testGetCurrentPlaceSuper() {
+        TestHarness.slottedController.goTo(new BasePlace());
+
+        SuperPlace current = TestHarness.slottedController.getCurrentPlace(SuperPlace.class);
+        assertNotNull(current);
+        assertTrue(current instanceof BasePlace);
+    }
+
+    public void testGetCurrentPlaceSlot() {
+        TestHarness.slottedController.goTo(new APlace());
+
+        Place current = TestHarness.slottedController.getCurrentPlace(SlottedController.RootSlot);
+        assertTrue(current instanceof  APlace);
+        Place currentChild = TestHarness.slottedController.getCurrentPlace(APlace.SLOT);
+        assertTrue(currentChild instanceof A1aPlace);
     }
 
 }

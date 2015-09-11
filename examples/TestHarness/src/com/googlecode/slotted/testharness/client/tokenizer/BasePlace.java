@@ -1,6 +1,5 @@
 package com.googlecode.slotted.testharness.client.tokenizer;
 
-import com.google.gwt.activity.shared.Activity;
 import com.googlecode.slotted.client.Slot;
 import com.googlecode.slotted.client.SlottedController;
 import com.googlecode.slotted.client.TokenizerParameter;
@@ -65,9 +64,5 @@ public class BasePlace extends SuperPlace {
 
     @Override public Slot[] getChildSlots() {
         return new Slot[0];
-    }
-
-    @Override public Activity getActivity() {
-        return null;
     }
 }

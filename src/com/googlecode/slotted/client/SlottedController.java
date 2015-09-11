@@ -15,14 +15,6 @@
  */
 package com.googlecode.slotted.client;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.google.gwt.activity.shared.Activity;
 import com.google.gwt.activity.shared.ActivityMapper;
 import com.google.gwt.core.client.Callback;
@@ -41,9 +33,12 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.ClosingEvent;
 import com.google.gwt.user.client.Window.ClosingHandler;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
-import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.web.bindery.event.shared.EventBus;
+
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Controls display of the RootSlot and all nested slots.
@@ -871,6 +866,23 @@ public class SlottedController {
     }
 
     /**
+     * Gets the Place for the specified Slot.
+     *
+     * @param slot The Slot returned by the getParentSlot() method of the Place.
+     * @param <T> Used to prevent casting.
+     * @return The Place requested, or null if that type is not in the hierarchy.
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends Place> T getCurrentPlace(Slot slot) {
+        for (SlottedPlace place: currentHierarchyList) {
+            if (place.getParentSlot() == slot) {
+                return (T) place;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Gets a Place of the specified type in the hierarchy.  This can be used to get a parent Place, child Place, or
      * any Place that might be displayed.
      *
@@ -878,31 +890,35 @@ public class SlottedController {
      * @param <T> Used to prevent casting.
      * @return The Place requested, or null if that type is not in the hierarchy.
      */
+    @SuppressWarnings("unchecked")
     public <T extends Place> T getCurrentPlace(Class<T> placeType) {
-    	T match = null;
         for (SlottedPlace place: currentHierarchyList) {
-        	match = getCurrentPlace(place, place.getClass(), placeType);
-            if (match != null) {
-                break;
+            if (place.instanceOf(placeType)) {
+                return (T) place;
             }
         }
-        return match;
+        return null;
     }
-    
+
     /**
-     * Gets a the Place of the specified type in the hierarchy traversing up the class hierarchy of each Place so that
-     * super classes can be matched.
-     * @param place The current Place to check against in the currentHierarchyList.
-     * @param placeClass The current class type in the place's hierarchy to check against.
-     * @param placeType The Class object of the Place you want to get.
-     * @return
+     * Gets a the Activity for the specified Slot.
+     * WARNING: This can't be used to get the child activity during the start().  The child
+     * activity hasn't been created yet.
+     *
+     * @param slot The Slot object of the Place.
+     * @return The Activity requested, or null if that type is not in the hierarchy.
      */
-	@SuppressWarnings("unchecked")
-	public <T extends Place> T getCurrentPlace(SlottedPlace place, Class<?> placeClass, Class<T> placeType) {
-        if (placeClass.equals(placeType)) {
-            return (T) place;
-        } else if(placeClass.getSuperclass() != null) {
-        	return getCurrentPlace(place, placeClass.getSuperclass(), placeType);
+    @SuppressWarnings("unchecked")
+    public Activity getCurrentActivity(Slot slot) {
+        Place place = getCurrentPlace(slot);
+        if (place != null  && place instanceof SlottedPlace) {
+            Class placeType = place.getClass();
+            List<Activity> activities = activityCache.get(placeType);
+            if (activities.isEmpty()) {
+                return null;
+            } else {
+                return activities.get(0);
+            }
         }
         return null;
     }

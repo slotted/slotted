@@ -15,11 +15,11 @@
  */
 package com.googlecode.slotted.client;
 
-import java.util.LinkedList;
-
 import com.google.gwt.activity.shared.Activity;
 import com.google.gwt.core.client.Callback;
 import com.google.gwt.place.shared.Place;
+
+import java.util.LinkedList;
 
 /**
  * Defines how this place fits in the Place Hierarchy, and what Activity will be displayed for
@@ -134,6 +134,17 @@ abstract public class SlottedPlace extends Place implements HasParameters {
      */
     public PlaceParameters getPlaceParameters() {
         return placeParameters;
+    }
+
+    public boolean instanceOf(Class<? extends Place> superClass) {
+        Class placeClass = this.getClass();
+        while (placeClass != null) {
+            if (placeClass.equals(superClass)) {
+                return true;
+            }
+            placeClass = placeClass.getSuperclass();
+        }
+        return false;
     }
 
     /**
