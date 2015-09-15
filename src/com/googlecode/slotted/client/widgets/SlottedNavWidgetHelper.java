@@ -1,8 +1,5 @@
 package com.googlecode.slotted.client.widgets;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
@@ -12,6 +9,9 @@ import com.google.web.bindery.event.shared.ResettableEventBus;
 import com.googlecode.slotted.client.NewPlaceEvent;
 import com.googlecode.slotted.client.SlottedController;
 import com.googlecode.slotted.client.SlottedPlace;
+
+import java.util.HashMap;
+import java.util.LinkedList;
 
 abstract public class SlottedNavWidgetHelper<D extends HasClickHandlers> implements NewPlaceEvent.Handler {
 
@@ -44,7 +44,13 @@ abstract public class SlottedNavWidgetHelper<D extends HasClickHandlers> impleme
     }
 
     public void addNavWidget(D widget, SlottedPlace place, boolean strictEquals) {
-        addHandler(widget, place);
+        addNavWidget(widget, place, strictEquals, false);
+    }
+
+    public void addNavWidget(D widget, SlottedPlace place, boolean strictEquals, boolean alternative) {
+        if (!alternative) {
+            addHandler(widget, place);
+        }
 
         widgetMap.put(widget, place);
         if (strictEquals) {
