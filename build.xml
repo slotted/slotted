@@ -98,7 +98,7 @@
         <!-- define Maven coordinates -->
         <property name="groupId" value="com.googlecode.slotted" />
         <property name="artifactId" value="slotted" />
-        <property name="version" value="0.5.1-SNAPSHOT" />
+        <property name="version" value="0.6-SNAPSHOT" />
 
         <!-- define artifacts' name, which follows the convention of Maven -->
         <property name="maven-jar" value="${build.package.dir}/${artifactId}-${version}.jar" />
