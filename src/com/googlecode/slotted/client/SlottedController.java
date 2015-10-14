@@ -566,7 +566,7 @@ public class SlottedController {
                 currentToken = historyMapper.createToken(this);
                 tokenDone = true;
                 activityCache.clearUnused();
-                eventBus.fireEventFromSource(new NewPlaceEvent(places), SlottedController.this);
+                eventBus.fireEventFromSource(new NewPlacesEvent(places, this), SlottedController.this);
             }
 
             processingGoTo = false;

@@ -6,14 +6,13 @@ import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.place.shared.Place;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.ResettableEventBus;
-import com.googlecode.slotted.client.NewPlaceEvent;
+import com.googlecode.slotted.client.NewPlacesEvent;
 import com.googlecode.slotted.client.SlottedController;
 import com.googlecode.slotted.client.SlottedPlace;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 
-abstract public class SlottedNavWidgetHelper<D extends HasClickHandlers> implements NewPlaceEvent.Handler {
+abstract public class SlottedNavWidgetHelper<D extends HasClickHandlers> implements NewPlacesEvent.Handler {
 
     protected HashMap<Class, D> byClassMap = new HashMap<Class, D>();
     protected HashMap<Place, D> strictEqualMap = new HashMap<Place, D>();
@@ -26,7 +25,7 @@ abstract public class SlottedNavWidgetHelper<D extends HasClickHandlers> impleme
         assert eventBus instanceof ResettableEventBus : "Must be a resettable EventBus to prevent leaks";
 
         this.slottedController = slottedController;
-        eventBus.addHandler(NewPlaceEvent.Type, this);
+        eventBus.addHandler(NewPlacesEvent.Type, this);
     }
 
     abstract protected void handlePlaceActive(D widget, Place place, boolean active);
@@ -87,33 +86,35 @@ abstract public class SlottedNavWidgetHelper<D extends HasClickHandlers> impleme
         }
     }
 
-    @Override public void newPlaces(LinkedList<SlottedPlace> newPlaces) {
-        D widget = null;
-        SlottedPlace activePlace = null;
+    public void newPlaces(NewPlacesEvent event) {
+        if (event.getSource() == slottedController) {
+            D widget = null;
+            SlottedPlace activePlace = null;
 
-        for (SlottedPlace place: newPlaces) {
-            widget = strictEqualMap.get(place);
-            if (widget != null) {
-                activePlace = place;
-                break;
-            }
-        }
-
-        if (widget == null) {
-            for (SlottedPlace place: newPlaces) {
-                widget = byClassMap.get(place.getClass());
+            for (SlottedPlace place : event.getNewPlaces()) {
+                widget = strictEqualMap.get(place);
                 if (widget != null) {
                     activePlace = place;
                     break;
                 }
             }
-        }
 
-        if (widget != null) {
-            clearActive();
-            handlePlaceActive(widget, activePlace, true);
-        } else if (clearActiveOnNoMatch) {
-            clearActive();
+            if (widget == null) {
+                for (SlottedPlace place : event.getNewPlaces()) {
+                    widget = byClassMap.get(place.getClass());
+                    if (widget != null) {
+                        activePlace = place;
+                        break;
+                    }
+                }
+            }
+
+            if (widget != null) {
+                clearActive();
+                handlePlaceActive(widget, activePlace, true);
+            } else if (clearActiveOnNoMatch) {
+                clearActive();
+            }
         }
     }
 }
