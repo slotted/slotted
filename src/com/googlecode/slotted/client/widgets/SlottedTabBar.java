@@ -18,12 +18,11 @@ package com.googlecode.slotted.client.widgets;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.ui.TabBar;
-import com.googlecode.slotted.client.NewPlaceEvent;
+import com.googlecode.slotted.client.NewPlacesEvent;
 import com.googlecode.slotted.client.SlottedController;
 import com.googlecode.slotted.client.SlottedPlace;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 
 /**
  * SlottedTabBar, in conjunction with a Slot, creates the functionality of a TabPanel that uses
@@ -33,7 +32,7 @@ import java.util.LinkedList;
  * same destination Slot.  The call {@link #addTab(SlottedPlace, String)} for each tab, and give it
  * a label to display on the tab.  Slotted will now take care of the rest.
  */
-public class SlottedTabBar extends TabBar implements SelectionHandler<Integer>, NewPlaceEvent.Handler {
+public class SlottedTabBar extends TabBar implements SelectionHandler<Integer>, NewPlacesEvent.Handler {
     private ArrayList<SlottedPlace> places = new ArrayList<SlottedPlace>(5);
     private SlottedController slottedController;
 
@@ -51,7 +50,7 @@ public class SlottedTabBar extends TabBar implements SelectionHandler<Integer>, 
      */
     public SlottedTabBar(SlottedController slottedController) {
         this.slottedController = slottedController;
-        slottedController.getEventBus().addHandler(NewPlaceEvent.Type, this);
+        slottedController.getEventBus().addHandler(NewPlacesEvent.Type, this);
         addSelectionHandler(this);
     }
 
@@ -79,15 +78,16 @@ public class SlottedTabBar extends TabBar implements SelectionHandler<Integer>, 
     /**
      * Called by EventBus when ever there is any navigation performed by the SlottedController.
      *
-     * @param newPlaces List of SlottedPlaces that are being navigated to.
+     * @param event Event representing the navigation
      */
-    @Override
-    public void newPlaces(LinkedList<SlottedPlace> newPlaces) {
-        for (int i = 0; i < places.size(); i++) {
-            SlottedPlace tabPlace = places.get(i);
-            if (newPlaces.contains(tabPlace)) {
-                selectTab(i, false);
-                break;
+    public void newPlaces(NewPlacesEvent event) {
+        if (event.getSource() == slottedController) {
+            for (int i = 0; i < places.size(); i++) {
+                SlottedPlace tabPlace = places.get(i);
+                if (event.getNewPlaces().contains(tabPlace)) {
+                    selectTab(i, false);
+                    break;
+                }
             }
         }
     }

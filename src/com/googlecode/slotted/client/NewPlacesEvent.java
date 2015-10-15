@@ -18,37 +18,57 @@ package com.googlecode.slotted.client;
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.HandlerManager;
+import com.google.gwt.user.client.ui.AcceptsOneWidget;
+import com.google.gwt.user.client.ui.PopupPanel;
 
 import java.util.LinkedList;
 
 /**
  * Represents completed navigation event.  The event is sent after all activities are displayed.
  */
-public class NewPlaceEvent extends GwtEvent<NewPlaceEvent.Handler> {
+public class NewPlacesEvent extends GwtEvent<NewPlacesEvent.Handler> {
     public static final Type<Handler> Type = new Type<Handler>();
 
     /**
      * The Handler for the NewPlaceEvent.
      */
-    public static interface Handler extends EventHandler {
+    public interface Handler extends EventHandler {
         /**
          * Called when the navigation is complete.
          *
-         * @param newPlaces List of all the Places that are being shown.  All GWT Places will be
-         *                  wrapped inside {@link WrappedPlace}.
+         * @param newPlacesEvent Event containing all the information about the navigation
          */
-        void newPlaces(LinkedList<SlottedPlace> newPlaces);
+        void newPlaces(NewPlacesEvent newPlacesEvent);
     }
 
     private LinkedList<SlottedPlace> newPlaces;
+    private SlottedController source;
 
     /**
      * Creates a new event.
      *
      * @param newPlaces List of all the places that are being displayed.
+     * @param source The SlottedController that processed the navigation
      */
-    protected NewPlaceEvent(LinkedList<SlottedPlace> newPlaces) {
+    protected NewPlacesEvent(LinkedList<SlottedPlace> newPlaces, SlottedController source) {
         this.newPlaces = newPlaces;
+        this.source = source;
+    }
+
+    /**
+     * Gets the source SlottedController that is displaying the places.  Two SlottedControllers
+     * occur when {@link SlottedController#createSlottedDialog(PopupPanel, AcceptsOneWidget)} is called.
+     */
+    @Override
+    public SlottedController getSource() {
+        return source;
+    }
+
+    /**
+     * Gets a list of all the places that are being displayed in the source SlottedController
+     */
+    public LinkedList<SlottedPlace> getNewPlaces() {
+        return newPlaces;
     }
 
     /**
@@ -65,6 +85,6 @@ public class NewPlaceEvent extends GwtEvent<NewPlaceEvent.Handler> {
      * @param handler handler
      */
     protected void dispatch(Handler handler) {
-        handler.newPlaces(newPlaces);
+        handler.newPlaces(this);
     }
 }
