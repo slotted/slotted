@@ -130,7 +130,7 @@ public class GinSingletonProcessor extends AbstractProcessor {
             for (TypeElement type: genStruct.singletonTypes) {
                 bw.append("\t@Provides\n");
                 bw.append("\tpublic ").append(type.getQualifiedName()).append(" get").append(type.getSimpleName()).append("() {\n");
-                bw.append("\t\treturn SingletonGinjector.INSTANCE.get").append(type.getSimpleName()).append("();\n");
+                bw.append("\t\treturn ").append(genStruct.annotation.baseName()).append("Ginjector.INSTANCE.get").append(type.getSimpleName()).append("();\n");
                 bw.append("\t}\n");
                 bw.newLine();
             }
