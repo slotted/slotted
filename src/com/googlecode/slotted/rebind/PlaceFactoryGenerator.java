@@ -1,6 +1,11 @@
 package com.googlecode.slotted.rebind;
 
+import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.List;
+
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.ext.BadPropertyValueException;
 import com.google.gwt.core.ext.Generator;
 import com.google.gwt.core.ext.GeneratorContext;
 import com.google.gwt.core.ext.TreeLogger;
@@ -12,8 +17,7 @@ import com.google.gwt.place.shared.Place;
 import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
 import com.google.gwt.user.rebind.SourceWriter;
 import com.googlecode.slotted.client.PlaceFactory;
-
-import java.io.PrintWriter;
+import com.googlecode.slotted.client.ScanPackages;
 
 public class PlaceFactoryGenerator extends Generator {
 
@@ -41,11 +45,12 @@ public class PlaceFactoryGenerator extends Generator {
                         " newInstance(Class placeClass) {");
 
                 JClassType[] types = typeOracle.getTypes();
+	            List<String> scanPackages = getScanPackages(context, clazz);
 
                 int count = 0;
                 for (int i = 0; i < types.length; i++) {
                     if (!types[i].isAbstract() && types[i].isDefaultInstantiable() &&
-                            types[i].isAssignableTo(placeType))
+                            types[i].isAssignableTo(placeType) && isInScanPackages(types[i], scanPackages))
                     {
                         if (count == 0) {
                             sourceWriter.print("   if(");
@@ -77,6 +82,35 @@ public class PlaceFactoryGenerator extends Generator {
 
         return clazz.getQualifiedSourceName() + "Wrapper";
     }
+
+	private List<String> getScanPackages(GeneratorContext context, JClassType clazz) {
+		ScanPackages scanAnnotation = clazz.getAnnotation(ScanPackages.class);
+		if (scanAnnotation != null) {
+			return Arrays.asList(scanAnnotation.value());
+		}
+
+		try {
+			return context.getPropertyOracle().getConfigurationProperty("slotted.place.scan.package").getValues();
+		} catch (BadPropertyValueException e) {
+			return null;
+		}
+
+	}
+
+	private boolean isInScanPackages(JClassType place, List<String> scanPackages) {
+		if (scanPackages == null || scanPackages.isEmpty()) {
+			return true;
+
+		} else {
+			String className = place.getQualifiedSourceName();
+			for (String packageString: scanPackages) {
+				if (className.startsWith(packageString)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 
     public SourceWriter getSourceWriter(JClassType classType,
             GeneratorContext context, TreeLogger logger) {
