@@ -15,6 +15,15 @@
  */
 package com.googlecode.slotted.client;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.google.gwt.activity.shared.Activity;
 import com.google.gwt.activity.shared.ActivityMapper;
 import com.google.gwt.core.client.Callback;
@@ -35,10 +44,6 @@ import com.google.gwt.user.client.Window.ClosingHandler;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.web.bindery.event.shared.EventBus;
-
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Controls display of the RootSlot and all nested slots.
@@ -881,6 +886,15 @@ public class SlottedController {
         }
         return null;
     }
+
+	/**
+	 * Gets the current place hierarchy list.
+	 *
+	 * @return The all the Places currently shown.
+	 */
+	public List<SlottedPlace> getCurrentPlaces() {
+		return Collections.unmodifiableList(currentHierarchyList);
+	}
 
     /**
      * Gets a Place of the specified type in the hierarchy.  This can be used to get a parent Place, child Place, or
