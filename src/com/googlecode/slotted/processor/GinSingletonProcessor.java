@@ -24,7 +24,7 @@ import com.googlecode.slotted.client.GlobalSingleton;
 
 
 @SupportedAnnotationTypes({"com.googlecode.slotted.client.GenerateGinSingletons", "com.googlecode.slotted.client.GlobalSingleton", "javax.inject.Singleton", "com.google.inject.Singleton"})
-@SupportedSourceVersion(SourceVersion.RELEASE_6)
+@SupportedSourceVersion(SourceVersion.RELEASE_7)
 public class GinSingletonProcessor extends AbstractProcessor {
     private int runCount = 0;
 
