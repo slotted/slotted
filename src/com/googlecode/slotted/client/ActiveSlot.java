@@ -357,12 +357,12 @@ public class ActiveSlot {
     private void getStartFromMapper(final PlaceParameters parameters) {
         ActivityMapper mapper = slottedController.getLegacyActivityMapper();
         if (mapper == null) {
-            throw new IllegalStateException("SlottedPlace.getActivity() returned null, " +
+            throw new IllegalStateException(historyMapper.getPlaceName(place.getClass()) + "'s getActivity() returned null, " +
                     "and LegacyActivityMapper wasn't set.");
         }
         activity = mapper.getActivity(place);
         if (activity == null) {
-            throw new IllegalStateException("SlottedPlace.getActivity() returned null, " +
+            throw new IllegalStateException(historyMapper.getPlaceName(place.getClass()) + "'s getActivity() returned null, " +
                     "and LegacyActivityMapper also return null.");
         }
 
