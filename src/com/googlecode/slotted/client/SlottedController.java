@@ -540,7 +540,7 @@ public class SlottedController {
      *
      * @param e The exception that needs to be handled.
      */
-    protected void handleGoToException(Exception e) {
+    protected void handleGoToException(Throwable e) {
         processingGoTo = false;
         asyncActivities.clear();
         log.log(Level.SEVERE, "Problem while goTo:" + goToList, e);
