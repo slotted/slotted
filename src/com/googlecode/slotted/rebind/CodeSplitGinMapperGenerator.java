@@ -147,7 +147,7 @@ public class CodeSplitGinMapperGenerator extends Generator {
         sourceWriter.indent();
         sourceWriter.println("public void onFailure(Throwable reason) {");
         sourceWriter.indent();
-        sourceWriter.println("callback.onFailure(reason);");
+        sourceWriter.println("callback.onFailure(new CodeSplitLoadException(\"Code Splitting load failed\", reason));");
         sourceWriter.outdent();
         sourceWriter.println("}");
         sourceWriter.println();
