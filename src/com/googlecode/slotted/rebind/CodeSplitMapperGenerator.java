@@ -21,6 +21,7 @@ import com.google.gwt.place.shared.Place;
 import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
 import com.google.gwt.user.rebind.SourceWriter;
 import com.googlecode.slotted.client.CodeSplit;
+import com.googlecode.slotted.client.CodeSplitLoadException;
 import com.googlecode.slotted.client.PlaceActivity;
 import com.googlecode.slotted.client.SlottedException;
 import com.googlecode.slotted.client.SlottedPlace;
@@ -73,6 +74,7 @@ public class CodeSplitMapperGenerator extends Generator {
         composer.addImport(Activity.class.getCanonicalName());
         composer.addImport(SlottedPlace.class.getCanonicalName());
         composer.addImport(SlottedException.class.getCanonicalName());
+        composer.addImport(CodeSplitLoadException.class.getCanonicalName());
 
         PrintWriter printWriter = context.tryCreate(logger, packageName,simpleName);
 
@@ -131,7 +133,7 @@ public class CodeSplitMapperGenerator extends Generator {
         sourceWriter.indent();
         sourceWriter.println("public void onFailure(Throwable reason) {");
         sourceWriter.indent();
-        sourceWriter.println("callback.onFailure(reason);");
+	    sourceWriter.println("callback.onFailure(new CodeSplitLoadException(\"Code Splitting load failed\", reason));");
         sourceWriter.outdent();
         sourceWriter.println("}");
         sourceWriter.println();
