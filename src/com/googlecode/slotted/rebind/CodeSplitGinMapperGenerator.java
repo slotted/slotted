@@ -23,6 +23,7 @@ import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
 import com.google.gwt.user.rebind.SourceWriter;
 import com.googlecode.slotted.client.CodeSplit;
 import com.googlecode.slotted.client.CodeSplitGinMapper;
+import com.googlecode.slotted.client.CodeSplitLoadException;
 import com.googlecode.slotted.client.PlaceActivity;
 import com.googlecode.slotted.client.SlottedException;
 import com.googlecode.slotted.client.SlottedPlace;
@@ -77,6 +78,7 @@ public class CodeSplitGinMapperGenerator extends Generator {
         composer.addImport(Activity.class.getCanonicalName());
         composer.addImport(SlottedPlace.class.getCanonicalName());
         composer.addImport(SlottedException.class.getCanonicalName());
+        composer.addImport(CodeSplitLoadException.class.getCanonicalName());
 
         PrintWriter printWriter = context.tryCreate(logger, packageName,simpleName);
 
