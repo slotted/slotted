@@ -464,11 +464,21 @@ public class SlottedController {
      * @param reloadAll true if existing activities should be refreshed.
      */
     public void goTo(SlottedPlace newPlace, SlottedPlace[] nonDefaultPlaces, boolean reloadAll) {
-        goToList = "GoTo: " + newPlace;
-        for (SlottedPlace place: nonDefaultPlaces) {
-            goToList += "/" + place;
-        }
-        log.info(goToList);
+	    goToList = "GoTo: " + newPlace;
+	    for (SlottedPlace place : nonDefaultPlaces) {
+		    goToList += "/" + place;
+	    }
+	    log.info(goToList);
+
+	    if (root == null) {
+		    String token = historyMapper.createToken(newPlace, nonDefaultPlaces);
+		    History.newItem(token, false);
+	    } else {
+		    _goTo(newPlace, nonDefaultPlaces, reloadAll);
+	    }
+    }
+
+	private void _goTo(SlottedPlace newPlace, SlottedPlace[] nonDefaultPlaces, boolean reloadAll) {
         try {
             Exception maybeGoToException = null;
             if (openNewTab) {
