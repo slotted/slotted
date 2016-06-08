@@ -396,7 +396,7 @@ abstract public class HistoryMapper {
                 }
 
                 if (parsingException != null) {
-                    log.log(Level.SEVERE, "Error parsing url", parsingException);
+                    log.log(Level.SEVERE, "Error parsing url:" + token, parsingException);
                     navDefaultPlace(controller);
                 }
             }
@@ -438,6 +438,9 @@ abstract public class HistoryMapper {
             }
 
             PlaceTokenizer<? extends SlottedPlace> tokenizer = nameToTokenizerMap.get(placeParts[0]);
+	        if (tokenizer == null) {
+		        throw new IllegalStateException("No tokenizer for:" + placeParts[0]);
+	        }
             places[i] = tokenizer.getPlace(parameterToken);
             if (tokenizer instanceof AutoTokenizer) {
                 //noinspection unchecked
