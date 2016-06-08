@@ -3,7 +3,7 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 
 group = 'com.googlecode.slotted'
-version = '0.6.3-SNAPSHOT'
+version = '0.6.3'
 
 sourceSets {
     main {
