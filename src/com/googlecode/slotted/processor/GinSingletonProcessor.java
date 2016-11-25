@@ -8,7 +8,6 @@ import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -24,9 +23,13 @@ import com.googlecode.slotted.client.GlobalSingleton;
 
 
 @SupportedAnnotationTypes({"com.googlecode.slotted.client.GenerateGinSingletons", "com.googlecode.slotted.client.GlobalSingleton", "javax.inject.Singleton", "com.google.inject.Singleton"})
-@SupportedSourceVersion(SourceVersion.RELEASE_7)
 public class GinSingletonProcessor extends AbstractProcessor {
     private int runCount = 0;
+
+	@Override
+	public SourceVersion getSupportedSourceVersion() {
+	    return SourceVersion.latest();
+	}
 
     @Override public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 
