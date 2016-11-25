@@ -346,6 +346,7 @@ abstract public class HistoryMapper {
             }
         }
 
+	    name = name.toLowerCase();
         nameToTokenizerMap.put(name, tokenizer);
         placeToNameMap.put(placeClass, name);
         if (placeActivitiesToCache != null && placeActivitiesToCache.length > 0) {
@@ -437,7 +438,8 @@ abstract public class HistoryMapper {
                 parameterToken = placeParts[1];
             }
 
-            PlaceTokenizer<? extends SlottedPlace> tokenizer = nameToTokenizerMap.get(placeParts[0]);
+	        String name = placeParts[0].toLowerCase();
+            PlaceTokenizer<? extends SlottedPlace> tokenizer = nameToTokenizerMap.get(name);
 	        if (tokenizer == null) {
 		        throw new IllegalStateException("No tokenizer for:" + placeParts[0]);
 	        }
