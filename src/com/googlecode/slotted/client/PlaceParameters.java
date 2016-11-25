@@ -198,10 +198,10 @@ public class PlaceParameters {
     }
 
     /**
-     * Creates an encoded url string with each key/value pair with an '=' and starting with and '&' and '?'
+     * Creates an encoded url string with each key/value pair with an '=' and starting with and '&amp;' and '?'
      * between each key/value.
      *
-     * @return Example: "&key1=foo&key2=Some+sentence+that+was+encoded."
+     * @return Example: "&amp;key1=foo&amp;key2=Some+sentence+that+was+encoded."
      */
     public String toString() {
         String string = "";

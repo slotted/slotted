@@ -29,7 +29,7 @@ public class LoadingEvent extends GwtEvent<LoadingEvent.Handler> {
      */
     public static interface Handler extends EventHandler {
         /**
-         * Called when a {@link SlottedActivity#setLoadingStarted()} is called or SlottedController attempts
+         * Called when a {@link SlottedActivity#setLoadingStarted(Object...)} is called or SlottedController attempts
          * and fails to load.  This can be called many times during one Activity loading.
          */
         void startLoading();

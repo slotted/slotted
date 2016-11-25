@@ -15,14 +15,14 @@
  */
 package com.googlecode.slotted.client;
 
+import java.util.Arrays;
+import java.util.HashSet;
+
 import com.google.gwt.activity.shared.AbstractActivity;
 import com.google.gwt.activity.shared.Activity;
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.web.bindery.event.shared.EventBus;
-
-import java.util.Arrays;
-import java.util.HashSet;
 
 /**
  * Implemented by other objects to control a portion of the UI, and the life cycle is controlled
@@ -49,7 +49,7 @@ abstract public class SlottedActivity extends AbstractActivity{
      * Called when the Activity should ready its widget for the user.
      *
      * There are three ways to handle display of Activity's widget.  The first is to set the
-     * activity's widget in the panel and call {@setLoadingStarted} which will activate Delayed Loading
+     * activity's widget in the panel and call {@link SlottedActivity#setLoadingStarted(Object...)} which will activate Delayed Loading
      * (https://code.google.com/p/slotted/wiki/DelayedLoading).  Second is to set the activity's widget
      * to display correctly while loading.  Third is to delay the setting the of the activity's widget
      * until it is complete, which will won't prevent the rest of the hierarchy from being displayed.

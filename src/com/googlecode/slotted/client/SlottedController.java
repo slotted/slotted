@@ -211,8 +211,8 @@ public class SlottedController {
     /**
      * Sets the GWT Activity and Places controller objects so that Slotted can run legacy code without changes.
      *
-     * @param legacyActivityMapper The A&P ActivityMapper that is used to create an Activity from a Place.
-     * @param legacyHistoryMapper The A&P HistoryMapper that will be used to parse the URL if Slotted have those places.
+     * @param legacyActivityMapper The A&amp;P ActivityMapper that is used to create an Activity from a Place.
+     * @param legacyHistoryMapper The A&amp;P HistoryMapper that will be used to parse the URL if Slotted have those places.
      * @param defaultPlace The Place to be navigated to in the URL token is blank.
      */
     public void setLegacyMappers(ActivityMapper legacyActivityMapper,
@@ -232,7 +232,7 @@ public class SlottedController {
      * {@link MappedSlottedPlace} when you don't want to use {@link SlottedPlace#getActivity()} or if you are dealing
      * legacy around the creation of Activities.
      *
-     * @param activityMapper The A&P ActivityMapper this will be used to create Activities.
+     * @param activityMapper The A&amp;P ActivityMapper this will be used to create Activities.
      */
     public void setActivityMapper(ActivityMapper activityMapper) {
         this.legacyActivityMapper = activityMapper;

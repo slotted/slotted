@@ -519,7 +519,7 @@ public class ActiveSlot {
     /**
      * Shows all the views in the hierarchy.  This is called after all the Slots have completed loading.
      *
-     * @throw IllegalStateException If any of the ActiveSlots are in a loading state.
+     * @throws IllegalStateException If any of the ActiveSlots are in a loading state.
      */
     public void showViews() {
         if (currentProtectedDisplay == null || currentProtectedDisplay.loading) {

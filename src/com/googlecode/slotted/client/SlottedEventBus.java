@@ -20,13 +20,6 @@
 */
 package com.googlecode.slotted.client;
 
-import com.google.web.bindery.event.shared.Event;
-import com.google.web.bindery.event.shared.Event.Type;
-import com.google.web.bindery.event.shared.EventBus;
-import com.google.web.bindery.event.shared.EventHelper;
-import com.google.web.bindery.event.shared.HandlerRegistration;
-import com.google.web.bindery.event.shared.UmbrellaException;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,12 +29,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.web.bindery.event.shared.Event;
+import com.google.web.bindery.event.shared.Event.Type;
+import com.google.web.bindery.event.shared.EventBus;
+import com.google.web.bindery.event.shared.EventHelper;
+import com.google.web.bindery.event.shared.HandlerRegistration;
+import com.google.web.bindery.event.shared.UmbrellaException;
+
 /**
  * Replacement for the GWT EventBus, which solves these problems:
- * <p><ul>
+ * <ul>
  * <li> Complete the processing of an Event before processing an Event fired during processing
  * <li> Allow handlers added during processing to handle Events fired during processing.
- * <ul><p>
+ * </ul>
  */
 public class SlottedEventBus extends EventBus {
     private interface Command {
